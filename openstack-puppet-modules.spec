@@ -1,34 +1,38 @@
- 
-%global glance_commit    850bca13c71e069dfca7dff3b633ca7f746ead61
-%global neutron_commit   b6b50a97e060261ce66817ba8255ae4d710e0009
-%global keystone_commit  6f54428601c673baba4e70049ecbc798bd9bad64
-%global nova_commit      84303ef81cd17ce62cc991e019eb86c4373baa62
-%global swift_commit     ee4a9d48599bce332d0d7bdf4f8c0bbb6d9c6f2e
-%global cinder_commit    fa28def3fb63d1ca29b4030d229afaa2c8d3b017
-%global horizon_commit   1dc40b2d4a8d27c5d0af6b7ad52efdc9b27d525d
-%global tempest_commit   93b691f7cbfa67599ee199bd79baf82243c17568
-%global openstack_commit a5f9a18c6819f39801bcee5f080e1ec27d30b718
-%global rsync_commit     357d51f3a6a22bc3da842736176c3510e507b4fb
-%global stdlib_commit    4d2558f383e18bbe322dd0feb073555491216ab4
-%global sysctl_commit    c4486acc2d66de857dbccd8b4b945ea803226705
-%global haproxy_commit   f381510e940ee11feb044c1c728ba2e5af807c79
-%global inifile_commit   fe9b0d5229ea37179a08c4b49239da9bc950acd1
-%global vcsrepo_commit   6f7507a2a48ff0a58c7db026760a2eb84e382a77
-%global xinetd_commit    fa8edb134b538b9a929f7e85e8bf9667f9acab8b
-%global apache_commit    fbab9a521dbd27a6cd77476327636003261d553c
-%global mysql_commit     8a4f8c76e662b008bb30ce723a8b30ef494b21a1
-%global vswitch_commit   6e6b9462695e383423462d1321b1c0865524a408
-%global qpid_commit      fa4ec7ddb17f7c6e5a4b3dd63f4fadbe6b61c30d
-%global vlan_commit      c937de75c28e63fba8d8738ad6a5f2ede517e53d
-%global ssh_commit       d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
-%global memcached_commit 49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
-%global firewall_commit  6106fb5404480ac7c883bddd503e0fc9f2698750
-%global concat_commit    031bf261289dcbb32e63b053ed5b3a82117698c0
+
+%global apache_commit      a2d8e839c4c9c1cdd9ea9f733658dc83aa23c765
+%global ceilometer_commit  a908469b2d46a9eef6795539a2d9a528fbf6da84
+%global cinder_commit      fa28def3fb63d1ca29b4030d229afaa2c8d3b017
+%global concat_commit      031bf261289dcbb32e63b053ed5b3a82117698c0
+%global firewall_commit    6106fb5404480ac7c883bddd503e0fc9f2698750
+%global glance_commit      850bca13c71e069dfca7dff3b633ca7f746ead61
+%global haproxy_commit     f381510e940ee11feb044c1c728ba2e5af807c79
+%global heat_commit        6d2dc044e12c4c687647cff8bc60c981d9ed5312
+%global horizon_commit     1dc40b2d4a8d27c5d0af6b7ad52efdc9b27d525d
+%global inifile_commit     fe9b0d5229ea37179a08c4b49239da9bc950acd1
+%global keystone_commit    6f54428601c673baba4e70049ecbc798bd9bad64
+%global memcached_commit   49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
+%global mongodb_commit     3a0574a4a664cfcff197829eb70976c4862db57a
+%global mysql_commit       83abc4556bbf6745708c08375649c9d71b6f66db
+%global neutron_commit     b6b50a97e060261ce66817ba8255ae4d710e0009
+%global nova_commit        84303ef81cd17ce62cc991e019eb86c4373baa62
+%global openstack_commit   a5f9a18c6819f39801bcee5f080e1ec27d30b718
+%global pacemaker_commit   4d20ef0734062f8b792dcad59ede824211bea278
+%global qpid_commit        fa4ec7ddb17f7c6e5a4b3dd63f4fadbe6b61c30d
+%global rsync_commit       357d51f3a6a22bc3da842736176c3510e507b4fb
+%global ssh_commit         d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
+%global stdlib_commit      4d2558f383e18bbe322dd0feb073555491216ab4
+%global swift_commit       ee4a9d48599bce332d0d7bdf4f8c0bbb6d9c6f2e
+%global sysctl_commit      c4486acc2d66de857dbccd8b4b945ea803226705
+%global tempest_commit     93b691f7cbfa67599ee199bd79baf82243c17568
+%global vcsrepo_commit     6f7507a2a48ff0a58c7db026760a2eb84e382a77
+%global vlan_commit        c937de75c28e63fba8d8738ad6a5f2ede517e53d
+%global vswitch_commit     06fd1ea9a7dbe5f5d236c5256b1de2db147e3bb2
+%global xinetd_commit      bba48fad94c6538384173e60900a17c6f7ef7ca3
 
 
 Name:           openstack-puppet-modules
 Version:        2013.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -59,6 +63,10 @@ Source21:       https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/puppet-s
 Source22:       https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/puppet-memcached-%{memcached_commit}.tar.gz
 Source23:       https://github.com/lstanden/puppetlabs-firewall/archive/%{firewall_commit}/puppetlabs-firewall-%{firewall_commit}.tar.gz
 Source24:       https://github.com/ripienaar/puppet-concat/archive/%{concat_commit}/puppet-concat-%{concat_commit}.tar.gz
+Source25:       https://github.com/packstack/puppet-ceilometer/archive/%{ceilometer_commit}/puppet-ceilometer-%{ceilometer_commit}.tar.gz
+Source26:       https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/puppetlabs-mongodb-%{mongodb_commit}.tar.gz
+Source27:       https://github.com/packstack/puppet-heat/archive/%{heat_commit}/puppet-heat-%{heat_commit}.tar.gz
+Source28:       https://github.com/radez/puppet-pacemaker/archive/%{pacemaker_commit}/puppet-pacemaker-%{pacemaker_commit}.tar.gz
 
 
 BuildArch:      noarch
@@ -94,6 +102,10 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 22
 %setup -c -q -T -D -a 23
 %setup -c -q -T -D -a 24
+%setup -c -q -T -D -a 25
+%setup -c -q -T -D -a 26
+%setup -c -q -T -D -a 27
+%setup -c -q -T -D -a 28
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -133,6 +145,10 @@ cp -r puppet-ssh-%{ssh_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules
 cp -r puppet-memcached-%{memcached_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
 cp -r puppetlabs-firewall-%{firewall_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/firewall
 cp -r puppetlabs-concat-%{concat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/concat
+cp -r puppet-ceilometer-%{ceilometer_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ceilometer
+cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
+cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
+cp -r puppet-pacemaker-%{pacemaker_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/pacemaker
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
@@ -141,6 +157,10 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Oct 25 2013 Martin Mágr <mmagr@redhat.com> - 2013.2-4
+- Added puppet-ceilometer, puppetlabs-mongodb, puppet-heat and puppet-pacemaker
+- Synchronized modules with current state in package packstack-modules-puppet
+
 * Sun Oct 20 2013 Ryan O'Hara <rohara@redhat.com> - 2013.2-3
 - Install modules to openstack-puppet directory.
 
