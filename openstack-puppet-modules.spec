@@ -1,23 +1,25 @@
 
 %global apache_commit      a2d8e839c4c9c1cdd9ea9f733658dc83aa23c765
 %global ceilometer_commit  a908469b2d46a9eef6795539a2d9a528fbf6da84
-%global cinder_commit      fa28def3fb63d1ca29b4030d229afaa2c8d3b017
+%global certmonger_commit  8a1dc65c3f59eed2f9bc852cc0563fb2a09f5fdd
+%global cinder_commit      9bd451830d124703ab4b50dcab10e0a697c85ad6
 %global concat_commit      031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit    6106fb5404480ac7c883bddd503e0fc9f2698750
-%global glance_commit      850bca13c71e069dfca7dff3b633ca7f746ead61
+%global glance_commit      a79c1916813087f720946d0e153d9558d9f0a828
 %global haproxy_commit     f381510e940ee11feb044c1c728ba2e5af807c79
 %global heat_commit        6d2dc044e12c4c687647cff8bc60c981d9ed5312
-%global horizon_commit     1dc40b2d4a8d27c5d0af6b7ad52efdc9b27d525d
+%global horizon_commit     632af6f8f0b5de9218b7ce7503d66954c493928d
 %global inifile_commit     fe9b0d5229ea37179a08c4b49239da9bc950acd1
-%global keystone_commit    6f54428601c673baba4e70049ecbc798bd9bad64
+%global keystone_commit    bb67ef3e0a7c605cee97f9a8ccd13000290f9b39
 %global memcached_commit   49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global mongodb_commit     3a0574a4a664cfcff197829eb70976c4862db57a
 %global mysql_commit       83abc4556bbf6745708c08375649c9d71b6f66db
-%global neutron_commit     b6b50a97e060261ce66817ba8255ae4d710e0009
-%global nova_commit        84303ef81cd17ce62cc991e019eb86c4373baa62
-%global openstack_commit   a5f9a18c6819f39801bcee5f080e1ec27d30b718
+%global neutron_commit     d6b77ea751f0e72885b8ee7c3acdd17e0826478e
+%global nova_commit        a3cadd09e70f560b78d2dbd20a4ca6c187fe1531
+%global nssdb_commit       b3799a9a7c62c3b5b7968f9860220a885b45fb8a
+%global openstack_commit   050fa67b230b320e096c3a66420f692cd1adf69b
 %global pacemaker_commit   4d20ef0734062f8b792dcad59ede824211bea278
-%global qpid_commit        fa4ec7ddb17f7c6e5a4b3dd63f4fadbe6b61c30d
+%global qpid_commit        587b0b51e807ce787410133da0fe27ee466a4a72
 %global rsync_commit       357d51f3a6a22bc3da842736176c3510e507b4fb
 %global ssh_commit         d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
 %global stdlib_commit      4d2558f383e18bbe322dd0feb073555491216ab4
@@ -32,7 +34,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2013.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -67,6 +69,8 @@ Source25:       https://github.com/packstack/puppet-ceilometer/archive/%{ceilome
 Source26:       https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/puppetlabs-mongodb-%{mongodb_commit}.tar.gz
 Source27:       https://github.com/packstack/puppet-heat/archive/%{heat_commit}/puppet-heat-%{heat_commit}.tar.gz
 Source28:       https://github.com/radez/puppet-pacemaker/archive/%{pacemaker_commit}/puppet-pacemaker-%{pacemaker_commit}.tar.gz
+Source29:       https://github.com/rcritten/puppet-certmonger/archive/%{certmonger_commit}/puppet-certmonger-%{certmonger_commit}.tar.gz
+Source30:       https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/puppet-nssdb-%{nssdb_commit}.tar.gz
 
 
 BuildArch:      noarch
@@ -106,6 +110,8 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 26
 %setup -c -q -T -D -a 27
 %setup -c -q -T -D -a 28
+%setup -c -q -T -D -a 29
+%setup -c -q -T -D -a 30
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -149,6 +155,8 @@ cp -r puppet-ceilometer-%{ceilometer_commit} %{buildroot}/%{_datadir}/openstack-
 cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
 cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r puppet-pacemaker-%{pacemaker_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/pacemaker
+cp -r puppet-certmonger-%{certmonger_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/certmonger
+cp -r puppet-nssdb-%{nssdb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/nssdb
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
@@ -157,6 +165,10 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2012.2-5
+- Added puppet-certmonger and puppet-nssdb
+- Synchronized modules with current state in package packstack-modules-puppet
+
 * Fri Oct 25 2013 Martin Mágr <mmagr@redhat.com> - 2013.2-4
 - Added puppet-ceilometer, puppetlabs-mongodb, puppet-heat and puppet-pacemaker
 - Synchronized modules with current state in package packstack-modules-puppet
