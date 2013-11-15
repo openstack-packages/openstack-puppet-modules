@@ -31,3 +31,13 @@
 /puppetlabs-mysql-83abc4556bbf6745708c08375649c9d71b6f66db.tar.gz
 /puppetlabs-xinetd-bba48fad94c6538384173e60900a17c6f7ef7ca3.tar.gz
 /puppet-vswitch-06fd1ea9a7dbe5f5d236c5256b1de2db147e3bb2.tar.gz
+/puppet-certmonger-8a1dc65c3f59eed2f9bc852cc0563fb2a09f5fdd.tar.gz
+/puppet-cinder-9bd451830d124703ab4b50dcab10e0a697c85ad6.tar.gz
+/puppet-glance-a79c1916813087f720946d0e153d9558d9f0a828.tar.gz
+/puppet-horizon-632af6f8f0b5de9218b7ce7503d66954c493928d.tar.gz
+/puppet-keystone-bb67ef3e0a7c605cee97f9a8ccd13000290f9b39.tar.gz
+/puppet-neutron-d6b77ea751f0e72885b8ee7c3acdd17e0826478e.tar.gz
+/puppet-nova-a3cadd09e70f560b78d2dbd20a4ca6c187fe1531.tar.gz
+/puppet-nssdb-b3799a9a7c62c3b5b7968f9860220a885b45fb8a.tar.gz
+/puppet-openstack-050fa67b230b320e096c3a66420f692cd1adf69b.tar.gz
+/puppet-qpid-587b0b51e807ce787410133da0fe27ee466a4a72.tar.gz
