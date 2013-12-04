@@ -1,11 +1,11 @@
 
 %global apache_commit      a2d8e839c4c9c1cdd9ea9f733658dc83aa23c765
-%global ceilometer_commit  a908469b2d46a9eef6795539a2d9a528fbf6da84
-%global certmonger_commit  8a1dc65c3f59eed2f9bc852cc0563fb2a09f5fdd
+%global ceilometer_commit  0fb3b8f693ba4cc24bdcfb1f61de843343a13e75
+%global certmonger_commit  5fbf10fbbff4aed4db30e839c63c99b195e8425a
 %global cinder_commit      9bd451830d124703ab4b50dcab10e0a697c85ad6
 %global concat_commit      031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit    6106fb5404480ac7c883bddd503e0fc9f2698750
-%global glance_commit      a79c1916813087f720946d0e153d9558d9f0a828
+%global glance_commit      5557c224f37c22b058c951d7494448981cb484a2
 %global haproxy_commit     f381510e940ee11feb044c1c728ba2e5af807c79
 %global heat_commit        6d2dc044e12c4c687647cff8bc60c981d9ed5312
 %global horizon_commit     632af6f8f0b5de9218b7ce7503d66954c493928d
@@ -34,7 +34,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2013.2
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -165,6 +165,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2012.2-6
+- Synchronized modules with current state in package packstack-modules-puppet
+
 * Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2012.2-5
 - Added puppet-certmonger and puppet-nssdb
 - Synchronized modules with current state in package packstack-modules-puppet
