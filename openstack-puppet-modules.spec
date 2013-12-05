@@ -2,10 +2,11 @@
 %global apache_commit      a2d8e839c4c9c1cdd9ea9f733658dc83aa23c765
 %global ceilometer_commit  0fb3b8f693ba4cc24bdcfb1f61de843343a13e75
 %global certmonger_commit  5fbf10fbbff4aed4db30e839c63c99b195e8425a
-%global cinder_commit      9bd451830d124703ab4b50dcab10e0a697c85ad6
+%global cinder_commit      5da2beb74d7dc73b4f050f5fb474c473688d206f
 %global concat_commit      031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit    6106fb5404480ac7c883bddd503e0fc9f2698750
 %global glance_commit      5557c224f37c22b058c951d7494448981cb484a2
+%global gluster_commit     4b60e1f848d18b72c1ba959e1b2dd8708a30f605
 %global haproxy_commit     f381510e940ee11feb044c1c728ba2e5af807c79
 %global heat_commit        6d2dc044e12c4c687647cff8bc60c981d9ed5312
 %global horizon_commit     632af6f8f0b5de9218b7ce7503d66954c493928d
@@ -14,11 +15,11 @@
 %global memcached_commit   49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global mongodb_commit     3a0574a4a664cfcff197829eb70976c4862db57a
 %global mysql_commit       83abc4556bbf6745708c08375649c9d71b6f66db
-%global neutron_commit     d6b77ea751f0e72885b8ee7c3acdd17e0826478e
+%global neutron_commit     3c3d3d52ae0d1a655c7f1b09158ad7c924f80279
 %global nova_commit        a3cadd09e70f560b78d2dbd20a4ca6c187fe1531
 %global nssdb_commit       b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit   050fa67b230b320e096c3a66420f692cd1adf69b
-%global pacemaker_commit   4d20ef0734062f8b792dcad59ede824211bea278
+%global pacemaker_commit   0b16aea22c8a03ddadf42837bcf0990355f961ff
 %global qpid_commit        587b0b51e807ce787410133da0fe27ee466a4a72
 %global rsync_commit       357d51f3a6a22bc3da842736176c3510e507b4fb
 %global ssh_commit         d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
@@ -34,7 +35,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2013.2
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -71,6 +72,7 @@ Source27:       https://github.com/packstack/puppet-heat/archive/%{heat_commit}/
 Source28:       https://github.com/radez/puppet-pacemaker/archive/%{pacemaker_commit}/puppet-pacemaker-%{pacemaker_commit}.tar.gz
 Source29:       https://github.com/rcritten/puppet-certmonger/archive/%{certmonger_commit}/puppet-certmonger-%{certmonger_commit}.tar.gz
 Source30:       https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/puppet-nssdb-%{nssdb_commit}.tar.gz
+Source31:       https://github.com/redhat-openstack/puppet-openstack-storage/archive/%{gluster_commit}/puppet-openstack-storage-%{gluster_commit}.tar.gz
 
 
 BuildArch:      noarch
@@ -112,6 +114,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 28
 %setup -c -q -T -D -a 29
 %setup -c -q -T -D -a 30
+%setup -c -q -T -D -a 31
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -157,6 +160,7 @@ cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modul
 cp -r puppet-pacemaker-%{pacemaker_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/pacemaker
 cp -r puppet-certmonger-%{certmonger_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/certmonger
 cp -r puppet-nssdb-%{nssdb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/nssdb
+cp -r puppet-openstack-storage-%{gluster_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/gluster
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
@@ -165,10 +169,14 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
-* Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2012.2-6
+* Thu Dec 05 2013 Ben Nemec <bnemec@redhat.com> - 2013.2-7
+- Added puppet-openstack-storage
 - Synchronized modules with current state in package packstack-modules-puppet
 
-* Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2012.2-5
+* Wed Dec 04 2013 Ben Nemec <bnemec@redhat.com> - 2013.2-6
+- Synchronized modules with current state in package packstack-modules-puppet
+
+* Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2013.2-5
 - Added puppet-certmonger and puppet-nssdb
 - Synchronized modules with current state in package packstack-modules-puppet
 

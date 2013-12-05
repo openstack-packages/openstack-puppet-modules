@@ -44,3 +44,7 @@
 /puppet-ceilometer-0fb3b8f693ba4cc24bdcfb1f61de843343a13e75.tar.gz
 /puppet-certmonger-5fbf10fbbff4aed4db30e839c63c99b195e8425a.tar.gz
 /puppet-glance-5557c224f37c22b058c951d7494448981cb484a2.tar.gz
+/puppet-cinder-5da2beb74d7dc73b4f050f5fb474c473688d206f.tar.gz
+/puppet-neutron-3c3d3d52ae0d1a655c7f1b09158ad7c924f80279.tar.gz
+/puppet-openstack-storage-4b60e1f848d18b72c1ba959e1b2dd8708a30f605.tar.gz
+/puppet-pacemaker-0b16aea22c8a03ddadf42837bcf0990355f961ff.tar.gz
