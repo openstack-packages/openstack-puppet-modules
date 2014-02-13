@@ -74,7 +74,6 @@ Source29:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vla
 Source30:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
 Source31:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
-
 BuildArch:      noarch
 
 
@@ -112,6 +111,9 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 26
 %setup -c -q -T -D -a 27
 %setup -c -q -T -D -a 28
+%setup -c -q -T -D -a 29
+%setup -c -q -T -D -a 30
+%setup -c -q -T -D -a 31
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -158,7 +160,6 @@ cp -r puppetlabs-vcsrepo-%{vcsrepo_commit} %{buildroot}/%{_datadir}/openstack-pu
 cp -r puppet-vlan-%{vlan_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vlan
 cp -r puppet-vswitch-%{vswitch_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vswitch
 cp -r puppetlabs-xinetd-%{xinetd_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/xinetd
-
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
@@ -167,9 +168,21 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+
 * Wed Feb 12 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-1
 - Synchronized modules with current master branch of Packstack
   and openstack-puppet-modules-repo (https://github.com/redhat-openstack/openstack-puppet-modules)
+
+* Thu Dec 05 2013 Ben Nemec <bnemec@redhat.com> - 2013.2-7
+- Added puppet-openstack-storage
+- Synchronized modules with current state in package packstack-modules-puppet
+
+* Wed Dec 04 2013 Ben Nemec <bnemec@redhat.com> - 2013.2-6
+- Synchronized modules with current state in package packstack-modules-puppet
+
+* Fri Nov 15 2013 Ben Nemec <bnemec@redhat.com> - 2013.2-5
+- Added puppet-certmonger and puppet-nssdb
+- Synchronized modules with current state in package packstack-modules-puppet
 
 * Fri Oct 25 2013 Martin Mágr <mmagr@redhat.com> - 2013.2-4
 - Added puppet-ceilometer, puppetlabs-mongodb, puppet-heat and puppet-pacemaker
