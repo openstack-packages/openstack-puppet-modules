@@ -30,3 +30,10 @@
 /vlan-c937de75c28e63fba8d8738ad6a5f2ede517e53d.tar.gz
 /vswitch-b642b844db6d7df1ced6f11abd641a0982e06363.tar.gz
 /xinetd-bba48fad94c6538384173e60900a17c6f7ef7ca3.tar.gz
+/cinder-164163a7a267ae4139e2d97bab1a385a6da2ac5f.tar.gz
+/keystone-688ff4379ed7437747ff8fdcd464096e24b4ebc6.tar.gz
+/nova-6c8a4bd5e1d67cce4c6e316c2ba43ed5a4dd4e59.tar.gz
+/puppet-staging-887275d8fb20e148c6f9eb327f1f6c8ea5ee280f.tar.gz
+/rabbitmq-015bd788ccb495051a2db48e344a3a6aa3381076.tar.gz
+/swift-8a7c88d8ac3d795f6c2bc65918256995e3a6e603.tar.gz
+/puppet-ceilometer-91045b3be907b074cb1e0165b269d439aee43a26.tar.gz
