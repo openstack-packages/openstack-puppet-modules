@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -78,6 +78,7 @@ Source31:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vla
 Source32:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
 Source33:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
+Patch0:     compute_driver.patch
 
 BuildArch:      noarch
 
@@ -121,6 +122,10 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 31
 %setup -c -q -T -D -a 32
 %setup -c -q -T -D -a 33
+
+# puppet-nova patches
+cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
+%patch0 -p1
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -177,6 +182,8 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon Mar 17 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-3
+- Added compute_driver.patch (rhbz#1044606)
 
 * Tue Mar 11 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-2
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules

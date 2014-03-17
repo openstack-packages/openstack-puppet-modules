@@ -1,0 +1,13 @@
+diff --git a/manifests/compute/libvirt.pp b/manifests/compute/libvirt.pp
+index 4b6b57a..d3659bf 100644
+--- a/manifests/compute/libvirt.pp
++++ b/manifests/compute/libvirt.pp
+@@ -48,7 +48,7 @@ class nova::compute::libvirt (
+   }
+ 
+   nova_config {
+-    'DEFAULT/compute_driver':   value => 'libvirt.LibvirtDriver';
++    'DEFAULT/compute_driver':   value => 'nova.virt.libvirt.LibvirtDriver';
+     'DEFAULT/libvirt_type':     value => $libvirt_type;
+     'DEFAULT/connection_type':  value => 'libvirt';
+     'DEFAULT/vncserver_listen': value => $vncserver_listen;
