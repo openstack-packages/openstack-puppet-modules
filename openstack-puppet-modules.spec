@@ -19,14 +19,14 @@
 %global nova_commit		    6c8a4bd5e1d67cce4c6e316c2ba43ed5a4dd4e59
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit	0b16aea22c8a03ddadf42837bcf0990355f961ff
-%global qpid_commit		    cb00785bf07041323559542b05d7a8b902de42fb
+%global pacemaker_commit	781499494dc3a5e5d00c84c273201bebaff9f2bf
+%global qpid_commit		    953028ba9abdf563bd95970ccf890237711072fb
 %global rabbitmq_commit		015bd788ccb495051a2db48e344a3a6aa3381076
 %global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
 %global ssh_commit		    d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
 %global staging_commit		887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
 %global stdlib_commit		4d2558f383e18bbe322dd0feb073555491216ab4
-%global swift_commit		8a7c88d8ac3d795f6c2bc65918256995e3a6e603
+%global swift_commit		e9b69499c943bfbb16c895611ebd4e90c16b377c
 %global sysctl_commit		c4486acc2d66de857dbccd8b4b945ea803226705
 %global tempest_commit		44e258746cb0cf9a53f37122d510474aed39201e
 %global vcsrepo_commit		6f7507a2a48ff0a58c7db026760a2eb84e382a77
@@ -78,7 +78,9 @@ Source31:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vla
 Source32:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
 Source33:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
-Patch0:     compute_driver.patch
+Patch0:     mariadb.patch
+Patch1:     apache24.patch
+Patch2:     compute_driver.patch
 
 BuildArch:      noarch
 
@@ -123,9 +125,17 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 32
 %setup -c -q -T -D -a 33
 
+# puppetlabs-apache patches
+cd %{_builddir}/%{name}-%{version}/puppetlabs-apache-%{apache_commit}
+%patch1 -p1
+
+# puppetlabs-mysql patches
+cd %{_builddir}/%{name}-%{version}/puppetlabs-mysql-%{mysql_commit}
+%patch0 -p1
+
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
-%patch0 -p1
+%patch2 -p1
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -182,6 +192,12 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Mar 21 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-5
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+
+* Thu Mar 20 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-4
+- Added mariadb.patch, apache24.patch
+
 * Mon Mar 17 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-3
 - Added compute_driver.patch (rhbz#1044606)
 
