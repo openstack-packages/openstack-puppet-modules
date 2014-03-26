@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        5.2%{?dist}
+Release:        5.3%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -84,6 +84,7 @@ Patch2:     compute_driver.patch
 Patch3:     glance.patch
 Patch4:     heat.patch
 Patch5:     neutron.patch
+Patch6:     openstack.patch
 
 BuildArch:      noarch
 
@@ -152,7 +153,9 @@ cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 %patch5 -p1
 
-
+# puppet-openstack patches
+cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
+%patch6 -p1
 
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
@@ -210,6 +213,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Mar 26 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.3
+- Added openstack.patch
+
 * Wed Mar 26 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.2
 - Added heat.patch and neutron.patch
 

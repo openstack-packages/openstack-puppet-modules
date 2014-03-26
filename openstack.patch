@@ -1,0 +1,13 @@
+diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
+index 7a65607..86043da 100644
+--- a/manifests/db/mysql.pp
++++ b/manifests/db/mysql.pp
+@@ -94,7 +94,7 @@ class openstack::db::mysql (
+     $ceilometer_db_dbname   = 'ceilometer',
+     # General
+     $allowed_hosts          = false,
+-    $charset                = 'latin1',
++    $charset                = 'utf8',
+     $enabled                = true
+ ) {
+ 
