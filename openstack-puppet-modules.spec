@@ -211,7 +211,7 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 %changelog
 * Wed Mar 26 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.2
-- Added glance.patch
+- Added heat.patch and neutron.patch
 
 * Mon Mar 24 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-5.1
 - Added glance.patch
