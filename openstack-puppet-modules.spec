@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        5.1%{?dist}
+Release:        5.2%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -82,6 +82,8 @@ Patch0:     mariadb.patch
 Patch1:     apache24.patch
 Patch2:     compute_driver.patch
 Patch3:     glance.patch
+Patch4:     heat.patch
+Patch5:     neutron.patch
 
 BuildArch:      noarch
 
@@ -142,6 +144,17 @@ cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-glance-%{glance_commit}
 %patch3 -p1
 
+# puppet-heat patches
+cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
+%patch4 -p1
+
+# puppet-neutron patches
+cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
+%patch5 -p1
+
+
+
+
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
 find %{_builddir} \( -name "*.pl" -o -name "*.sh"  \) -exec chmod +x {} +
@@ -197,6 +210,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Mar 26 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.2
+- Added glance.patch
+
 * Mon Mar 24 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-5.1
 - Added glance.patch
 

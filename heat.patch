@@ -1,0 +1,13 @@
+diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
+index 8441e60..e4417b0 100644
+--- a/manifests/db/mysql.pp
++++ b/manifests/db/mysql.pp
+@@ -29,7 +29,7 @@ class heat::db::mysql(
+   $user          = 'heat',
+   $host          = 'localhost',
+   $allowed_hosts = undef,
+-  $charset       = 'latin1'
++  $charset       = 'utf8'
+ ) {
+ 
+   validate_string($password)

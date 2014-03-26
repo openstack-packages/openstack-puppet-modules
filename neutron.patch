@@ -1,0 +1,13 @@
+diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
+index 82273ae..e2130f0 100644
+--- a/manifests/db/mysql.pp
++++ b/manifests/db/mysql.pp
+@@ -5,7 +5,7 @@ class neutron::db::mysql (
+   $user          = 'neutron',
+   $host          = '127.0.0.1',
+   $allowed_hosts = undef,
+-  $charset       = 'latin1',
++  $charset       = 'utf8',
+   $cluster_id    = 'localzone'
+ ) {
+ 
