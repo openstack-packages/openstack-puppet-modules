@@ -11,3 +11,16 @@ index c190912..e1a2651 100644
    $cluster_id    = 'localzone'
  ) {
  
+diff --git a/spec/classes/glance_db_mysql_spec.rb b/spec/classes/glance_db_mysql_spec.rb
+index ace9fcc..bcb87d9 100644
+--- a/spec/classes/glance_db_mysql_spec.rb
++++ b/spec/classes/glance_db_mysql_spec.rb
+@@ -23,7 +23,7 @@ describe 'glance::db::mysql' do
+     it { should contain_mysql__db('glance').with(
+       :password => 'glancepass1',
+       :require  => 'Class[Mysql::Config]',
+-      :charset  => 'latin1'
++      :charset  => 'utf8'
+     )}
+ 
+   end

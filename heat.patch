@@ -1,7 +1,16 @@
 diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
-index 8441e60..e4417b0 100644
+index 8441e60..2e35e43 100644
 --- a/manifests/db/mysql.pp
 +++ b/manifests/db/mysql.pp
+@@ -21,7 +21,7 @@
+ #    Optional. Defaults to undef.
+ #
+ #  [*charset*]
+-#    the database charset. Optional. Defaults to 'latin1'
++#    the database charset. Optional. Defaults to 'utf8'
+ #
+ class heat::db::mysql(
+   $password      = false,
 @@ -29,7 +29,7 @@ class heat::db::mysql(
    $user          = 'heat',
    $host          = 'localhost',
@@ -11,3 +20,16 @@ index 8441e60..e4417b0 100644
  ) {
  
    validate_string($password)
+diff --git a/spec/classes/heat_db_mysql_spec.rb b/spec/classes/heat_db_mysql_spec.rb
+index ae53a31..f4141be 100644
+--- a/spec/classes/heat_db_mysql_spec.rb
++++ b/spec/classes/heat_db_mysql_spec.rb
+@@ -14,7 +14,7 @@ describe 'heat::db::mysql' do
+       :dbname    => 'heat',
+       :user      => 'heat',
+       :host      => 'localhost',
+-      :charset   => 'latin1'
++      :charset   => 'utf8'
+     }
+   end
+ 

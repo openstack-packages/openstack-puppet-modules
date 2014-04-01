@@ -1,0 +1,26 @@
+diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
+index 3cc850c..8654307 100644
+--- a/manifests/db/mysql.pp
++++ b/manifests/db/mysql.pp
+@@ -5,7 +5,7 @@ class cinder::db::mysql (
+   $user          = 'cinder',
+   $host          = '127.0.0.1',
+   $allowed_hosts = undef,
+-  $charset       = 'latin1',
++  $charset       = 'utf8',
+   $cluster_id    = 'localzone'
+ ) {
+ 
+diff --git a/spec/classes/cinder_db_mysql_spec.rb b/spec/classes/cinder_db_mysql_spec.rb
+index a35b16c..9227986 100644
+--- a/spec/classes/cinder_db_mysql_spec.rb
++++ b/spec/classes/cinder_db_mysql_spec.rb
+@@ -22,7 +22,7 @@ describe 'cinder::db::mysql' do
+       :user         => 'cinder',
+       :password     => 'pw',
+       :host         => '127.0.0.1',
+-      :charset      => 'latin1'
++      :charset      => 'utf8'
+      ) }
+   end
+   describe "overriding allowed_hosts param to array" do

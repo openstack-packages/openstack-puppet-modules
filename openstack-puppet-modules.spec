@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        5.3%{?dist}
+Release:        5.4%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -85,6 +85,9 @@ Patch3:     glance.patch
 Patch4:     heat.patch
 Patch5:     neutron.patch
 Patch6:     openstack.patch
+Patch7:     cinder.patch
+Patch8:     keystone.patch
+Patch9:     nova.patch
 
 BuildArch:      noarch
 
@@ -157,6 +160,17 @@ cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
 %patch6 -p1
 
+# puppet-cinder patches
+cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
+%patch7 -p1
+
+# puppet-keystone patches
+cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
+%patch8 -p1
+
+# puppet-nova patches
+cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
+%patch9 -p1
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -213,6 +227,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon Mar 31 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.4
+- Added cinder.patch, nova.patch and keystone.patch utf8 charset patches
+
 * Wed Mar 26 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.3
 - Added openstack.patch
 

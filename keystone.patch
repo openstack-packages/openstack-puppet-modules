@@ -1,0 +1,26 @@
+diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
+index 7294c89..a965a96 100644
+--- a/manifests/db/mysql.pp
++++ b/manifests/db/mysql.pp
+@@ -35,7 +35,7 @@ class keystone::db::mysql(
+   $dbname        = 'keystone',
+   $user          = 'keystone',
+   $host          = '127.0.0.1',
+-  $charset       = 'latin1',
++  $charset       = 'utf8',
+   $allowed_hosts = undef
+ ) {
+ 
+diff --git a/spec/classes/keystone_db_mysql_spec.rb b/spec/classes/keystone_db_mysql_spec.rb
+index 6422f3f..585b54c 100644
+--- a/spec/classes/keystone_db_mysql_spec.rb
++++ b/spec/classes/keystone_db_mysql_spec.rb
+@@ -15,7 +15,7 @@ describe 'keystone::db::mysql' do
+       'password'      => 'keystone_default_password',
+       'dbname'        => 'keystone',
+       'user'          => 'keystone',
+-      'charset'       => 'latin1',
++      'charset'       => 'utf8',
+       'host'          => '127.0.0.1',
+       'allowed_hosts' => ['127.0.0.%', '192.168.1.%']
+     }

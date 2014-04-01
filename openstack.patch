@@ -1,7 +1,29 @@
+diff --git a/manifests/all.pp b/manifests/all.pp
+index 8ce58b1..acbe1cb 100644
+--- a/manifests/all.pp
++++ b/manifests/all.pp
+@@ -133,7 +133,7 @@ class openstack::all (
+   $mysql_account_security  = true,
+   $mysql_bind_address      = '0.0.0.0',
+   $allowed_hosts           = '%',
+-  $charset                 = 'latin1',
++  $charset                 = 'utf8',
+   # Keystone
+   $keystone_host           = '127.0.0.1',
+   $keystone_db_user        = 'keystone',
 diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
-index 7a65607..86043da 100644
+index 7a65607..4f212f7 100644
 --- a/manifests/db/mysql.pp
 +++ b/manifests/db/mysql.pp
+@@ -35,7 +35,7 @@
+ # [ceilometer_db_user]. Name of ceilometer DB user. Optional. Defaults to 'ceilometer'.
+ # [ceilometer_db_dbname]. Name of ceilometer DB. Optional. Defaults to 'ceilometer'.
+ # [allowed_hosts] List of hosts that are allowed access. Optional. Defaults to false.
+-# [charset] Name of mysql charset. Optional. Defaults to 'latin1'.
++# [charset] Name of mysql charset. Optional. Defaults to 'utf8'.
+ # [enabled] If the db service should be started. Optional. Defaults to true.
+ #
+ # === Example
 @@ -94,7 +94,7 @@ class openstack::db::mysql (
      $ceilometer_db_dbname   = 'ceilometer',
      # General
@@ -11,3 +33,16 @@ index 7a65607..86043da 100644
      $enabled                = true
  ) {
  
+diff --git a/spec/classes/openstack_all_spec.rb b/spec/classes/openstack_all_spec.rb
+index 3890546..0b206e3 100644
+--- a/spec/classes/openstack_all_spec.rb
++++ b/spec/classes/openstack_all_spec.rb
+@@ -295,7 +295,7 @@ describe 'openstack::all' do
+ 
+     it 'should have openstack::db::mysql configured' do
+       should contain_class('openstack::db::mysql').with(
+-        :charset                => 'latin1',
++        :charset                => 'utf8',
+         :mysql_root_password    => 'sql_pass',
+         :mysql_bind_address     => '0.0.0.0',
+         :mysql_account_security => true,
