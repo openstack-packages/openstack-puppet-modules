@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        5.4%{?dist}
+Release:        5.5%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -88,6 +88,10 @@ Patch6:     openstack.patch
 Patch7:     cinder.patch
 Patch8:     keystone.patch
 Patch9:     nova.patch
+Patch10:    0001-Fix-network_vlan_ranges-parameter-for-OVS-plugin.patch
+Patch11:    0002-Change-dhcp_lease_duration-to-Havana-default-of-8640.patch
+Patch12:    0003-Do-not-create-symblic-link-for-cisco-plugin.patch
+Patch13:    puppet-neutron-vlan_ranges.patch
 
 BuildArch:      noarch
 
@@ -155,6 +159,10 @@ cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
 # puppet-neutron patches
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 %patch5 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
@@ -227,6 +235,11 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Apr 2 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-5.5
+- Added 0001-Fix-network_vlan_ranges-parameter-for-OVS-plugin.patch (rhbz#1066549)
+- Added 0002-Change-dhcp_lease_duration-to-Havana-default-of-8640.patch (rhbz#1082505)
+- Added 0003-Do-not-create-symblic-link-for-cisco-plugin.patch (rhbz#1080442)
+
 * Mon Mar 31 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.4
 - Added cinder.patch, nova.patch and keystone.patch utf8 charset patches
 

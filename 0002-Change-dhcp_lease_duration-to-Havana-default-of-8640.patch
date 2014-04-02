@@ -1,0 +1,57 @@
+From ce310786521f095913fc093ff1ad5e8e2d54dd65 Mon Sep 17 00:00:00 2001
+From: Maish Saidel-Keesing <maishsk@gmail.com>
+Date: Mon, 24 Mar 2014 20:22:24 +0000
+Subject: [PATCH 2/3] Change dhcp_lease_duration to Havana default of 86400
+
+In Havana - the default lease time was upped to 86400 - 1 day - this should be changed back to the correct default in the puppet module as well.
+http://docs.openstack.org/havana/config-reference/content/section_networking-options-reference.html
+
+(cherry picked from commit 1235d8f7001e060d0d52d4cdf1512a894b35da2c)
+
+Conflicts:
+	spec/classes/neutron_init_spec.rb
+
+Change-Id: Ifd75f024186a9100f8aeb78415b4b5c8482913e2
+---
+ manifests/init.pp                 | 4 ++--
+ spec/classes/neutron_init_spec.rb | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/manifests/init.pp b/manifests/init.pp
+index 84cc649..b0c37d8 100644
+--- a/manifests/init.pp
++++ b/manifests/init.pp
+@@ -67,7 +67,7 @@
+ #
+ # [*dhcp_lease_duration*]
+ #   (optional) DHCP lease
+-#   Defaults to 120 seconds
++#   Defaults to 86400 seconds
+ #
+ # [*dhcp_agents_per_network*]
+ #   (optional) Number of DHCP agents scheduled to host a network.
+@@ -137,7 +137,7 @@ class neutron (
+   $auth_strategy               = 'keystone',
+   $base_mac                    = 'fa:16:3e:00:00:00',
+   $mac_generation_retries      = 16,
+-  $dhcp_lease_duration         = 120,
++  $dhcp_lease_duration         = 86400,
+   $dhcp_agents_per_network     = 1,
+   $allow_bulk                  = true,
+   $allow_overlapping_ips       = false,
+diff --git a/spec/classes/neutron_init_spec.rb b/spec/classes/neutron_init_spec.rb
+index b7630eb..821d3a6 100644
+--- a/spec/classes/neutron_init_spec.rb
++++ b/spec/classes/neutron_init_spec.rb
+@@ -92,7 +92,7 @@ describe 'neutron' do
+       should contain_neutron_config('DEFAULT/core_plugin').with_value( params[:core_plugin] )
+       should contain_neutron_config('DEFAULT/base_mac').with_value('fa:16:3e:00:00:00')
+       should contain_neutron_config('DEFAULT/mac_generation_retries').with_value(16)
+-      should contain_neutron_config('DEFAULT/dhcp_lease_duration').with_value(120)
++      should contain_neutron_config('DEFAULT/dhcp_lease_duration').with_value(86400)
+       should contain_neutron_config('DEFAULT/allow_bulk').with_value(true)
+       should contain_neutron_config('DEFAULT/allow_overlapping_ips').with_value(false)
+       should contain_neutron_config('DEFAULT/control_exchange').with_value('neutron')
+-- 
+1.8.5.3
+
