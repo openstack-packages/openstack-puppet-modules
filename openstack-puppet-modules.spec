@@ -19,7 +19,7 @@
 %global nova_commit		    6c8a4bd5e1d67cce4c6e316c2ba43ed5a4dd4e59
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit	781499494dc3a5e5d00c84c273201bebaff9f2bf
+%global pacemaker_commit	dd832b77b2c90d5ad08319483e2bd471373bc375
 %global qpid_commit		    953028ba9abdf563bd95970ccf890237711072fb
 %global rabbitmq_commit		015bd788ccb495051a2db48e344a3a6aa3381076
 %global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        5.5%{?dist}
+Release:        5.6%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -235,6 +235,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Apr 4 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.6
+- Synchronized pacemaker module with current master branch of redhat-openstack/openstack-puppet-modules
+ 
 * Wed Apr 2 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-5.5
 - Added 0001-Fix-network_vlan_ranges-parameter-for-OVS-plugin.patch (rhbz#1066549)
 - Added 0002-Change-dhcp_lease_duration-to-Havana-default-of-8640.patch (rhbz#1082505)
