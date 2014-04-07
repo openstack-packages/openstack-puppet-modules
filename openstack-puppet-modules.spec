@@ -6,16 +6,16 @@
 %global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit		56fa4a46f4481dd5ac7d619b43b96d683ee4ac82
 %global glance_commit		5557c224f37c22b058c951d7494448981cb484a2
-%global gluster_commit		4b60e1f848d18b72c1ba959e1b2dd8708a30f605
+%global gluster_commit		8139b898583ddd6f1a71df235719faec8305d161
 %global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
-%global heat_commit		    6d2dc044e12c4c687647cff8bc60c981d9ed5312
+%global heat_commit		    a64082e4f8ec75ecadaf20a02678647a7af22fb6
 %global horizon_commit		17ba6a73cec7f386922e6a914a120a829e225efc
 %global inifile_commit		fe9b0d5229ea37179a08c4b49239da9bc950acd1
 %global keystone_commit		688ff4379ed7437747ff8fdcd464096e24b4ebc6
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
 %global mysql_commit		83abc4556bbf6745708c08375649c9d71b6f66db
-%global neutron_commit		1cc2b42ceb39b199d96945eb4e6e972e6b32a2b8
+%global neutron_commit		55f952d3cf92a0bf960fc8f0b79e574438e44f73
 %global nova_commit		    6c8a4bd5e1d67cce4c6e316c2ba43ed5a4dd4e59
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
@@ -35,6 +35,7 @@
 %global xinetd_commit		bba48fad94c6538384173e60900a17c6f7ef7ca3
 
 
+
 Name:           openstack-puppet-modules
 Version:        2014.1
 Release:        5.6%{?dist}
@@ -50,9 +51,9 @@ Source3:	https://github.com/stackforge/puppet-cinder/archive/%{cinder_commit}/ci
 Source4:	https://github.com/ripienaar/puppet-concat/archive/%{concat_commit}/concat-%{concat_commit}.tar.gz
 Source5:	https://github.com/puppetlabs/puppetlabs-firewall/archive/%{firewall_commit}/firewall-%{firewall_commit}.tar.gz
 Source6:	https://github.com/stackforge/puppet-glance/archive/%{glance_commit}/glance-%{glance_commit}.tar.gz
-Source7:	https://github.com/redhat-openstack/puppet-openstack-storage/archive/%{gluster_commit}/gluster-%{gluster_commit}.tar.gz
+Source7:	https://github.com/purpleidea/puppet-gluster/archive/%{gluster_commit}/gluster-%{gluster_commit}.tar.gz
 Source8:	https://github.com/puppetlabs/puppetlabs-haproxy/archive/%{haproxy_commit}/haproxy-%{haproxy_commit}.tar.gz
-Source9:	https://github.com/packstack/puppet-heat/archive/%{heat_commit}/heat-%{heat_commit}.tar.gz
+Source9:	https://github.com/stackforge/puppet-heat/archive/%{heat_commit}/heat-%{heat_commit}.tar.gz
 Source10:	https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}/horizon-%{horizon_commit}.tar.gz
 Source11:	https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
 Source12:	https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
@@ -88,10 +89,6 @@ Patch6:     openstack.patch
 Patch7:     cinder.patch
 Patch8:     keystone.patch
 Patch9:     nova.patch
-Patch10:    0001-Fix-network_vlan_ranges-parameter-for-OVS-plugin.patch
-Patch11:    0002-Change-dhcp_lease_duration-to-Havana-default-of-8640.patch
-Patch12:    0003-Do-not-create-symblic-link-for-cisco-plugin.patch
-Patch13:    puppet-neutron-vlan_ranges.patch
 
 BuildArch:      noarch
 
@@ -136,6 +133,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 32
 %setup -c -q -T -D -a 33
 
+
 # puppetlabs-apache patches
 cd %{_builddir}/%{name}-%{version}/puppetlabs-apache-%{apache_commit}
 %patch1 -p1
@@ -159,10 +157,6 @@ cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
 # puppet-neutron patches
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 %patch5 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
@@ -200,7 +194,7 @@ cp -r puppet-cinder-%{cinder_commit} %{buildroot}/%{_datadir}/openstack-puppet/m
 cp -r puppetlabs-concat-%{concat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/concat
 cp -r puppetlabs-firewall-%{firewall_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/firewall
 cp -r puppet-glance-%{glance_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/glance
-cp -r puppet-openstack-storage-%{gluster_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/gluster
+cp -r puppet-gluster-%{gluster_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/gluster
 cp -r puppetlabs-haproxy-%{haproxy_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/haproxy
 cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/horizon
@@ -235,6 +229,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Apr 7 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-6
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+
 * Wed Apr 2 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-5.6
 - Synchronized pacemaker with current master branch of redhat-openstack/openstack-puppet-modules
 
