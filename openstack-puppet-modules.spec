@@ -4,7 +4,7 @@
 %global certmonger_commit	5fbf10fbbff4aed4db30e839c63c99b195e8425a
 %global cinder_commit		164163a7a267ae4139e2d97bab1a385a6da2ac5f
 %global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
-%global firewall_commit		56fa4a46f4481dd5ac7d619b43b96d683ee4ac82
+%global firewall_commit		c147a624fb3dba7df625d0d7571b1b6669bcfca5
 %global glance_commit		5557c224f37c22b058c951d7494448981cb484a2
 %global gluster_commit		8139b898583ddd6f1a71df235719faec8305d161
 %global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
@@ -35,10 +35,9 @@
 %global xinetd_commit		bba48fad94c6538384173e60900a17c6f7ef7ca3
 
 
-
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        6%{?dist}
+Release:        7{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -229,6 +228,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Apr 8 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-7
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+
 * Mon Apr 7 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-6
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 
