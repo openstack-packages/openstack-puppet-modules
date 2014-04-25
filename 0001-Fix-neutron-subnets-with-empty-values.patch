@@ -1,0 +1,91 @@
+From 35018d26310026cce14d793ce7003448fc01bd99 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Thu, 17 Apr 2014 15:48:40 +0200
+Subject: [PATCH] Fix neutron subnets with empty values.
+
+Subnet was expended with ability to set and update parameters like
+specifing dns servers, allocation pools and also specific host routes.
+Sadly it introduced issue when calling neutron_subnet without specifying
+values for these parameters.
+Closes-Bug: #1312628
+
+Change-Id: Id1207ab793fc65c43c10afcfe2271e2c02a912d3
+---
+ lib/puppet/provider/neutron_subnet/neutron.rb     | 22 ++++++++++++++--------
+ spec/unit/provider/neutron_subnet/neutron_spec.rb |  8 ++++++++
+ 2 files changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/lib/puppet/provider/neutron_subnet/neutron.rb b/lib/puppet/provider/neutron_subnet/neutron.rb
+index 7da5701..27a4d66 100644
+--- a/lib/puppet/provider/neutron_subnet/neutron.rb
++++ b/lib/puppet/provider/neutron_subnet/neutron.rb
+@@ -50,6 +50,7 @@ Puppet::Type.type(:neutron_subnet).provide(
+ 
+   def self.parse_allocation_pool(values)
+     allocation_pools = []
++    return [] if values.empty?
+     for value in Array(values)
+       matchdata = /\{\s*"start"\s*:\s*"(.*)"\s*,\s*"end"\s*:\s*"(.*)"\s*\}/.match(value)
+       start_ip = matchdata[1]
+@@ -61,6 +62,7 @@ Puppet::Type.type(:neutron_subnet).provide(
+ 
+   def self.parse_host_routes(values)
+     host_routes = []
++    return [] if values.empty?
+     for value in Array(values)
+       matchdata = /\{\s*"destination"\s*:\s*"(.*)"\s*,\s*"nexthop"\s*:\s*"(.*)"\s*\}/.match(value)
+       destination = matchdata[1]
+@@ -164,19 +166,23 @@ Puppet::Type.type(:neutron_subnet).provide(
+   end
+ 
+   def dns_nameservers=(values)
+-    opts = ["#{name}", "--dns-nameservers", "list=true"]
+-    for value in values
+-      opts << value
++    unless values.empty?
++      opts = ["#{name}", "--dns-nameservers", "list=true"]
++      for value in values
++        opts << value
++      end
++      auth_neutron('subnet-update', opts)
+     end
+-    auth_neutron('subnet-update', opts)
+   end
+ 
+   def host_routes=(values)
+-    opts = ["#{name}", "--host-routes", "type=dict", "list=true"]
+-    for value in values
+-      opts << value
++    unless values.empty?
++      opts = ["#{name}", "--host-routes", "type=dict", "list=true"]
++      for value in values
++        opts << value
++      end
++      auth_neutron('subnet-update', opts)
+     end
+-    auth_neutron('subnet-update', opts)
+   end
+ 
+   [
+diff --git a/spec/unit/provider/neutron_subnet/neutron_spec.rb b/spec/unit/provider/neutron_subnet/neutron_spec.rb
+index 31f7d85..ae2201d 100644
+--- a/spec/unit/provider/neutron_subnet/neutron_spec.rb
++++ b/spec/unit/provider/neutron_subnet/neutron_spec.rb
+@@ -67,6 +67,14 @@ describe provider_class do
+                                             'destination=12.0.0.0/24,nexthop=10.0.0.2'])
+       provider.host_routes=(['destination=12.0.0.0/24,nexthop=10.0.0.2'])
+     end
++
++    it 'should not update if dns_nameservers are empty' do
++      provider.dns_nameservers=('')
++    end
++
++    it 'should not update if host_routes are empty' do
++      provider.host_routes=('')
++    end
+   end
+ 
+ end
+-- 
+1.8.5.3
+

@@ -37,7 +37,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -88,6 +88,9 @@ Patch6:     openstack.patch
 Patch7:     cinder.patch
 Patch8:     keystone.patch
 Patch9:     nova.patch
+Patch10:    0001-Fix-neutron-subnets-with-empty-values.patch
+Patch11:    0001-RHEL-should-have-default-provider.patch
+Patch12:    0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 
 BuildArch:      noarch
 
@@ -156,6 +159,7 @@ cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
 # puppet-neutron patches
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 %patch5 -p1
+%patch10 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
@@ -164,6 +168,7 @@ cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
 # puppet-cinder patches
 cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
 %patch7 -p1
+%patch12 -p1
 
 # puppet-keystone patches
 cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
@@ -172,6 +177,7 @@ cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch9 -p1
+%patch11 -p1
 
 find %{_builddir} -type f -name ".*" -exec rm {} +
 find %{_builddir} -size 0 -exec rm {} +
@@ -228,6 +234,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Apr 25 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-8
+- Added patches for neutron, cinder and nova
+
 * Tue Apr 8 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-7
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 
