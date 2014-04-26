@@ -179,11 +179,11 @@ cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch9 -p1
 %patch11 -p1
 
-find %{_builddir} -type f -name ".*" -exec rm {} +
-find %{_builddir} -size 0 -exec rm {} +
-find %{_builddir} \( -name "*.pl" -o -name "*.sh"  \) -exec chmod +x {} +
-find %{_builddir} \( -name "*.pp" -o -name "*.py"  \) -exec chmod -x {} +
-find %{_builddir} \( -name "*.rb" -o -name "*.erb" \) -exec chmod -x {} + -exec sed -i "/^#!/{d;q}" {} +
+find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
+find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
+find %{_builddir}/%{name}-%{version}/ \( -name "*.pl" -o -name "*.sh"  \) -exec chmod +x {} +
+find %{_builddir}/%{name}-%{version}/ \( -name "*.pp" -o -name "*.py"  \) -exec chmod -x {} +
+find %{_builddir}/%{name}-%{version}/ \( -name "*.rb" -o -name "*.erb" \) -exec chmod -x {} + -exec sed -i "/^#!/{d;q}" {} +
 
 
 %build
