@@ -147,6 +147,8 @@ cd %{_builddir}/%{name}-%{version}/puppetlabs-mysql-%{mysql_commit}
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch2 -p1
+%patch9 -p1
+%patch11 -p1
 
 # puppet-glance patches
 cd %{_builddir}/%{name}-%{version}/puppet-glance-%{glance_commit}
@@ -174,10 +176,6 @@ cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
 %patch8 -p1
 
-# puppet-nova patches
-cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
-%patch9 -p1
-%patch11 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
