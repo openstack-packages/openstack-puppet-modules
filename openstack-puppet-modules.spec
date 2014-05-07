@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        9%{?dist}
+Release:        9.1%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -95,7 +95,7 @@ Patch7:     0001-RHEL-should-have-default-provider.patch
 Patch8:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 
 BuildArch:      noarch
-
+Requires:       rubygem-json
 
 %description
 A collection of Puppet modules used to install and configure OpenStack.
@@ -225,6 +225,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed May 7 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-9.1
+- Added rubyjem-json requirement
+
 * Wed Apr 30 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-9
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 - Switched puppet-gluster for puppet-openstack-storage
