@@ -1,35 +1,15 @@
 diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
-index 3f20081..d64086a 100644
+index f883283..b042b3d 100644
 --- a/manifests/db/mysql.pp
 +++ b/manifests/db/mysql.pp
-@@ -6,7 +6,7 @@ class nova::db::mysql(
+@@ -45,8 +45,8 @@ class nova::db::mysql(
    $dbname        = 'nova',
    $user          = 'nova',
    $host          = '127.0.0.1',
 -  $charset       = 'latin1',
+-  $collate       = 'latin1_swedish_ci',
 +  $charset       = 'utf8',
++  $collate       = 'utf8_unicode_ci',
    $allowed_hosts = undef,
-   $cluster_id    = 'localzone'
- ) {
-diff --git a/spec/classes/nova_db_mysql_spec.rb b/spec/classes/nova_db_mysql_spec.rb
-index 3eb6ff2..00572bf 100644
---- a/spec/classes/nova_db_mysql_spec.rb
-+++ b/spec/classes/nova_db_mysql_spec.rb
-@@ -23,7 +23,7 @@ describe 'nova::db::mysql' do
-       it { should contain_mysql__db('nova').with(
-         :user        => 'nova',
-         :password    => 'qwerty',
--        :charset     => 'latin1',
-+        :charset     => 'utf8',
-         :require     => "Class[Mysql::Config]"
-       )}
-     end
-@@ -50,7 +50,7 @@ describe 'nova::db::mysql' do
-       it { should contain_mysql__db('nova').with(
-         :user        => 'nova',
-         :password    => 'qwerty',
--        :charset     => 'latin1',
-+        :charset     => 'utf8',
-         :require     => "Class[Mysql::Config]"
-       )}
-     end
+   $mysql_module  = '0.9',
+   $cluster_id    = undef

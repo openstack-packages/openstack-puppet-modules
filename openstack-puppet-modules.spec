@@ -6,19 +6,19 @@
 %global common_commit		2c0ed2844c606fd806bde0c02e47e79c88fab4a9
 %global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit		c147a624fb3dba7df625d0d7571b1b6669bcfca5
+%global galera_commit		22380ea649debf277735171b6a07900df4ba691c
 %global glance_commit		5557c224f37c22b058c951d7494448981cb484a2
 %global gluster_commit		80c2b13448c97c70a4b4bc0e402e00ecb5d681d5
 %global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
 %global heat_commit		    a64082e4f8ec75ecadaf20a02678647a7af22fb6
 %global horizon_commit		17ba6a73cec7f386922e6a914a120a829e225efc
 %global inifile_commit		fe9b0d5229ea37179a08c4b49239da9bc950acd1
-%global keepalived_commit	f0585c45e7c5d5c2d86d0a84690a75dc522b2cd4
 %global keystone_commit		688ff4379ed7437747ff8fdcd464096e24b4ebc6
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
 %global mysql_commit		3b27d6956bf49531a5fa886f8624e20f1ef692ba
-%global neutron_commit		78428c844f73bf585a8f8a3bdf615ba2a0e8983b
-%global nova_commit		    6c8a4bd5e1d67cce4c6e316c2ba43ed5a4dd4e59
+%global neutron_commit		f9b3d184a05978668ee5960c83836b56e02636ce
+%global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
 %global pacemaker_commit	21950c9b5e619a3cb02f01f66cd4cb33d209a690
@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        9.1%{?dist}
+Release:        10%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -53,13 +53,13 @@ Source3:	https://github.com/stackforge/puppet-cinder/archive/%{cinder_commit}/ci
 Source4:	https://github.com/purpleidea/puppet-common/archive/%{common_commit}/common-%{common_commit}.tar.gz
 Source5:	https://github.com/ripienaar/puppet-concat/archive/%{concat_commit}/concat-%{concat_commit}.tar.gz
 Source6:	https://github.com/puppetlabs/puppetlabs-firewall/archive/%{firewall_commit}/firewall-%{firewall_commit}.tar.gz
-Source7:	https://github.com/stackforge/puppet-glance/archive/%{glance_commit}/glance-%{glance_commit}.tar.gz
-Source8:	https://github.com/purpleidea/puppet-gluster/archive/%{gluster_commit}/gluster-%{gluster_commit}.tar.gz
-Source9:	https://github.com/puppetlabs/puppetlabs-haproxy/archive/%{haproxy_commit}/haproxy-%{haproxy_commit}.tar.gz
-Source10:	https://github.com/stackforge/puppet-heat/archive/%{heat_commit}/heat-%{heat_commit}.tar.gz
-Source11:	https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}/horizon-%{horizon_commit}.tar.gz
-Source12:	https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
-Source13:	https://github.com/purpleidea/puppet-keepalived/archive/%{keepalived_commit}/keepalived-%{keepalived_commit}.tar.gz
+Source7:	https://github.com/rohara/puppet-galera/archive/%{galera_commit}/galera-%{galera_commit}.tar.gz
+Source8:	https://github.com/stackforge/puppet-glance/archive/%{glance_commit}/glance-%{glance_commit}.tar.gz
+Source9:	https://github.com/purpleidea/puppet-gluster/archive/%{gluster_commit}/gluster-%{gluster_commit}.tar.gz
+Source10:	https://github.com/puppetlabs/puppetlabs-haproxy/archive/%{haproxy_commit}/haproxy-%{haproxy_commit}.tar.gz
+Source11:	https://github.com/stackforge/puppet-heat/archive/%{heat_commit}/heat-%{heat_commit}.tar.gz
+Source12:	https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}/horizon-%{horizon_commit}.tar.gz
+Source13:	https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
 Source14:	https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
 Source15:	https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/memcached-%{memcached_commit}.tar.gz
 Source16:	https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
@@ -91,8 +91,7 @@ Patch3:     openstack.patch
 Patch4:     cinder.patch
 Patch5:     keystone.patch
 Patch6:     nova.patch
-Patch7:     0001-RHEL-should-have-default-provider.patch
-Patch8:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
+Patch7:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -144,7 +143,6 @@ A collection of Puppet modules used to install and configure OpenStack.
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch0 -p1
 %patch6 -p1
-%patch7 -p1
 
 # puppet-glance patches
 cd %{_builddir}/%{name}-%{version}/puppet-glance-%{glance_commit}
@@ -161,7 +159,7 @@ cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
 # puppet-cinder patches
 cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
 %patch4 -p1
-%patch8 -p1
+%patch7 -p1
 
 # puppet-keystone patches
 cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
@@ -187,13 +185,13 @@ cp -r puppet-cinder-%{cinder_commit} %{buildroot}/%{_datadir}/openstack-puppet/m
 cp -r puppet-common-%{common_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/common
 cp -r puppetlabs-concat-%{concat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/concat
 cp -r puppetlabs-firewall-%{firewall_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/firewall
+cp -r puppet-galera-%{galera_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/galera
 cp -r puppet-glance-%{glance_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/glance
 cp -r puppet-gluster-%{gluster_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/gluster
 cp -r puppetlabs-haproxy-%{haproxy_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/haproxy
 cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/horizon
 cp -r puppetlabs-inifile-%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
-cp -r puppet-keepalived-%{keepalived_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keepalived
 cp -r puppet-keystone-%{keystone_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r puppet-memcached-%{memcached_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
 cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
@@ -225,6 +223,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon May 12 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-10
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+
 * Wed May 7 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-9.1
 - Added rubyjem-json requirement
 
