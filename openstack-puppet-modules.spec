@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        10%{?dist}
+Release:        10.1%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -92,6 +92,7 @@ Patch4:     cinder.patch
 Patch5:     keystone.patch
 Patch6:     nova.patch
 Patch7:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
+Patch8:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -143,6 +144,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch0 -p1
 %patch6 -p1
+%patch8 -p1
 
 # puppet-glance patches
 cd %{_builddir}/%{name}-%{version}/puppet-glance-%{glance_commit}
@@ -223,6 +225,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon May 12 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-10.1
+- Added 0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
+
 * Mon May 12 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-10
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 
