@@ -17,7 +17,7 @@
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
 %global mysql_commit		3b27d6956bf49531a5fa886f8624e20f1ef692ba
-%global neutron_commit		f9b3d184a05978668ee5960c83836b56e02636ce
+%global neutron_commit		66c436bc2f06c5a71d79c674697394a11ec227f9
 %global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        10.1%{?dist}
+Release:        11%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -225,6 +225,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed May 14 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-11
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+
 * Mon May 12 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-10.1
 - Added 0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 
