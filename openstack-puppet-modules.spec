@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        11%{?dist}
+Release:        11.1%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -93,6 +93,7 @@ Patch5:     keystone.patch
 Patch6:     nova.patch
 Patch7:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 Patch8:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
+Patch9:     puppetlabs-firewall-pull-request-337.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -167,6 +168,11 @@ cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
 %patch5 -p1
 
+# puppetlabs-firewall patches
+cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
+%patch9 -p1
+
+
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ \( -name "*.pl" -o -name "*.sh"  \) -exec chmod +x {} +
@@ -225,6 +231,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri May 16 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-11.1
+- Added missing puppetlabs-firewall-pull-request-337.patch
+
 * Wed May 14 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-11
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 
