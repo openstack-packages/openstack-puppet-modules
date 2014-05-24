@@ -1,13 +1,13 @@
 
 %global apache_commit		bbf9278b24931444022aa67140d3505b748151da
-%global ceilometer_commit	91045b3be907b074cb1e0165b269d439aee43a26
+%global ceilometer_commit	55cbdace1730a3cb0af780ab9f7be703ac873eab
 %global certmonger_commit	5fbf10fbbff4aed4db30e839c63c99b195e8425a
 %global cinder_commit		164163a7a267ae4139e2d97bab1a385a6da2ac5f
 %global common_commit		2c0ed2844c606fd806bde0c02e47e79c88fab4a9
 %global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit		c147a624fb3dba7df625d0d7571b1b6669bcfca5
-%global galera_commit		22380ea649debf277735171b6a07900df4ba691c
-%global glance_commit		5557c224f37c22b058c951d7494448981cb484a2
+%global galera_commit		3b0a3c99419c3407e5d880213d62159c42713668
+%global glance_commit		cb0daf02d7a991be642e62294912d93b036c6a5a
 %global gluster_commit		80c2b13448c97c70a4b4bc0e402e00ecb5d681d5
 %global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
 %global heat_commit		    a64082e4f8ec75ecadaf20a02678647a7af22fb6
@@ -16,7 +16,7 @@
 %global keystone_commit		688ff4379ed7437747ff8fdcd464096e24b4ebc6
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
-%global mysql_commit		3b27d6956bf49531a5fa886f8624e20f1ef692ba
+%global mysql_commit		54588506e6d82bbd079739799a3fa50696a83a01
 %global neutron_commit		66c436bc2f06c5a71d79c674697394a11ec227f9
 %global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        11.1%{?dist}
+Release:        12%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -85,15 +85,14 @@ Source35:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}
 Source36:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
 Patch0:     compute_driver.patch
-Patch1:     glance.patch
-Patch2:     heat.patch
-Patch3:     openstack.patch
-Patch4:     cinder.patch
-Patch5:     keystone.patch
-Patch6:     nova.patch
-Patch7:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
-Patch8:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
-Patch9:     puppetlabs-firewall-pull-request-337.patch
+Patch1:     heat.patch
+Patch2:     openstack.patch
+Patch3:     cinder.patch
+Patch4:     keystone.patch
+Patch5:     nova.patch
+Patch6:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
+Patch7:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
+Patch8:     puppetlabs-firewall-pull-request-337.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -144,33 +143,29 @@ A collection of Puppet modules used to install and configure OpenStack.
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch0 -p1
-%patch6 -p1
-%patch8 -p1
-
-# puppet-glance patches
-cd %{_builddir}/%{name}-%{version}/puppet-glance-%{glance_commit}
-%patch1 -p1
+%patch5 -p1
+%patch7 -p1
 
 # puppet-heat patches
 cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
-%patch2 -p1
+%patch1 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
-%patch3 -p1
+%patch2 -p1
 
 # puppet-cinder patches
 cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
-%patch4 -p1
-%patch7 -p1
+%patch3 -p1
+%patch6 -p1
 
 # puppet-keystone patches
 cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
-%patch5 -p1
+%patch4 -p1
 
 # puppetlabs-firewall patches
 cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
-%patch9 -p1
+%patch8 -p1
 
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
@@ -231,6 +226,10 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri May 23 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-12
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+- Removed glance.patch since the changes are now upstream
+
 * Fri May 16 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-11.1
 - Added missing puppetlabs-firewall-pull-request-337.patch
 
