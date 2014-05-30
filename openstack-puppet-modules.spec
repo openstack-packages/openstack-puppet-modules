@@ -24,7 +24,7 @@
 %global pacemaker_commit	21950c9b5e619a3cb02f01f66cd4cb33d209a690
 %global puppet_commit		07ec49d1f67a498b31b4f164678a76c464e129c4
 %global qpid_commit		    953028ba9abdf563bd95970ccf890237711072fb
-%global rabbitmq_commit		015bd788ccb495051a2db48e344a3a6aa3381076
+%global rabbitmq_commit		e7447851a60a419cd51a09ccf807964b36fdebac
 %global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
 %global ssh_commit		    d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
 %global staging_commit		887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -93,6 +93,7 @@ Patch5:     nova.patch
 Patch6:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 Patch7:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 Patch8:     puppetlabs-firewall-pull-request-337.patch
+Patch9:     0001-Fixes-agent_notification_service_name.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -167,6 +168,9 @@ cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
 cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 %patch8 -p1
 
+# puppet-ceilometer patches
+cd %{_builddir}/%{name}-%{version}/puppet-ceilometer-%{ceilometer_commit}
+%patch9 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -226,6 +230,10 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri May 30 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-13
+- Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
+- Added 0001-Fixes-agent_notification_service_name.patch
+
 * Fri May 23 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-12
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 - Removed glance.patch since the changes are now upstream
