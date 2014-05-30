@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        13%{?dist}
+Release:        13.1%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -94,6 +94,7 @@ Patch6:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 Patch7:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 Patch8:     puppetlabs-firewall-pull-request-337.patch
 Patch9:     0001-Fixes-agent_notification_service_name.patch
+Patch10:    puppetlabs-firewall-pull-request-365.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -167,6 +168,7 @@ cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
 # puppetlabs-firewall patches
 cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 %patch8 -p1
+%patch10 -p1
 
 # puppet-ceilometer patches
 cd %{_builddir}/%{name}-%{version}/puppet-ceilometer-%{ceilometer_commit}
@@ -230,6 +232,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri May 30 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-13.1
+- Added puppetlabs-firewall-pull-request-365.patch
+
 * Fri May 30 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-13
 - Synchronized modules with current master branch of redhat-openstack/openstack-puppet-modules
 - Added 0001-Fixes-agent_notification_service_name.patch
