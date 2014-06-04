@@ -40,7 +40,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        13.1%{?dist}
+Release:        13.2%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -232,6 +232,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 04 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-13.2
+- Fixed 0001-Fixes-agent_notification_service_name.patch
+
 * Fri May 30 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-13.1
 - Added puppetlabs-firewall-pull-request-365.patch
 

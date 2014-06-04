@@ -1,21 +1,23 @@
-From 536b22212dbaba70be514ea4f63e72364033f722 Mon Sep 17 00:00:00 2001
+From 00bfaa1fa4709cec6a03e2772445dc8f27a89224 Mon Sep 17 00:00:00 2001
 From: Ivan Chavero <ichavero@redhat.com>
 Date: Mon, 26 May 2014 06:54:45 -0600
 Subject: [PATCH] Fixes agent_notification_service_name
 
-In icehouse the agent_notification_service_name has changed
-from ceilometer-agent-notification service to ceilometer-notification
+This patch corrects the service name of the ceilometer notification
+agent, which was 'ceilometer-agent-notification' in pre-release RPMs but
+was later changed to 'ceilometer-notification'.
 
 Change-Id: Ie2703a028ce154efa7fa1d0da58914230adfc7db
 ---
- manifests/params.pp | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ manifests/params.pp                                |  3 +-
+ spec/classes/ceilometer_agent_notification_spec.rb | 50 +++++++++++++++++++++-
+ 2 files changed, 51 insertions(+), 2 deletions(-)
 
 diff --git a/manifests/params.pp b/manifests/params.pp
-index feb1e19..916ee7c 100644
+index feb1e19..1c370ae 100644
 --- a/manifests/params.pp
 +++ b/manifests/params.pp
-@@ -23,11 +23,31 @@ class ceilometer::params {
+@@ -23,11 +23,12 @@ class ceilometer::params {
        $agent_compute_service_name      = 'openstack-ceilometer-compute'
        $api_service_name                = 'openstack-ceilometer-api'
        $collector_service_name          = 'openstack-ceilometer-collector'
@@ -24,27 +26,8 @@ index feb1e19..916ee7c 100644
        $alarm_evaluator_service_name    = 'openstack-ceilometer-alarm-evaluator'
        $pymongo_package_name            = 'python-pymongo'
        $psycopg_package_name            = 'python-psycopg2'
-+      case $::operatingsystem {
-+        'RedHat', 'CentOS': {
-+          if $::operatingsystemrelease >= 7.0 {
-+            $agent_notification_service_name = 'openstack-ceilometer-notification'
-+          }
-+          else {
-+            $agent_notification_service_name = 'openstack-ceilometer-agent-notification'
-+          }
-+        }
-+        'Fedora': {
-+          if $::operatingsystemrelease >= 20 {
-+            $agent_notification_service_name = 'openstack-ceilometer-notification'
-+          }
-+          else {
-+            $agent_notification_service_name = 'openstack-ceilometer-agent-notification'
-+          }
-+        }
-+        default: {
-+          $agent_notification_service_name = 'openstack-ceilometer-notification'
-+        }
-+      }
++      $agent_notification_service_name = 'openstack-ceilometer-notification'
++
        # db packages
        if $::operatingsystem == 'Fedora' and $::operatingsystemrelease >= 18 {
          # fallback to stdlib version, not provided on fedora
