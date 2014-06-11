@@ -2,30 +2,32 @@
 %global apache_commit		bbf9278b24931444022aa67140d3505b748151da
 %global ceilometer_commit	55cbdace1730a3cb0af780ab9f7be703ac873eab
 %global certmonger_commit	5fbf10fbbff4aed4db30e839c63c99b195e8425a
-%global cinder_commit		164163a7a267ae4139e2d97bab1a385a6da2ac5f
+%global cinder_commit		57da044279780af66479c429e5803825a87b785e
 %global common_commit		2c0ed2844c606fd806bde0c02e47e79c88fab4a9
 %global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit		c147a624fb3dba7df625d0d7571b1b6669bcfca5
-%global galera_commit		3b0a3c99419c3407e5d880213d62159c42713668
+%global galera_commit		43d31b5cbf688190ea530ce7d8bbc422e2e8a8e3
 %global glance_commit		cb0daf02d7a991be642e62294912d93b036c6a5a
 %global gluster_commit		80c2b13448c97c70a4b4bc0e402e00ecb5d681d5
 %global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
-%global heat_commit		    a64082e4f8ec75ecadaf20a02678647a7af22fb6
-%global horizon_commit		17ba6a73cec7f386922e6a914a120a829e225efc
+%global heat_commit		    17736b2fd726858cb83590f8a8b1d594a087ea44
+%global horizon_commit		bd1c31e87dd0564a8fab8de0516dbbe48241b09a
 %global inifile_commit		fe9b0d5229ea37179a08c4b49239da9bc950acd1
 %global keystone_commit		688ff4379ed7437747ff8fdcd464096e24b4ebc6
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
+%global module_data_commit	159fc5e0e21ce9df96c777f0064b5eca88e29cae
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
 %global mysql_commit		54588506e6d82bbd079739799a3fa50696a83a01
 %global neutron_commit		66c436bc2f06c5a71d79c674697394a11ec227f9
 %global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit	21950c9b5e619a3cb02f01f66cd4cb33d209a690
+%global pacemaker_commit	1102d9861d8a63cc1577bc97a4415b9ff7488038
 %global puppet_commit		07ec49d1f67a498b31b4f164678a76c464e129c4
 %global qpid_commit		    953028ba9abdf563bd95970ccf890237711072fb
 %global rabbitmq_commit		e7447851a60a419cd51a09ccf807964b36fdebac
 %global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
+%global sahara_commit		f4e5681cfb289113be1ba49c12709145ecbad938
 %global ssh_commit		    d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
 %global staging_commit		887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
 %global stdlib_commit		62e8c1d76902e6f22cb9f7b3abd43e757b4130a3
@@ -40,7 +42,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        14.2%{?dist}
+Release:        15%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -62,39 +64,41 @@ Source12:	https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}
 Source13:	https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
 Source14:	https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
 Source15:	https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/memcached-%{memcached_commit}.tar.gz
-Source16:	https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
-Source17:	https://github.com/packstack/puppetlabs-mysql/archive/%{mysql_commit}/mysql-%{mysql_commit}.tar.gz
-Source18:	https://github.com/stackforge/puppet-neutron/archive/%{neutron_commit}/neutron-%{neutron_commit}.tar.gz
-Source19:	https://github.com/stackforge/puppet-nova/archive/%{nova_commit}/nova-%{nova_commit}.tar.gz
-Source20:	https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/nssdb-%{nssdb_commit}.tar.gz
-Source21:	https://github.com/stackforge/puppet-openstack/archive/%{openstack_commit}/openstack-%{openstack_commit}.tar.gz
-Source22:	https://github.com/radez/puppet-pacemaker/archive/%{pacemaker_commit}/pacemaker-%{pacemaker_commit}.tar.gz
-Source23:	https://github.com/purpleidea/puppet-puppet/archive/%{puppet_commit}/puppet-%{puppet_commit}.tar.gz
-Source24:	https://github.com/dprince/puppet-qpid/archive/%{qpid_commit}/qpid-%{qpid_commit}.tar.gz
-Source25:	https://github.com/puppetlabs/puppetlabs-rabbitmq/archive/%{rabbitmq_commit}/rabbitmq-%{rabbitmq_commit}.tar.gz
-Source26:	https://github.com/puppetlabs/puppetlabs-rsync/archive/%{rsync_commit}/rsync-%{rsync_commit}.tar.gz
-Source27:	https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/ssh-%{ssh_commit}.tar.gz
-Source28:	https://github.com/nanliu/puppet-staging/archive/%{staging_commit}/staging-%{staging_commit}.tar.gz
-Source29:	https://github.com/puppetlabs/puppetlabs-stdlib/archive/%{stdlib_commit}/stdlib-%{stdlib_commit}.tar.gz
-Source30:	https://github.com/stackforge/puppet-swift/archive/%{swift_commit}/swift-%{swift_commit}.tar.gz
-Source31:	https://github.com/puppetlabs/puppetlabs-sysctl/archive/%{sysctl_commit}/sysctl-%{sysctl_commit}.tar.gz
-Source32:	https://github.com/stackforge/puppet-tempest/archive/%{tempest_commit}/tempest-%{tempest_commit}.tar.gz
-Source33:	https://github.com/puppetlabs/puppetlabs-vcsrepo/archive/%{vcsrepo_commit}/vcsrepo-%{vcsrepo_commit}.tar.gz
-Source34:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vlan-%{vlan_commit}.tar.gz
-Source35:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
-Source36:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
+Source16:	https://github.com/ripienaar/puppet-module-data/archive/%{module_data_commit}/module-data-%{module_data_commit}.tar.gz
+Source17:	https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
+Source18:	https://github.com/packstack/puppetlabs-mysql/archive/%{mysql_commit}/mysql-%{mysql_commit}.tar.gz
+Source19:	https://github.com/stackforge/puppet-neutron/archive/%{neutron_commit}/neutron-%{neutron_commit}.tar.gz
+Source20:	https://github.com/stackforge/puppet-nova/archive/%{nova_commit}/nova-%{nova_commit}.tar.gz
+Source21:	https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/nssdb-%{nssdb_commit}.tar.gz
+Source22:	https://github.com/stackforge/puppet-openstack/archive/%{openstack_commit}/openstack-%{openstack_commit}.tar.gz
+Source23:	https://github.com/radez/puppet-pacemaker/archive/%{pacemaker_commit}/pacemaker-%{pacemaker_commit}.tar.gz
+Source24:	https://github.com/purpleidea/puppet-puppet/archive/%{puppet_commit}/puppet-%{puppet_commit}.tar.gz
+Source25:	https://github.com/dprince/puppet-qpid/archive/%{qpid_commit}/qpid-%{qpid_commit}.tar.gz
+Source26:	https://github.com/puppetlabs/puppetlabs-rabbitmq/archive/%{rabbitmq_commit}/rabbitmq-%{rabbitmq_commit}.tar.gz
+Source27:	https://github.com/puppetlabs/puppetlabs-rsync/archive/%{rsync_commit}/rsync-%{rsync_commit}.tar.gz
+Source28:	https://github.com/stackforge/puppet-sahara/archive/%{sahara_commit}/sahara-%{sahara_commit}.tar.gz
+Source29:	https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/ssh-%{ssh_commit}.tar.gz
+Source30:	https://github.com/nanliu/puppet-staging/archive/%{staging_commit}/staging-%{staging_commit}.tar.gz
+Source31:	https://github.com/puppetlabs/puppetlabs-stdlib/archive/%{stdlib_commit}/stdlib-%{stdlib_commit}.tar.gz
+Source32:	https://github.com/stackforge/puppet-swift/archive/%{swift_commit}/swift-%{swift_commit}.tar.gz
+Source33:	https://github.com/puppetlabs/puppetlabs-sysctl/archive/%{sysctl_commit}/sysctl-%{sysctl_commit}.tar.gz
+Source34:	https://github.com/stackforge/puppet-tempest/archive/%{tempest_commit}/tempest-%{tempest_commit}.tar.gz
+Source35:	https://github.com/puppetlabs/puppetlabs-vcsrepo/archive/%{vcsrepo_commit}/vcsrepo-%{vcsrepo_commit}.tar.gz
+Source36:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vlan-%{vlan_commit}.tar.gz
+Source37:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
+Source38:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
 Patch0:     compute_driver.patch
-Patch1:     heat.patch
 Patch2:     openstack.patch
-Patch3:     cinder.patch
 Patch4:     keystone.patch
 Patch5:     nova.patch
-Patch6:     0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
 Patch7:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 Patch8:     puppetlabs-firewall-pull-request-337.patch
 Patch9:     0001-Fixes-agent_notification_service_name.patch
 Patch10:    puppetlabs-firewall-pull-request-365.patch
+Patch11:    puppetlabs-firewall-pull-request-367.patch
+Patch12:    swift-restorecon.patch
+Patch13:    0001-Implement-Keystone-domain-creation.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -141,6 +145,8 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 34
 %setup -c -q -T -D -a 35
 %setup -c -q -T -D -a 36
+%setup -c -q -T -D -a 37
+%setup -c -q -T -D -a 38
 
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
@@ -150,16 +156,11 @@ cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 
 # puppet-heat patches
 cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
-%patch1 -p1
+%patch13 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
 %patch2 -p1
-
-# puppet-cinder patches
-cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
-%patch3 -p1
-%patch6 -p1
 
 # puppet-keystone patches
 cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
@@ -169,10 +170,16 @@ cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
 cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 %patch8 -p1
 %patch10 -p1
+%patch11 -p1
 
 # puppet-ceilometer patches
 cd %{_builddir}/%{name}-%{version}/puppet-ceilometer-%{ceilometer_commit}
 %patch9 -p1
+
+# puppet-swift patches
+cd %{_builddir}/%{name}-%{version}/puppet-swift-%{swift_commit}
+%patch12 -p1
+
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -203,6 +210,7 @@ cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet
 cp -r puppetlabs-inifile-%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
 cp -r puppet-keystone-%{keystone_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r puppet-memcached-%{memcached_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
+cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
 cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
 cp -r puppetlabs-mysql-%{mysql_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mysql
 cp -r puppet-neutron-%{neutron_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/neutron
@@ -214,6 +222,7 @@ cp -r puppet-puppet-%{puppet_commit} %{buildroot}/%{_datadir}/openstack-puppet/m
 cp -r puppet-qpid-%{qpid_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/qpid
 cp -r puppetlabs-rabbitmq-%{rabbitmq_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rabbitmq
 cp -r puppetlabs-rsync-%{rsync_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rsync
+cp -r puppet-sahara-%{sahara_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/sahara
 cp -r puppet-ssh-%{ssh_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ssh
 cp -r puppet-staging-%{staging_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/staging
 cp -r puppetlabs-stdlib-%{stdlib_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/stdlib
@@ -232,6 +241,11 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 11 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-15
+- Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-15
+- Added puppetlabs-firewall-pull-request-367.patch and swift-restorecon.patch and 0001-Implement-Keystone-domain-creation.patch
+- Removed cinder.patch and 0001-Use-lioadm-as-iscsi-helper-on-RHEL-7.patch
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2014.1-14.2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 

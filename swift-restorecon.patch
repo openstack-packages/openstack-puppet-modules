@@ -1,0 +1,75 @@
+From 9ca38e7e442ac8e59bf21c78a43feea5c025501a Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Mon, 19 May 2014 13:25:44 +0200
+Subject: [PATCH] Restore selinux context on swift mount
+
+Mounting devices without specifying or restoring context ends up with
+default context file_t assigned for swift paths. On selinux systems it
+is nice to at least try to preserve predefined contexts on paths.
+
+Change-Id: I9b68c04cb0d4ee72c074e514db7141c3c077c978
+Closes-Bug: rhbz#1095503
+Closes-Bug: #1320853
+---
+ manifests/storage/mount.pp               | 17 +++++++++++++++++
+ spec/defines/swift_storage_mount_spec.rb | 20 ++++++++++++++++++++
+ 2 files changed, 37 insertions(+)
+
+diff --git a/manifests/storage/mount.pp b/manifests/storage/mount.pp
+index 3d5f425..a7e28ac 100644
+--- a/manifests/storage/mount.pp
++++ b/manifests/storage/mount.pp
+@@ -54,4 +54,21 @@
+     subscribe   => Exec["mount_${name}"],
+     refreshonly => true,
+   }
++
++  # mounting in linux and puppet is broken and non-atomic
++  # we have to mount, check mount with executing command,
++  # fix ownership and on selinux systems fix context.
++  # It would be definetly nice if passing options uid=,gid=
++  # would be possible as context is. But, as there already is
++  # chown command we'll just restorecon on selinux enabled
++  # systems :(
++  if ($::selinux) {
++    exec { "restorecon_mount_${name}":
++      command     => "restorecon ${mnt_base_dir}/${name}",
++      path        => ['/usr/sbin', '/bin'],
++      subscribe   => Exec["mount_${name}"],
++      before      =>  Exec["fix_mount_permissions_${name}"],
++      refreshonly => true,
++    }
++  }
+ }
+diff --git a/spec/defines/swift_storage_mount_spec.rb b/spec/defines/swift_storage_mount_spec.rb
+index 6fb6c31..bdbdcb3 100644
+--- a/spec/defines/swift_storage_mount_spec.rb
++++ b/spec/defines/swift_storage_mount_spec.rb
+@@ -39,4 +39,24 @@
+ 
+   end
+ 
++  describe 'when mounting a loopback device on selinux system' do
++    let :params do
++      {
++        :device => '/dev/sda'
++      }
++    end
++
++    let :facts do
++      {
++        :selinux => true,
++      }
++    end
++
++    it { should contain_exec("restorecon_mount_dans_mount_point").with(
++      {:command     => "restorecon /srv/node/dans_mount_point",
++       :path        => ['/usr/sbin', '/bin'],
++       :refreshonly => true}
++    )}
++
++  end
+ end
+-- 
+1.9.3
+

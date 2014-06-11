@@ -1,0 +1,37 @@
+From e2a21ad75df5fcf8867e84295c675b1dcf5e01d1 Mon Sep 17 00:00:00 2001
+From: Lars Kellogg-Stedman <lars@redhat.com>
+Date: Tue, 3 Jun 2014 12:44:06 -0400
+Subject: [PATCH 2/2] correct resource dependencies for fedora/redhat
+
+This patches makes Firewall resources depend upon the iptables-services
+package.  Without this dependency, firewall rules will be instantiated
+in the running configuration but may not persist correctly because the
+necessary command is not (yet) available.
+---
+ manifests/linux/redhat.pp | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/manifests/linux/redhat.pp b/manifests/linux/redhat.pp
+index a4c00b6..08965b8 100644
+--- a/manifests/linux/redhat.pp
++++ b/manifests/linux/redhat.pp
+@@ -23,13 +23,17 @@ class firewall::linux::redhat (
+   if $::operatingsystem == RedHat and $::operatingsystemrelease >= 7 {
+     package { 'iptables-services':
+       ensure => present,
++      before => Service['iptables'],
+     }
++    Package['iptables-services'] -> Firewall <||>
+   }
+ 
+   if $::operatingsystem == Fedora and $::operatingsystemrelease >= 15 {
+     package { 'iptables-services':
+       ensure => present,
++      before => Service['iptables'],
+     }
++    Package['iptables-services'] -> Firewall <||>
+   }
+ 
+   service { 'iptables':
+-- 
+1.9.3
