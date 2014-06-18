@@ -1,6 +1,6 @@
 
 %global apache_commit		bbf9278b24931444022aa67140d3505b748151da
-%global ceilometer_commit	55cbdace1730a3cb0af780ab9f7be703ac873eab
+%global ceilometer_commit	c2f41fb1eb776bcfdaab79c120ac509a861d0828
 %global certmonger_commit	5fbf10fbbff4aed4db30e839c63c99b195e8425a
 %global cinder_commit		57da044279780af66479c429e5803825a87b785e
 %global common_commit		2c0ed2844c606fd806bde0c02e47e79c88fab4a9
@@ -13,7 +13,7 @@
 %global heat_commit		    17736b2fd726858cb83590f8a8b1d594a087ea44
 %global horizon_commit		bd1c31e87dd0564a8fab8de0516dbbe48241b09a
 %global inifile_commit		fe9b0d5229ea37179a08c4b49239da9bc950acd1
-%global keystone_commit		688ff4379ed7437747ff8fdcd464096e24b4ebc6
+%global keystone_commit		e61e4c2ab5c67150237e59dab25679ec739d3ebf
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global module_data_commit	159fc5e0e21ce9df96c777f0064b5eca88e29cae
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
@@ -22,9 +22,9 @@
 %global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit	1102d9861d8a63cc1577bc97a4415b9ff7488038
+%global pacemaker_commit	fc9ef90dca8a20ae2a52cdb34507f3c5d1c60124
 %global puppet_commit		07ec49d1f67a498b31b4f164678a76c464e129c4
-%global qpid_commit		    953028ba9abdf563bd95970ccf890237711072fb
+%global qpid_commit		    1d6b2752c5c8cd3439dc31b62a2f163886ce22a5
 %global rabbitmq_commit		e7447851a60a419cd51a09ccf807964b36fdebac
 %global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
 %global sahara_commit		f4e5681cfb289113be1ba49c12709145ecbad938
@@ -33,16 +33,16 @@
 %global stdlib_commit		62e8c1d76902e6f22cb9f7b3abd43e757b4130a3
 %global swift_commit		e9b69499c943bfbb16c895611ebd4e90c16b377c
 %global sysctl_commit		c4486acc2d66de857dbccd8b4b945ea803226705
-%global tempest_commit		44e258746cb0cf9a53f37122d510474aed39201e
+%global tempest_commit		792be887b61ad9c38706e968a21752cfb05c2381
 %global vcsrepo_commit		6f7507a2a48ff0a58c7db026760a2eb84e382a77
 %global vlan_commit		    c937de75c28e63fba8d8738ad6a5f2ede517e53d
 %global vswitch_commit		a20f6355f048d2cb6206222b2d045b41ac875db4
-%global xinetd_commit		bba48fad94c6538384173e60900a17c6f7ef7ca3
+%global xinetd_commit		6b02de8d4f30a819eb404048e4258e3a5e8023c8
 
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        15%{?dist}
+Release:        16%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -64,7 +64,7 @@ Source12:	https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}
 Source13:	https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
 Source14:	https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
 Source15:	https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/memcached-%{memcached_commit}.tar.gz
-Source16:	https://github.com/ripienaar/puppet-module-data/archive/%{module_data_commit}/module-data-%{module_data_commit}.tar.gz
+#Source16:	https://github.com/ripienaar/puppet-module-data/archive/%{module_data_commit}/module-data-%{module_data_commit}.tar.gz
 Source17:	https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
 Source18:	https://github.com/packstack/puppetlabs-mysql/archive/%{mysql_commit}/mysql-%{mysql_commit}.tar.gz
 Source19:	https://github.com/stackforge/puppet-neutron/archive/%{neutron_commit}/neutron-%{neutron_commit}.tar.gz
@@ -90,11 +90,9 @@ Source38:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit
 
 Patch0:     compute_driver.patch
 Patch2:     openstack.patch
-Patch4:     keystone.patch
 Patch5:     nova.patch
 Patch7:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 Patch8:     puppetlabs-firewall-pull-request-337.patch
-Patch9:     0001-Fixes-agent_notification_service_name.patch
 Patch10:    puppetlabs-firewall-pull-request-365.patch
 Patch11:    puppetlabs-firewall-pull-request-367.patch
 Patch12:    swift-restorecon.patch
@@ -124,7 +122,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 13
 %setup -c -q -T -D -a 14
 %setup -c -q -T -D -a 15
-%setup -c -q -T -D -a 16
+#%setup -c -q -T -D -a 16
 %setup -c -q -T -D -a 17
 %setup -c -q -T -D -a 18
 %setup -c -q -T -D -a 19
@@ -162,19 +160,11 @@ cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
 %patch2 -p1
 
-# puppet-keystone patches
-cd %{_builddir}/%{name}-%{version}/puppet-keystone-%{keystone_commit}
-%patch4 -p1
-
 # puppetlabs-firewall patches
 cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 %patch8 -p1
 %patch10 -p1
 %patch11 -p1
-
-# puppet-ceilometer patches
-cd %{_builddir}/%{name}-%{version}/puppet-ceilometer-%{ceilometer_commit}
-%patch9 -p1
 
 # puppet-swift patches
 cd %{_builddir}/%{name}-%{version}/puppet-swift-%{swift_commit}
@@ -210,7 +200,7 @@ cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet
 cp -r puppetlabs-inifile-%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
 cp -r puppet-keystone-%{keystone_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r puppet-memcached-%{memcached_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
-cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
+#cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
 cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
 cp -r puppetlabs-mysql-%{mysql_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mysql
 cp -r puppet-neutron-%{neutron_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/neutron
@@ -241,6 +231,11 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 18 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-16
+- Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-16
+- Removed keystone.patch and 0001-Fixes-agent_notification_service_name.patch
+- Disabled puppet-module-data module because it breaks O-F-I
+
 * Wed Jun 11 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-15
 - Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-15
 - Added puppetlabs-firewall-pull-request-367.patch and swift-restorecon.patch and 0001-Implement-Keystone-domain-creation.patch
