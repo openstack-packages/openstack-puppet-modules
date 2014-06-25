@@ -6,7 +6,7 @@
 %global common_commit		2c0ed2844c606fd806bde0c02e47e79c88fab4a9
 %global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
 %global firewall_commit		c147a624fb3dba7df625d0d7571b1b6669bcfca5
-%global galera_commit		43d31b5cbf688190ea530ce7d8bbc422e2e8a8e3
+%global galera_commit		3f63bd5ffdd707b42ef37a0ead3c2cf7e803586f
 %global glance_commit		cb0daf02d7a991be642e62294912d93b036c6a5a
 %global gluster_commit		80c2b13448c97c70a4b4bc0e402e00ecb5d681d5
 %global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
@@ -17,14 +17,14 @@
 %global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
 %global module_data_commit	159fc5e0e21ce9df96c777f0064b5eca88e29cae
 %global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
-%global mysql_commit		54588506e6d82bbd079739799a3fa50696a83a01
+%global mysql_commit		8d5fed32c22c5e4231d5a475cfe8060ce8b2ed0f
 %global neutron_commit		66c436bc2f06c5a71d79c674697394a11ec227f9
 %global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit	fc9ef90dca8a20ae2a52cdb34507f3c5d1c60124
+%global pacemaker_commit	2aa760c3497840ad2474f15737846e2ad95c54e5
 %global puppet_commit		07ec49d1f67a498b31b4f164678a76c464e129c4
-%global qpid_commit		    1d6b2752c5c8cd3439dc31b62a2f163886ce22a5
+%global qpid_commit		    1f0c32b39ad17e7acbd440b50fb6f0875971f5e1
 %global rabbitmq_commit		e7447851a60a419cd51a09ccf807964b36fdebac
 %global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
 %global sahara_commit		f4e5681cfb289113be1ba49c12709145ecbad938
@@ -42,7 +42,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        16%{?dist}
+Release:        17%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -88,15 +88,25 @@ Source36:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vla
 Source37:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
 Source38:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
-Patch0:     compute_driver.patch
-Patch2:     openstack.patch
-Patch5:     nova.patch
-Patch7:     0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
-Patch8:     puppetlabs-firewall-pull-request-337.patch
-Patch10:    puppetlabs-firewall-pull-request-365.patch
-Patch11:    puppetlabs-firewall-pull-request-367.patch
-Patch12:    swift-restorecon.patch
-Patch13:    0001-Implement-Keystone-domain-creation.patch
+# stable patches
+Patch0:     rdo-documentation.patch
+
+# temporary patches
+Patch100:   compute_driver.patch
+Patch101:   openstack.patch
+Patch102:   nova.patch
+Patch103:   0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
+Patch104:   puppetlabs-firewall-pull-request-337.patch
+Patch105:   puppetlabs-firewall-pull-request-365.patch
+Patch106:   puppetlabs-firewall-pull-request-367.patch
+Patch107:   swift-restorecon.patch
+Patch108:   0001-Implement-Keystone-domain-creation.patch
+Patch109:   0001-Fixed-ovs-provider.patch
+Patch110:   0002-Refacfored-a-more-suitable-ovs_redhat-provider.patch
+Patch111:   0001-stop-puppet-from-breaking-neutron.patch
+Patch112:   0001-Fixes-bridge-interface-name-check.patch
+Patch113:   0003-Fixes-bridge-addition-error-if-interface-has-no-IP.patch
+
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -146,30 +156,44 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 37
 %setup -c -q -T -D -a 38
 
+# puppet-horizon patches
+cd %{_builddir}/%{name}-%{version}/puppet-horizon-%{horizon_commit}
+%patch0 -p1
+
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
-%patch0 -p1
-%patch5 -p1
-%patch7 -p1
+%patch100 -p1
+%patch102 -p1
+%patch103 -p1
 
 # puppet-heat patches
 cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
-%patch13 -p1
+%patch108 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
-%patch2 -p1
+%patch101 -p1
 
 # puppetlabs-firewall patches
 cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
-%patch8 -p1
-%patch10 -p1
-%patch11 -p1
+%patch104 -p1
+%patch105 -p1
+%patch106 -p1
 
 # puppet-swift patches
 cd %{_builddir}/%{name}-%{version}/puppet-swift-%{swift_commit}
-%patch12 -p1
+%patch107 -p1
 
+# puppet-neutron patches
+cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
+%patch111 -p1
+
+# puppet-vswitch patches
+cd %{_builddir}/%{name}-%{version}/puppet-vswitch-%{vswitch_commit}
+%patch109 -p1
+%patch110 -p1
+%patch112 -p1
+%patch113 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -231,6 +255,14 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 25 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-17
+- Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-17
+- Added rdo-documentation.patch
+- Added 0001-stop-puppet-from-breaking-neutron.patch
+- Added 0001-Fixes-bridge-interface-name-check.patch
+- Added 0001-Fixed-ovs-provider.patch, 0002-Refacfored-a-more-suitable-ovs_redhat-provider.patch,
+        0003-Fixes-bridge-addition-error-if-interface-has-no-IP.patch (rhbz#1109894)
+
 * Wed Jun 18 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-16
 - Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-16
 - Removed keystone.patch and 0001-Fixes-agent_notification_service_name.patch

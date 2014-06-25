@@ -1,0 +1,30 @@
+From 7ed22bc78fa82fbc87aee0a5c01e08bd24278cfb Mon Sep 17 00:00:00 2001
+From: Ivan Chavero <ichavero@redhat.com>
+Date: Thu, 19 Jun 2014 16:13:23 -0600
+Subject: [PATCH] Fixes bridge addition error if interface has no IP
+
+It is perfectly valid for not to have an ip address on the bridge and
+for the external network gateway to be elsewhere on the network.
+
+Fixes: rhbz#1109894
+---
+ lib/puppet/provider/vs_port/ovs_redhat.rb | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/lib/puppet/provider/vs_port/ovs_redhat.rb b/lib/puppet/provider/vs_port/ovs_redhat.rb
+index 5a17897..07fc655 100644
+--- a/lib/puppet/provider/vs_port/ovs_redhat.rb
++++ b/lib/puppet/provider/vs_port/ovs_redhat.rb
+@@ -29,7 +29,8 @@ Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
+         IFCFG::BridgeDynamic.new(@resource[:bridge], @resource[:interface], bridge_mac_address).save
+       else
+         device = ip('addr', 'show', @resource[:interface])
+-        cidr = device.to_s.match(/inet (\d*\.\d*\.\d*\.\d*\/\d*)/)[1]
++        cidr = device.to_s.match(/inet (\d*\.\d*\.\d*\.\d*\/\d*)/)
++        cidr = cidr ? cidr[1] : ""
+         IFCFG::BridgeStatic.new(@resource[:bridge], cidr).save
+       end
+     else
+-- 
+1.9.0
+
