@@ -1,0 +1,47 @@
+From 29071afcecf77aa30075cc361a724d843d8e97a9 Mon Sep 17 00:00:00 2001
+From: Martin Magr <mmagr@redhat.com>
+Date: Wed, 18 Jun 2014 19:41:36 +0200
+Subject: [PATCH] Refresh Neutron server
+
+After ML2 configuration is changed Neutron server should be restarted.
+This patch adds appropriate notification.
+
+Change-Id: Ie838dacce8c553cf656333005d66b398c23f4bcc
+(cherry picked from commit b3203f698f66fd4422916808e4a55b0957c5aaa3)
+---
+ manifests/plugins/ml2.pp                 | 2 ++
+ spec/classes/neutron_plugins_ml2_spec.rb | 5 ++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/manifests/plugins/ml2.pp b/manifests/plugins/ml2.pp
+index cde5c7f..4f4d4d7 100644
+--- a/manifests/plugins/ml2.pp
++++ b/manifests/plugins/ml2.pp
+@@ -111,6 +111,8 @@ class neutron::plugins::ml2 (
+ 
+   include neutron::params
+ 
++  Neutron_plugin_ml2<||> ~> Service['neutron-server']
++
+   # test mechanism drivers
+   validate_array($mechanism_drivers)
+   if ! $mechanism_drivers {
+diff --git a/spec/classes/neutron_plugins_ml2_spec.rb b/spec/classes/neutron_plugins_ml2_spec.rb
+index 6829537..e297747 100644
+--- a/spec/classes/neutron_plugins_ml2_spec.rb
++++ b/spec/classes/neutron_plugins_ml2_spec.rb
+@@ -25,7 +25,10 @@ describe 'neutron::plugins::ml2' do
+   let :pre_condition do
+     "class { 'neutron':
+       rabbit_password => 'passw0rd',
+-      core_plugin     => 'neutron.plugins.ml2.plugin.Ml2Plugin' }"
++      core_plugin     => 'neutron.plugins.ml2.plugin.Ml2Plugin' }
++
++     class { 'neutron::server':
++      auth_password => 'test'}"
+   end
+ 
+   let :default_params do
+-- 
+1.9.3
+

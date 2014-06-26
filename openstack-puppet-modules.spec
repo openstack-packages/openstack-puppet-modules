@@ -31,7 +31,7 @@
 %global ssh_commit		    d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
 %global staging_commit		887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
 %global stdlib_commit		62e8c1d76902e6f22cb9f7b3abd43e757b4130a3
-%global swift_commit		e9b69499c943bfbb16c895611ebd4e90c16b377c
+%global swift_commit		80ec3a7576efad5e13d37a8c760ed0ad7f36055f
 %global sysctl_commit		c4486acc2d66de857dbccd8b4b945ea803226705
 %global tempest_commit		792be887b61ad9c38706e968a21752cfb05c2381
 %global vcsrepo_commit		6f7507a2a48ff0a58c7db026760a2eb84e382a77
@@ -42,7 +42,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        17%{?dist}
+Release:        18%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -90,6 +90,7 @@ Source38:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit
 
 # stable patches
 Patch0:     rdo-documentation.patch
+Patch1:     rabbitmq-repo-manage.patch
 
 # temporary patches
 Patch100:   compute_driver.patch
@@ -99,14 +100,14 @@ Patch103:   0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 Patch104:   puppetlabs-firewall-pull-request-337.patch
 Patch105:   puppetlabs-firewall-pull-request-365.patch
 Patch106:   puppetlabs-firewall-pull-request-367.patch
-Patch107:   swift-restorecon.patch
 Patch108:   0001-Implement-Keystone-domain-creation.patch
 Patch109:   0001-Fixed-ovs-provider.patch
 Patch110:   0002-Refacfored-a-more-suitable-ovs_redhat-provider.patch
 Patch111:   0001-stop-puppet-from-breaking-neutron.patch
 Patch112:   0001-Fixes-bridge-interface-name-check.patch
 Patch113:   0003-Fixes-bridge-addition-error-if-interface-has-no-IP.patch
-
+Patch114:   0001-Refresh-Neutron-server.patch
+Patch115:   cinder-target-service.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -180,13 +181,10 @@ cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 %patch105 -p1
 %patch106 -p1
 
-# puppet-swift patches
-cd %{_builddir}/%{name}-%{version}/puppet-swift-%{swift_commit}
-%patch107 -p1
-
 # puppet-neutron patches
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 %patch111 -p1
+%patch114 -p1
 
 # puppet-vswitch patches
 cd %{_builddir}/%{name}-%{version}/puppet-vswitch-%{vswitch_commit}
@@ -194,6 +192,14 @@ cd %{_builddir}/%{name}-%{version}/puppet-vswitch-%{vswitch_commit}
 %patch110 -p1
 %patch112 -p1
 %patch113 -p1
+
+# puppetlabs-rabbitmq patches
+cd %{_builddir}/%{name}-%{version}/puppetlabs-rabbitmq-%{rabbitmq_commit}
+%patch1 -p1
+
+# puppet-cinder patches
+cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
+%patch115 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -255,6 +261,13 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 26 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-18
+- Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-18
+- Added 0001-Refresh-Neutron-server.patch (rhbz#1110281)
+- Added rabbitmq-repo-manage.patch (rhbz#1112853)
+- Added cinder-target-service.patch
+- Removed swift-restorecon.patch
+
 * Wed Jun 25 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-17
 - Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-17
 - Added rdo-documentation.patch
