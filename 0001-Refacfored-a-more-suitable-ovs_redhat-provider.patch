@@ -1,0 +1,439 @@
+From 1bdccc59fb9a97797a7130b2f1ac4e4a65d924a6 Mon Sep 17 00:00:00 2001
+From: Gilles Dubreuil <gilles@redhat.com>
+Date: Wed, 21 May 2014 10:13:00 +1000
+Subject: [PATCH] Refacfored a more suitable ovs_redhat provider
+
+  - Added a helper class/library to handle ifcfg content
+
+  - Removed keep_ip and sleep parameters, replaced by
+    automatic behaviour
+
+  - No need for a redhat vs_bridge provider
+
+  - Only port/bridge associated with a phyical interface get a
+    ifcfg file managed
+
+  - Requires Puppet 2.7.8+
+    Not using optional_commands anymore
+
+Change-Id: I584fb1442de9a760b3a092f96cbfcbcd6776fdba
+---
+ lib/puppet/provider/vs_bridge/ovs_redhat.rb |  51 ----------
+ lib/puppet/provider/vs_port/ovs_redhat.rb   | 144 ++++++++++++----------------
+ lib/puppet/type/vs_port.rb                  |  20 +---
+ lib/puppet_x/redhat/ifcfg.rb                | 135 ++++++++++++++++++++++++++
+ 4 files changed, 197 insertions(+), 153 deletions(-)
+ delete mode 100644 lib/puppet/provider/vs_bridge/ovs_redhat.rb
+ create mode 100644 lib/puppet_x/redhat/ifcfg.rb
+
+diff --git a/lib/puppet/provider/vs_bridge/ovs_redhat.rb b/lib/puppet/provider/vs_bridge/ovs_redhat.rb
+deleted file mode 100644
+index 5495d12..0000000
+--- a/lib/puppet/provider/vs_bridge/ovs_redhat.rb
++++ /dev/null
+@@ -1,51 +0,0 @@
+-require "puppet"
+-
+-Base="/etc/sysconfig/network-scripts/ifcfg-" 
+-
+-Puppet::Type.type(:vs_bridge).provide(:ovs_redhat) do
+-  desc "Openvswitch bridge manipulation for RedHat family OSs"
+-
+-  confine :osfamily => :redhat
+-  defaultfor :osfamily => :redhat
+-
+-  optional_commands :vsctl => "/usr/bin/ovs-vsctl",
+-                    :ip    => "/sbin/ip"
+-
+-  def exists?
+-    vsctl("br-exists", @resource[:name])
+-  rescue Puppet::ExecutionFailure
+-    return false
+-  end
+-
+-  def create
+-    vsctl("add-br", @resource[:name])
+-    ip("link", "set", @resource[:name], "up")
+-    external_ids = @resource[:external_ids] if @resource[:external_ids]
+-  end
+-
+-  def destroy
+-    vsctl("del-br", @resource[:name])
+-  end
+-
+-  def external_ids
+-    result = vsctl("br-get-external-id", @resource[:name])
+-    return result.split("\n").join(",")
+-  end
+-
+-  def external_ids=(value)
+-    old_ids = _split(external_ids)
+-    new_ids = _split(value)
+-
+-    new_ids.each_pair do |k,v|
+-      unless old_ids.has_key?(k)
+-        vsctl("br-set-external-id", @resource[:name], k, v)
+-      end
+-    end
+-  end
+-
+-  private
+-
+-  def _split(string, splitter=",")
+-    return Hash[string.split(splitter).map{|i| i.split("=")}]
+-  end
+-end
+diff --git a/lib/puppet/provider/vs_port/ovs_redhat.rb b/lib/puppet/provider/vs_port/ovs_redhat.rb
+index 6d43797..757c152 100644
+--- a/lib/puppet/provider/vs_port/ovs_redhat.rb
++++ b/lib/puppet/provider/vs_port/ovs_redhat.rb
+@@ -1,105 +1,83 @@
+-require "puppet"
++require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'redhat', 'ifcfg.rb'))
+ 
+-Puppet::Type.type(:vs_port).provide(:ovs_redhat) do
+-  desc "Openvswitch port manipulation for RedHat family OSs"
++Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
++  desc 'Openvswitch port manipulation for RedHat OSes family'
+ 
+-  confine :osfamily => :redhat
++  confine    :osfamily => :redhat
+   defaultfor :osfamily => :redhat
+ 
+-  optional_commands :vsctl => "/usr/bin/ovs-vsctl",
+-                    :sleep => "/bin/sleep"
++  commands :ip     => 'ip'
++  commands :ifdown => 'ifdown'
++  commands :ifup   => 'ifup'
++  commands :vsctl  => 'ovs-vsctl'
+ 
+-  def exists?
+-    vsctl("list-ports", @resource[:bridge]).include? @resource[:interface]
++  def create
++    unless vsctl('list-ports', @resource[:bridge]).include? @resource[:interface]
++      super
++    end
++
++    if interface_physical?
++      IFCFG::Port.new(@resource[:interface], @resource[:bridge]).save
++
++      if link?
++        if dynamic?
++          # Persistent MAC address taken from interface
++          bridge_mac_address = File.read("/sys/class/net/#{@resource[:interface]}/address")
++          IFCFG::BridgeDynamic.new(@resource[:bridge], @resource[:interface], bridge_mac_address).save
++        else
++          device = ip('addr', 'show', @resource[:interface])
++          cidr = device.to_s.match(/inet (\d*\.\d*\.\d*\.\d*\/\d*)/)
++          cidr = cidr ? cidr[1] : ""
++          IFCFG::BridgeStatic.new(@resource[:bridge], cidr).save
++        end
++        ifdown(@resource[:interface])
++        ifdown(@resource[:bridge])
++        ifup(@resource[:interface])
++        ifup(@resource[:bridge])
++      else
++        IFCFG::Bridge.new(@resource[:bridge]).save
++      end
++    end
+   end
+ 
+-  def create
+-    if @resource[:keep_ip]
+-      create_bridge_file
+-      create_physical_interface_file
+-      activate_port
++  def exists?
++    if interface_physical?
++      super &&
++      IFCFG::OVS.exists?(@resource[:interface]) &&
++      IFCFG::OVS.exists?(@resource[:bridge])
+     else
+-      vsctl("add-port", @resource[:bridge], @resource[:interface])
++      super
+     end
+   end
+ 
+   def destroy
+-    vsctl("del-port", @resource[:bridge], @resource[:interface])
++    if interface_physical?
++      ifdown(@resource[:bridge])
++      ifdown(@resource[:interface])
++      IFCFG::OVS.remove(@resource[:interface])
++      IFCFG::OVS.remove(@resource[:bridge])
++    end
++    super
+   end
+ 
+   private
+ 
+-  def activate_port
+-    atomic_operation="ifdown #{@resource[:interface]};
+-      ovs-vsctl add-port #{@resource[:bridge]} #{@resource[:interface]};
+-      ifup #{@resource[:interface]};
+-      ifup #{@resource[:bridge]}"
+-    system(atomic_operation)
+-    sleep(@resource[:sleep]) if @resource[:sleep]
+-  end 
+-
+-  def create_physical_interface_file
+-    file = File.open(Base + @resource[:interface], 'w+')
+-    file << "DEVICE=#{@resource[:interface]}\n"
+-    file << "DEVICETYPE=ovs\n"
+-    file << "TYPE=OVSPort\n"
+-    file << "BOOTPROTO=none\n"
+-    file << "OVS_BRIDGE=#{@resource[:bridge]}\n"
+-    file << "ONBOOT=yes\n"
+-    file.close
++  def dynamic?
++    device = ''
++    device = ip('addr', 'show', @resource[:interface])
++    return device =~ /dynamic/ ? true : false
+   end
+ 
+-  def search(file_name, value)
+-    File.open(file_name) { |file| 
+-      file.each_line { |line| 
+-        match = value.match(line)
+-        return match[0] if match
+-      }
+-    }
++  def link?
++    # Cannot use commands for grep!
++    File.read("/sys/class/net/#{@resource[:interface]}/operstate") =~ /up/
+   end
+ 
+-  def create_bridge_file
+-    bridge_file = File.open(Base + @resource[:bridge], 'w+')
+-    interface_file_name = Base + @resource[:interface]
+-
+-    # Ultimately this to go to vs_bridge
+-    bridge_file << "DEVICE=#{@resource[:bridge]}\n"
+-    bridge_file << "TYPE=OVSBridge\n"
+-    bridge_file << "DEVICETYPE=ovs\n"
+-    bridge_file << "ONBOOT=yes\n"
+-    # End ultimately
++  def interface_physical?
++    # OVS port don't have entries in /sys/class/net
+ 
+-    case search(interface_file_name, /bootproto=.*/i)
+-    when /dhcp/
+-       bridge_file << "OVSBOOTPROTO=dhcp\n"
+-       bridge_file << "OVSDHCPINTERFACES=#{@resource[:interface]}\n"
+-    when /static/, /none/
+-      bridge_file << "OVSBOOTPROTO=static\n"  
+-
+-      ipaddr = search(interface_file_name, /ipaddr=.*/i)
+-      if ipaddr.class == String
+-        bridge_file << ipaddr + "\n"
+-      else
+-        raise RuntimeError, 'Undefined IP address'
+-      end
+-      
+-      mask = search(interface_file_name, /(prefix|netmask)=.*/i)
+-      if mask.class == String
+-        bridge_file << mask + "\n"
+-      else
+-        raise RuntimeError, 'Undefined netmask or prefix'
+-      end
+-    else 
+-      raise RuntimeError, 'Undefined boot protocol'
+-    end
+- 
+-    # The idea here to have a fixed MAC address
+-    datapath_id = vsctl("get", "bridge", @resource[:bridge], 'datapath_id')
+-    bridge_mac_address = datapath_id[-14..-3].scan(/.{1,2}/).join(':') if datapath_id
+- 
+-    if bridge_mac_address
+-      bridge_file << "OVS_EXTRA=\"set bridge #{@resource[:bridge]} other-config:hwaddr=#{bridge_mac_address}\"\n"
+-    end
+-    bridge_file.close
++    # Alias interfaces (ethX:Y) must use ethX entries
++    interface = @resource[:interface].sub(/:\d/, '')
++    ! Dir["/sys/class/net/#{interface}"].empty?
+   end
+-end
+\ No newline at end of file
++end
+diff --git a/lib/puppet/type/vs_port.rb b/lib/puppet/type/vs_port.rb
+index df4705e..4527bd9 100644
+--- a/lib/puppet/type/vs_port.rb
++++ b/lib/puppet/type/vs_port.rb
+@@ -16,7 +16,7 @@ Puppet::Type.newtype(:vs_port) do
+   end
+ 
+   newparam(:bridge) do
+-    desc "What bridge to use"
++    desc 'The bridge to attach to'
+ 
+     validate do |value|
+       if !value.is_a?(String)
+@@ -25,24 +25,6 @@ Puppet::Type.newtype(:vs_port) do
+     end
+   end
+ 
+-  newparam(:keep_ip) do
+-    desc "True: keep physical interface's details and assign them to the bridge"
+-
+-    defaultto false
+-  end
+-
+-  newparam(:sleep) do
+-    desc "Waiting time, in seconds (0 by default), for network to sync after activating port, used with keep_ip only"
+-
+-    defaultto '0'
+-
+-    validate do |value|
+-      if value.to_i.class != Fixnum || value.to_i < 0
+-        raise ArgumentError, "sleep requires a positive integer"
+-      end
+-    end
+-  end
+-
+   autorequire(:vs_bridge) do
+     self[:bridge] if self[:bridge]
+   end
+diff --git a/lib/puppet_x/redhat/ifcfg.rb b/lib/puppet_x/redhat/ifcfg.rb
+new file mode 100644
+index 0000000..2092804
+--- /dev/null
++++ b/lib/puppet_x/redhat/ifcfg.rb
+@@ -0,0 +1,135 @@
++module IFCFG
++  class OVS
++    Base = '/etc/sysconfig/network-scripts/ifcfg-'
++
++    def self.remove(name)
++      File.delete(Base + name)
++    rescue Errno::ENOENT
++    end
++
++    def self.exists?(name)
++      File.exist?(Base + name)
++    end
++
++    def initialize(name)
++      @name        = name
++      @device_type = 'ovs'
++      @onboot      = 'yes'
++    end
++
++    def ifcfg
++      { 'DEVICE'       => @name,
++        'DEVICETYPE'   => @device_type,
++        'TYPE'         => @type,
++        'ONBOOT'       => @onboot,
++        'OVSBOOTPROTO' => @bootproto }
++    end
++
++    def replace_or_add(obj, regexp, str)
++      if obj.scan(regexp) == []
++        obj << str << "\n"
++      else
++        obj.gsub(regexp, str)
++      end
++    end
++
++    def file_to_str(filename)
++      data = ''
++      if File.exists?(filename)
++        File.open(filename, 'r').each_line { |line| data << line }
++      end
++      data
++    end
++
++    def save
++      fname = Base + @name
++      str = file_to_str(fname)
++      ifcfg.each { |key, val|
++        str = replace_or_add(str, /^#{key}=.*$/, "#{key}=#{val}")
++      }
++      File.open(fname, 'w') { |file| file << str }
++    end
++
++    def to_s
++      res = ''
++      ifcfg.each { |x, y|
++        res << "#{x}=#{y}\n"
++      }
++      res
++    end
++  end
++
++  class Bridge < OVS
++    def initialize(name, bootproto = nil)
++      super(name)
++      @type      = 'OVSBridge'
++      @bootproto = bootproto ? bootproto : 'none'
++    end
++  end
++
++  class BridgeDynamic < Bridge
++    def initialize(name, interface, bridge_mac_address=nil)
++      super(name, 'dhcp')
++      @interface = interface
++      @bridge_mac_address = bridge_mac_address
++    end
++
++    def ifcfg
++      cfg = super.merge!({ 'OVSDHCPINTERFACES' => @interface })
++      if @bridge_mac_address
++        cfg.merge!({ 'OVS_EXTRA' =>
++        "\"set bridge #{@name} other-config:hwaddr=#{@bridge_mac_address}\"" })
++      end
++      fname = Base + @interface
++      str = file_to_str(fname)
++      arr = ["PEERDNS", "DEFROUTE", "PEERROUTES", "DNS1", "DNS2", "MTU", "NM_CONTROLLED", "NOZEROCONF"]
++      arr.each { |a|
++        str.match(/^#{a}=.*$/) { |m|
++          val = m.to_s.split('=',2)[1]
++          cfg.merge!({ "#{a}" => "#{val}" })
++        }
++      }
++      cfg
++    end
++  end
++
++  class BridgeStatic < Bridge
++    def initialize(name, cidr)
++      super(name)
++      cidr.match('(.*)\/(.*)') { |m|
++        @ipaddr = m[1]
++        @prefix = m[2]
++      }
++    end
++
++    def ifcfg
++      cfg = super
++      if @cidr != ''
++        cfg.merge!({ 'IPADDR' => @ipaddr, 'PREFIX' => @prefix })
++      end
++      fname = Base + @interface
++      str = file_to_str(fname)
++      arr = ["PEERDNS", "DEFROUTE", "PEERROUTES", "DNS1", "DNS2", "MTU", "NM_CONTROLLED", "NOZEROCONF"]
++      arr.each { |a|
++        str.match(/^#{a}=.*$/) { |m|
++          val = m.to_s.split('=',2)[1]
++          cfg.merge!({ "#{a}" => "#{val}" })
++        }
++      }
++      cfg
++    end
++  end
++
++  class Port < OVS
++    def initialize(name, bridge)
++      super(name)
++      @type      = 'OVSPort'
++      @bridge    = bridge
++      @bootproto = 'none'
++    end
++
++    def ifcfg
++      super.merge!({ 'BOOTPROTO' => 'none', 'OVS_BRIDGE' => @bridge })
++    end
++  end
++end
+-- 
+1.9.3
+

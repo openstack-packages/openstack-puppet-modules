@@ -1,48 +1,48 @@
 
-%global apache_commit		bbf9278b24931444022aa67140d3505b748151da
-%global ceilometer_commit	c2f41fb1eb776bcfdaab79c120ac509a861d0828
-%global certmonger_commit	5fbf10fbbff4aed4db30e839c63c99b195e8425a
-%global cinder_commit		57da044279780af66479c429e5803825a87b785e
-%global common_commit		2c0ed2844c606fd806bde0c02e47e79c88fab4a9
-%global concat_commit		031bf261289dcbb32e63b053ed5b3a82117698c0
-%global firewall_commit		c147a624fb3dba7df625d0d7571b1b6669bcfca5
-%global galera_commit		3f63bd5ffdd707b42ef37a0ead3c2cf7e803586f
-%global glance_commit		cb0daf02d7a991be642e62294912d93b036c6a5a
-%global gluster_commit		80c2b13448c97c70a4b4bc0e402e00ecb5d681d5
-%global haproxy_commit		f381510e940ee11feb044c1c728ba2e5af807c79
-%global heat_commit		    17736b2fd726858cb83590f8a8b1d594a087ea44
-%global horizon_commit		bd1c31e87dd0564a8fab8de0516dbbe48241b09a
-%global inifile_commit		fe9b0d5229ea37179a08c4b49239da9bc950acd1
-%global keystone_commit		e61e4c2ab5c67150237e59dab25679ec739d3ebf
-%global memcached_commit	49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
-%global module_data_commit	159fc5e0e21ce9df96c777f0064b5eca88e29cae
-%global mongodb_commit		3f392925710f1758a95f1775d700b5fb787a003d
-%global mysql_commit		8d5fed32c22c5e4231d5a475cfe8060ce8b2ed0f
-%global neutron_commit		66c436bc2f06c5a71d79c674697394a11ec227f9
-%global nova_commit		    1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
-%global nssdb_commit		b3799a9a7c62c3b5b7968f9860220a885b45fb8a
-%global openstack_commit	c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit	2aa760c3497840ad2474f15737846e2ad95c54e5
-%global puppet_commit		07ec49d1f67a498b31b4f164678a76c464e129c4
-%global qpid_commit		    1f0c32b39ad17e7acbd440b50fb6f0875971f5e1
-%global rabbitmq_commit		e7447851a60a419cd51a09ccf807964b36fdebac
-%global rsync_commit		357d51f3a6a22bc3da842736176c3510e507b4fb
-%global sahara_commit		f4e5681cfb289113be1ba49c12709145ecbad938
-%global ssh_commit		    d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
-%global staging_commit		887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
-%global stdlib_commit		62e8c1d76902e6f22cb9f7b3abd43e757b4130a3
-%global swift_commit		80ec3a7576efad5e13d37a8c760ed0ad7f36055f
-%global sysctl_commit		c4486acc2d66de857dbccd8b4b945ea803226705
-%global tempest_commit		792be887b61ad9c38706e968a21752cfb05c2381
-%global vcsrepo_commit		6f7507a2a48ff0a58c7db026760a2eb84e382a77
-%global vlan_commit		    c937de75c28e63fba8d8738ad6a5f2ede517e53d
-%global vswitch_commit		a20f6355f048d2cb6206222b2d045b41ac875db4
-%global xinetd_commit		6b02de8d4f30a819eb404048e4258e3a5e8023c8
+%global apache_commit       bbf9278b24931444022aa67140d3505b748151da
+%global ceilometer_commit   c2f41fb1eb776bcfdaab79c120ac509a861d0828
+%global certmonger_commit   5fbf10fbbff4aed4db30e839c63c99b195e8425a
+%global cinder_commit       57da044279780af66479c429e5803825a87b785e
+%global common_commit       2c0ed2844c606fd806bde0c02e47e79c88fab4a9
+%global concat_commit       031bf261289dcbb32e63b053ed5b3a82117698c0
+%global firewall_commit     c147a624fb3dba7df625d0d7571b1b6669bcfca5
+%global galera_commit       3f63bd5ffdd707b42ef37a0ead3c2cf7e803586f
+%global glance_commit       cb0daf02d7a991be642e62294912d93b036c6a5a
+%global gluster_commit      80c2b13448c97c70a4b4bc0e402e00ecb5d681d5
+%global haproxy_commit      f381510e940ee11feb044c1c728ba2e5af807c79
+%global heat_commit         17736b2fd726858cb83590f8a8b1d594a087ea44
+%global horizon_commit      bd1c31e87dd0564a8fab8de0516dbbe48241b09a
+%global inifile_commit      fe9b0d5229ea37179a08c4b49239da9bc950acd1
+%global keystone_commit     e61e4c2ab5c67150237e59dab25679ec739d3ebf
+%global memcached_commit    49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
+%global module_data_commit  159fc5e0e21ce9df96c777f0064b5eca88e29cae
+%global mongodb_commit      3f392925710f1758a95f1775d700b5fb787a003d
+%global mysql_commit        8d5fed32c22c5e4231d5a475cfe8060ce8b2ed0f
+%global neutron_commit      d7ea12e36542204ed737d3514e2f05f2846fd330
+%global nova_commit         1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
+%global nssdb_commit        b3799a9a7c62c3b5b7968f9860220a885b45fb8a
+%global openstack_commit    c20039004cb39e78c93cd00f154c3b9ba6404951
+%global pacemaker_commit    2aa760c3497840ad2474f15737846e2ad95c54e5
+%global puppet_commit       07ec49d1f67a498b31b4f164678a76c464e129c4
+%global qpid_commit         1f0c32b39ad17e7acbd440b50fb6f0875971f5e1
+%global rabbitmq_commit     e7447851a60a419cd51a09ccf807964b36fdebac
+%global rsync_commit        357d51f3a6a22bc3da842736176c3510e507b4fb
+%global sahara_commit       f4e5681cfb289113be1ba49c12709145ecbad938
+%global ssh_commit          d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
+%global staging_commit      887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
+%global stdlib_commit       62e8c1d76902e6f22cb9f7b3abd43e757b4130a3
+%global swift_commit        80ec3a7576efad5e13d37a8c760ed0ad7f36055f
+%global sysctl_commit       c4486acc2d66de857dbccd8b4b945ea803226705
+%global tempest_commit      792be887b61ad9c38706e968a21752cfb05c2381
+%global vcsrepo_commit      6f7507a2a48ff0a58c7db026760a2eb84e382a77
+%global vlan_commit         c937de75c28e63fba8d8738ad6a5f2ede517e53d
+%global vswitch_commit      a20f6355f048d2cb6206222b2d045b41ac875db4
+%global xinetd_commit       6b02de8d4f30a819eb404048e4258e3a5e8023c8
 
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        18%{?dist}
+Release:        19%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -99,15 +99,16 @@ Patch102:   nova.patch
 Patch103:   0001-Quickfix-to-remove-duplication-with-ceilometer-agent.patch
 Patch104:   puppetlabs-firewall-pull-request-337.patch
 Patch105:   puppetlabs-firewall-pull-request-365.patch
-Patch106:   puppetlabs-firewall-pull-request-367.patch
-Patch108:   0001-Implement-Keystone-domain-creation.patch
-Patch109:   0001-Fixed-ovs-provider.patch
-Patch110:   0002-Refacfored-a-more-suitable-ovs_redhat-provider.patch
-Patch111:   0001-stop-puppet-from-breaking-neutron.patch
-Patch112:   0001-Fixes-bridge-interface-name-check.patch
-Patch113:   0003-Fixes-bridge-addition-error-if-interface-has-no-IP.patch
-Patch114:   0001-Refresh-Neutron-server.patch
-Patch115:   cinder-target-service.patch
+Patch106:   puppetlabs-firewall-pull-request-367-2.patch
+Patch107:   0001-Implement-Keystone-domain-creation.patch
+Patch108:   0001-Fixed-ovs-provider.patch
+Patch109:   0001-Refacfored-a-more-suitable-ovs_redhat-provider.patch
+Patch110:   0001-stop-puppet-from-breaking-neutron.patch
+Patch111:   0001-Fixes-bridge-interface-name-check.patch
+Patch112:   cinder-target-service.patch
+Patch113:   0001-Remove-ability-to-manage-the-nova-uid-gid.patch
+Patch114:   0001-Install-ceph-client-libraries-when-using-rbd.patch
+Patch115:   0001-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -166,10 +167,12 @@ cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
 %patch100 -p1
 %patch102 -p1
 %patch103 -p1
+%patch113 -p1
+%patch114 -p1
 
 # puppet-heat patches
 cd %{_builddir}/%{name}-%{version}/puppet-heat-%{heat_commit}
-%patch108 -p1
+%patch107 -p1
 
 # puppet-openstack patches
 cd %{_builddir}/%{name}-%{version}/puppet-openstack-%{openstack_commit}
@@ -183,15 +186,14 @@ cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 
 # puppet-neutron patches
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
-%patch111 -p1
-%patch114 -p1
+%patch110 -p1
+%patch115 -p1
 
 # puppet-vswitch patches
 cd %{_builddir}/%{name}-%{version}/puppet-vswitch-%{vswitch_commit}
+%patch108 -p1
 %patch109 -p1
-%patch110 -p1
-%patch112 -p1
-%patch113 -p1
+%patch111 -p1
 
 # puppetlabs-rabbitmq patches
 cd %{_builddir}/%{name}-%{version}/puppetlabs-rabbitmq-%{rabbitmq_commit}
@@ -199,7 +201,7 @@ cd %{_builddir}/%{name}-%{version}/puppetlabs-rabbitmq-%{rabbitmq_commit}
 
 # puppet-cinder patches
 cd %{_builddir}/%{name}-%{version}/puppet-cinder-%{cinder_commit}
-%patch115 -p1
+%patch112 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -261,6 +263,18 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jul 30 2014 Iván Chavero <icahvero@redhat.com> - 2014.1-19
+- Bump to the latest stable puppet modules
+- Removed puppetlabs-firewall-pull-request-367.patch 
+- Add puppetlabs-firewall-pull-request-367-2.patch
+- Removed 0002-Refacfored-a-more-suitable-ovs_redhat-provider.patch
+- Removed 0003-Fixes-bridge-addition-error-if-interface-has-no-IP.patch
+- Add 0001-Refacfored-a-more-suitable-ovs_redhat-provider.patch
+- Removed 0001-Refresh-Neutron-server.patch
+- Add 0001-Remove-ability-to-manage-the-nova-uid-gid.patch
+- Add 0001-Install-ceph-client-libraries-when-using-rbd.patch
+- Add 0001-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
+
 * Wed Jun 26 2014 Martin Mágr <mmagr@redhat.com> - 2014.1-18
 - Updated modules to redhat-openstack/openstack-puppet-modules-2014.1-18
 - Added 0001-Refresh-Neutron-server.patch (rhbz#1110281)

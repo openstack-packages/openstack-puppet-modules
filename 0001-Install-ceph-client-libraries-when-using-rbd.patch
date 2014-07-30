@@ -1,0 +1,41 @@
+From e523b5d1f2d56fa0e708371879cca659c592fbd4 Mon Sep 17 00:00:00 2001
+From: Ivan Chavero <ichavero@redhat.com>
+Date: Tue, 8 Jul 2014 21:51:04 -0600
+Subject: [PATCH] Install ceph client libraries when using rbd
+
+Ceph client libraries might not be installed when using the
+nova::compute::rbd class.
+
+Change-Id: Icc2c8e688abbc6d8a1877bfea7be6b30204d1a52
+---
+ manifests/compute/rbd.pp | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/manifests/compute/rbd.pp b/manifests/compute/rbd.pp
+index 009833d..e65d0cd 100644
+--- a/manifests/compute/rbd.pp
++++ b/manifests/compute/rbd.pp
+@@ -53,6 +53,20 @@ class nova::compute::rbd (
+ 
+   include nova::params
+ 
++  # Fedora is the only one that has a different name
++  # for the ceph client package
++  if $::operatingsystem == 'Fedora' {
++    $ceph_package = 'ceph'
++  }
++  else {
++    $ceph_package = 'ceph-common'
++  }
++
++  # Install ceph client libraries
++  package { $ceph_package:
++    ensure => 'installed',
++  }
++
+   nova_config {
+     'libvirt/images_type':          value => 'rbd';
+     'libvirt/images_rbd_pool':      value => $libvirt_images_rbd_pool;
+-- 
+1.9.3
+
