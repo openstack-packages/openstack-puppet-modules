@@ -41,7 +41,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        20%{?dist}
+Release:        20.1%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -162,6 +162,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 # puppet-horizon patches
 cd %{_builddir}/%{name}-%{version}/puppet-horizon-%{horizon_commit}
 %patch0 -p1
+%patch116 -p1
 
 # puppet-nova patches
 cd %{_builddir}/%{name}-%{version}/puppet-nova-%{nova_commit}
@@ -189,6 +190,7 @@ cd %{_builddir}/%{name}-%{version}/puppetlabs-firewall-%{firewall_commit}
 cd %{_builddir}/%{name}-%{version}/puppet-neutron-%{neutron_commit}
 %patch110 -p1
 %patch115 -p1
+%patch117 -p1
 
 # puppet-vswitch patches
 cd %{_builddir}/%{name}-%{version}/puppet-vswitch-%{vswitch_commit}
@@ -264,6 +266,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+
+* Mon Aug 18 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-20.1
+- Added missing patches
 
 * Mon Aug 18 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-20
 - Updated 0001-Refacfored-a-more-suitable-ovs_redhat-provider.patch to patchset 17 (rhbz#1130657)
