@@ -1,4 +1,4 @@
-From 1bdccc59fb9a97797a7130b2f1ac4e4a65d924a6 Mon Sep 17 00:00:00 2001
+From f30b59782890706fb082a7321f4111570bcf58bb Mon Sep 17 00:00:00 2001
 From: Gilles Dubreuil <gilles@redhat.com>
 Date: Wed, 21 May 2014 10:13:00 +1000
 Subject: [PATCH] Refacfored a more suitable ovs_redhat provider
@@ -16,15 +16,19 @@ Subject: [PATCH] Refacfored a more suitable ovs_redhat provider
   - Requires Puppet 2.7.8+
     Not using optional_commands anymore
 
+When the bridge is associated with an active physical interface
+  - It will be initially populated from the existing interface
+    file, inheriting its parameters
+
 Change-Id: I584fb1442de9a760b3a092f96cbfcbcd6776fdba
 ---
- lib/puppet/provider/vs_bridge/ovs_redhat.rb |  51 ----------
- lib/puppet/provider/vs_port/ovs_redhat.rb   | 144 ++++++++++++----------------
- lib/puppet/type/vs_port.rb                  |  20 +---
- lib/puppet_x/redhat/ifcfg.rb                | 135 ++++++++++++++++++++++++++
- 4 files changed, 197 insertions(+), 153 deletions(-)
+ lib/puppet/provider/vs_bridge/ovs_redhat.rb |  51 --------
+ lib/puppet/provider/vs_port/ovs_redhat.rb   | 181 +++++++++++++++-------------
+ lib/puppet/type/vs_port.rb                  |  20 +--
+ lib/puppetx/redhat/ifcfg.rb                 |  82 +++++++++++++
+ 4 files changed, 181 insertions(+), 153 deletions(-)
  delete mode 100644 lib/puppet/provider/vs_bridge/ovs_redhat.rb
- create mode 100644 lib/puppet_x/redhat/ifcfg.rb
+ create mode 100644 lib/puppetx/redhat/ifcfg.rb
 
 diff --git a/lib/puppet/provider/vs_bridge/ovs_redhat.rb b/lib/puppet/provider/vs_bridge/ovs_redhat.rb
 deleted file mode 100644
@@ -84,19 +88,29 @@ index 5495d12..0000000
 -  end
 -end
 diff --git a/lib/puppet/provider/vs_port/ovs_redhat.rb b/lib/puppet/provider/vs_port/ovs_redhat.rb
-index 6d43797..757c152 100644
+index 6d43797..4f30a43 100644
 --- a/lib/puppet/provider/vs_port/ovs_redhat.rb
 +++ b/lib/puppet/provider/vs_port/ovs_redhat.rb
-@@ -1,105 +1,83 @@
+@@ -1,105 +1,120 @@
 -require "puppet"
-+require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'redhat', 'ifcfg.rb'))
++require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppetx', 'redhat', 'ifcfg.rb'))
  
 -Puppet::Type.type(:vs_port).provide(:ovs_redhat) do
 -  desc "Openvswitch port manipulation for RedHat family OSs"
-+Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
-+  desc 'Openvswitch port manipulation for RedHat OSes family'
++BASE = '/etc/sysconfig/network-scripts/ifcfg-'
  
 -  confine :osfamily => :redhat
++# When not seedling from interface file
++DEFAULT = {
++  'ONBOOT'        => 'yes',
++  'BOOTPROTO'     => 'dhcp',
++  'PEERDNS'       => 'no',
++  'NM_CONTROLLED' => 'no',
++  'NOZEROCONF'    => 'yes' }
++
++Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
++  desc 'Openvswitch port manipulation for RedHat OSes family'
++
 +  confine    :osfamily => :redhat
    defaultfor :osfamily => :redhat
  
@@ -110,31 +124,33 @@ index 6d43797..757c152 100644
 -  def exists?
 -    vsctl("list-ports", @resource[:bridge]).include? @resource[:interface]
 +  def create
-+    unless vsctl('list-ports', @resource[:bridge]).include? @resource[:interface]
++    unless vsctl('list-ports',
++      @resource[:bridge]).include? @resource[:interface]
 +      super
 +    end
 +
 +    if interface_physical?
-+      IFCFG::Port.new(@resource[:interface], @resource[:bridge]).save
++      template = DEFAULT
++      extras   = nil
 +
 +      if link?
-+        if dynamic?
-+          # Persistent MAC address taken from interface
-+          bridge_mac_address = File.read("/sys/class/net/#{@resource[:interface]}/address")
-+          IFCFG::BridgeDynamic.new(@resource[:bridge], @resource[:interface], bridge_mac_address).save
-+        else
-+          device = ip('addr', 'show', @resource[:interface])
-+          cidr = device.to_s.match(/inet (\d*\.\d*\.\d*\.\d*\/\d*)/)
-+          cidr = cidr ? cidr[1] : ""
-+          IFCFG::BridgeStatic.new(@resource[:bridge], cidr).save
++        extras = dynamic_default if dynamic?
++        if File.exist?(BASE + @resource[:interface])
++          template = from_str(File.read(BASE + @resource[:interface]))
 +        end
-+        ifdown(@resource[:interface])
-+        ifdown(@resource[:bridge])
-+        ifup(@resource[:interface])
-+        ifup(@resource[:bridge])
-+      else
-+        IFCFG::Bridge.new(@resource[:bridge]).save
 +      end
++
++      port = IFCFG::Port.new(@resource[:interface], @resource[:bridge])
++      port.save(BASE + @resource[:interface])
++
++      bridge = IFCFG::Bridge.new(@resource[:bridge], template)
++      bridge.set(extras) if extras
++      bridge.save(BASE + @resource[:bridge])
++
++      ifdown(@resource[:interface])
++      ifdown(@resource[:bridge])
++      ifup(@resource[:interface])
++      ifup(@resource[:bridge])
 +    end
    end
  
@@ -199,8 +215,13 @@ index 6d43797..757c152 100644
 -      }
 -    }
 +  def link?
-+    # Cannot use commands for grep!
-+    File.read("/sys/class/net/#{@resource[:interface]}/operstate") =~ /up/
++    if File.read("/sys/class/net/#{@resource[:interface]}/operstate") =~ /up/
++      return true
++    else
++      return false
++    end
++  rescue Errno::ENOENT
++    return false
    end
  
 -  def create_bridge_file
@@ -213,9 +234,7 @@ index 6d43797..757c152 100644
 -    bridge_file << "DEVICETYPE=ovs\n"
 -    bridge_file << "ONBOOT=yes\n"
 -    # End ultimately
-+  def interface_physical?
-+    # OVS port don't have entries in /sys/class/net
- 
+-
 -    case search(interface_file_name, /bootproto=.*/i)
 -    when /dhcp/
 -       bridge_file << "OVSBOOTPROTO=dhcp\n"
@@ -238,7 +257,14 @@ index 6d43797..757c152 100644
 -      end
 -    else 
 -      raise RuntimeError, 'Undefined boot protocol'
--    end
++  def dynamic_default
++    list = { 'OVSDHCPINTERFACES' => @resource[:interface] }
++    # Persistent MAC address taken from interface
++    bridge_mac_address = File.read("/sys/class/net/#{@resource[:interface]}/address").chomp
++    if bridge_mac_address != ''
++      list.merge!({ 'OVS_EXTRA' =>
++        "\"set bridge #{@resource[:bridge]} other-config:hwaddr=#{bridge_mac_address}\"" })
+     end
 - 
 -    # The idea here to have a fixed MAC address
 -    datapath_id = vsctl("get", "bridge", @resource[:bridge], 'datapath_id')
@@ -248,9 +274,24 @@ index 6d43797..757c152 100644
 -      bridge_file << "OVS_EXTRA=\"set bridge #{@resource[:bridge]} other-config:hwaddr=#{bridge_mac_address}\"\n"
 -    end
 -    bridge_file.close
++    list
++  end
++
++  def interface_physical?
++    # OVS ports don't have entries in /sys/class/net
 +    # Alias interfaces (ethX:Y) must use ethX entries
 +    interface = @resource[:interface].sub(/:\d/, '')
 +    ! Dir["/sys/class/net/#{interface}"].empty?
++  end
++
++  def from_str(data)
++    items = {}
++    data.each_line { |line|
++      line.match(/^(.*)=(.*)$/) { |m|
++        items.merge!(m[1] => m[2])
++      }
++    }
++    items
    end
 -end
 \ No newline at end of file
@@ -293,144 +334,91 @@ index df4705e..4527bd9 100644
    autorequire(:vs_bridge) do
      self[:bridge] if self[:bridge]
    end
-diff --git a/lib/puppet_x/redhat/ifcfg.rb b/lib/puppet_x/redhat/ifcfg.rb
+diff --git a/lib/puppetx/redhat/ifcfg.rb b/lib/puppetx/redhat/ifcfg.rb
 new file mode 100644
-index 0000000..2092804
+index 0000000..262e6e1
 --- /dev/null
-+++ b/lib/puppet_x/redhat/ifcfg.rb
-@@ -0,0 +1,135 @@
++++ b/lib/puppetx/redhat/ifcfg.rb
+@@ -0,0 +1,82 @@
 +module IFCFG
 +  class OVS
-+    Base = '/etc/sysconfig/network-scripts/ifcfg-'
++    attr_reader :ifcfg
++
++    def self.exists?(name)
++      File.exist?(BASE + name)
++    end
 +
 +    def self.remove(name)
-+      File.delete(Base + name)
++      File.delete(BASE + name)
 +    rescue Errno::ENOENT
 +    end
 +
-+    def self.exists?(name)
-+      File.exist?(Base + name)
++    def initialize(name, seed=nil)
++      @name  = name
++      @ifcfg = {}
++      set(seed)
++      set_key('DEVICE', @name)
++      set_key('DEVICETYPE', 'ovs')
++      replace_key('BOOTPROTO', 'OVSBOOTPROTO') if self.class == IFCFG::Bridge
 +    end
 +
-+    def initialize(name)
-+      @name        = name
-+      @device_type = 'ovs'
-+      @onboot      = 'yes'
++    def del_key(key)
++      @ifcfg.delete(key)
 +    end
 +
-+    def ifcfg
-+      { 'DEVICE'       => @name,
-+        'DEVICETYPE'   => @device_type,
-+        'TYPE'         => @type,
-+        'ONBOOT'       => @onboot,
-+        'OVSBOOTPROTO' => @bootproto }
++    def key?(key)
++      @ifcfg.has_key?(key)
 +    end
 +
-+    def replace_or_add(obj, regexp, str)
-+      if obj.scan(regexp) == []
-+        obj << str << "\n"
-+      else
-+        obj.gsub(regexp, str)
++    def key(key)
++      @ifcfg.has_key?(key)
++    end
++
++    def replace_key(key, new_key)
++      value = @ifcfg[key]
++      @ifcfg.delete(key)
++      set_key(new_key, value)
++    end
++
++    def set(list)
++      if list != nil && list.class == Hash
++        list.each { |key, value| set_key(key, value) }
 +      end
 +    end
 +
-+    def file_to_str(filename)
-+      data = ''
-+      if File.exists?(filename)
-+        File.open(filename, 'r').each_line { |line| data << line }
-+      end
-+      data
-+    end
-+
-+    def save
-+      fname = Base + @name
-+      str = file_to_str(fname)
-+      ifcfg.each { |key, val|
-+        str = replace_or_add(str, /^#{key}=.*$/, "#{key}=#{val}")
-+      }
-+      File.open(fname, 'w') { |file| file << str }
++    def set_key(key, value)
++      @ifcfg.delete_if { |k, v| k == key } if self.key?(key)
++      @ifcfg.merge!({key => value })
 +    end
 +
 +    def to_s
-+      res = ''
-+      ifcfg.each { |x, y|
-+        res << "#{x}=#{y}\n"
++      str = ''
++      @ifcfg.each { |x, y|
++        str << "#{x}=#{y}\n"
 +      }
-+      res
++      str
++    end
++
++    def save(filename)
++      File.open(filename, 'w') { |file| file << self.to_s }
 +    end
 +  end
 +
 +  class Bridge < OVS
-+    def initialize(name, bootproto = nil)
-+      super(name)
-+      @type      = 'OVSBridge'
-+      @bootproto = bootproto ? bootproto : 'none'
-+    end
-+  end
-+
-+  class BridgeDynamic < Bridge
-+    def initialize(name, interface, bridge_mac_address=nil)
-+      super(name, 'dhcp')
-+      @interface = interface
-+      @bridge_mac_address = bridge_mac_address
-+    end
-+
-+    def ifcfg
-+      cfg = super.merge!({ 'OVSDHCPINTERFACES' => @interface })
-+      if @bridge_mac_address
-+        cfg.merge!({ 'OVS_EXTRA' =>
-+        "\"set bridge #{@name} other-config:hwaddr=#{@bridge_mac_address}\"" })
-+      end
-+      fname = Base + @interface
-+      str = file_to_str(fname)
-+      arr = ["PEERDNS", "DEFROUTE", "PEERROUTES", "DNS1", "DNS2", "MTU", "NM_CONTROLLED", "NOZEROCONF"]
-+      arr.each { |a|
-+        str.match(/^#{a}=.*$/) { |m|
-+          val = m.to_s.split('=',2)[1]
-+          cfg.merge!({ "#{a}" => "#{val}" })
-+        }
-+      }
-+      cfg
-+    end
-+  end
-+
-+  class BridgeStatic < Bridge
-+    def initialize(name, cidr)
-+      super(name)
-+      cidr.match('(.*)\/(.*)') { |m|
-+        @ipaddr = m[1]
-+        @prefix = m[2]
-+      }
-+    end
-+
-+    def ifcfg
-+      cfg = super
-+      if @cidr != ''
-+        cfg.merge!({ 'IPADDR' => @ipaddr, 'PREFIX' => @prefix })
-+      end
-+      fname = Base + @interface
-+      str = file_to_str(fname)
-+      arr = ["PEERDNS", "DEFROUTE", "PEERROUTES", "DNS1", "DNS2", "MTU", "NM_CONTROLLED", "NOZEROCONF"]
-+      arr.each { |a|
-+        str.match(/^#{a}=.*$/) { |m|
-+          val = m.to_s.split('=',2)[1]
-+          cfg.merge!({ "#{a}" => "#{val}" })
-+        }
-+      }
-+      cfg
++    def initialize(name, template=nil)
++      super(name, template)
++      set_key('TYPE', 'OVSBridge')
++      del_key('HWADDR')
 +    end
 +  end
 +
 +  class Port < OVS
 +    def initialize(name, bridge)
 +      super(name)
-+      @type      = 'OVSPort'
-+      @bridge    = bridge
-+      @bootproto = 'none'
-+    end
-+
-+    def ifcfg
-+      super.merge!({ 'BOOTPROTO' => 'none', 'OVS_BRIDGE' => @bridge })
++      set_key('TYPE', 'OVSPort')
++      set_key('OVS_BRIDGE', bridge)
++      set_key('ONBOOT', 'yes')
++      set_key('BOOTPROTO', 'none')
 +    end
 +  end
 +end

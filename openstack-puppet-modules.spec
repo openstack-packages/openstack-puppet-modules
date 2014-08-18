@@ -22,7 +22,7 @@
 %global nova_commit         1e77a9d48a85a3ae6d30993b3c887f58e4a5973c
 %global nssdb_commit        b3799a9a7c62c3b5b7968f9860220a885b45fb8a
 %global openstack_commit    c20039004cb39e78c93cd00f154c3b9ba6404951
-%global pacemaker_commit    2aa760c3497840ad2474f15737846e2ad95c54e5
+%global pacemaker_commit        0ed9ee8a29c0f27e86727d415b39d2715332df7d
 %global puppet_commit       07ec49d1f67a498b31b4f164678a76c464e129c4
 %global qpid_commit         1f0c32b39ad17e7acbd440b50fb6f0875971f5e1
 %global rabbitmq_commit     e7447851a60a419cd51a09ccf807964b36fdebac
@@ -39,10 +39,9 @@
 %global vswitch_commit      a20f6355f048d2cb6206222b2d045b41ac875db4
 %global xinetd_commit       6b02de8d4f30a819eb404048e4258e3a5e8023c8
 
-
 Name:           openstack-puppet-modules
 Version:        2014.1
-Release:        19.3%{?dist}
+Release:        20%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -109,6 +108,8 @@ Patch112:   cinder-target-service.patch
 Patch113:   0001-Remove-ability-to-manage-the-nova-uid-gid.patch
 Patch114:   0001-Install-ceph-client-libraries-when-using-rbd.patch
 Patch115:   0001-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
+Patch116:   0001-Just-clean-original-config.patch
+Patch117:   0001-Fixes-plugin.ini-error.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -263,6 +264,12 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+
+* Mon Aug 18 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-20
+- Updated 0001-Refacfored-a-more-suitable-ovs_redhat-provider.patch to patchset 17 (rhbz#1130657)
+- Bump Pacemaker to the latest version (rhbz#1120584)
+- Add 0001-Fixes-plugin.ini-error.patch (rhbz#1114739) 
+
 * Wed Jul 30 2014 Iván Chavero <icahvero@redhat.com> - 2014.1-19.3
 - Fixed sources upload
 
