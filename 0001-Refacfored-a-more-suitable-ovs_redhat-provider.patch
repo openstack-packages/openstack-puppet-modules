@@ -1,4 +1,4 @@
-From f30b59782890706fb082a7321f4111570bcf58bb Mon Sep 17 00:00:00 2001
+From 87e21ac6b3a62df614c082f973f817f5ef5c6e61 Mon Sep 17 00:00:00 2001
 From: Gilles Dubreuil <gilles@redhat.com>
 Date: Wed, 21 May 2014 10:13:00 +1000
 Subject: [PATCH] Refacfored a more suitable ovs_redhat provider
@@ -22,12 +22,14 @@ When the bridge is associated with an active physical interface
 
 Change-Id: I584fb1442de9a760b3a092f96cbfcbcd6776fdba
 ---
- lib/puppet/provider/vs_bridge/ovs_redhat.rb |  51 --------
- lib/puppet/provider/vs_port/ovs_redhat.rb   | 181 +++++++++++++++-------------
- lib/puppet/type/vs_port.rb                  |  20 +--
- lib/puppetx/redhat/ifcfg.rb                 |  82 +++++++++++++
- 4 files changed, 181 insertions(+), 153 deletions(-)
+ lib/puppet/provider/vs_bridge/ovs_redhat.rb   |  51 --------
+ lib/puppet/provider/vs_port/ovs_redhat.rb     | 179 ++++++++++++++------------
+ lib/puppet/provider/vs_port/ovs_redhat_el6.rb |  17 +++
+ lib/puppet/type/vs_port.rb                    |  20 +--
+ lib/puppetx/redhat/ifcfg.rb                   |  82 ++++++++++++
+ 5 files changed, 197 insertions(+), 152 deletions(-)
  delete mode 100644 lib/puppet/provider/vs_bridge/ovs_redhat.rb
+ create mode 100644 lib/puppet/provider/vs_port/ovs_redhat_el6.rb
  create mode 100644 lib/puppetx/redhat/ifcfg.rb
 
 diff --git a/lib/puppet/provider/vs_bridge/ovs_redhat.rb b/lib/puppet/provider/vs_bridge/ovs_redhat.rb
@@ -88,7 +90,7 @@ index 5495d12..0000000
 -  end
 -end
 diff --git a/lib/puppet/provider/vs_port/ovs_redhat.rb b/lib/puppet/provider/vs_port/ovs_redhat.rb
-index 6d43797..4f30a43 100644
+index 6d43797..f2cf88d 100644
 --- a/lib/puppet/provider/vs_port/ovs_redhat.rb
 +++ b/lib/puppet/provider/vs_port/ovs_redhat.rb
 @@ -1,105 +1,120 @@
@@ -147,8 +149,8 @@ index 6d43797..4f30a43 100644
 +      bridge.set(extras) if extras
 +      bridge.save(BASE + @resource[:bridge])
 +
-+      ifdown(@resource[:interface])
 +      ifdown(@resource[:bridge])
++      ifdown(@resource[:interface])
 +      ifup(@resource[:interface])
 +      ifup(@resource[:bridge])
 +    end
@@ -272,8 +274,6 @@ index 6d43797..4f30a43 100644
 - 
 -    if bridge_mac_address
 -      bridge_file << "OVS_EXTRA=\"set bridge #{@resource[:bridge]} other-config:hwaddr=#{bridge_mac_address}\"\n"
--    end
--    bridge_file.close
 +    list
 +  end
 +
@@ -286,15 +286,39 @@ index 6d43797..4f30a43 100644
 +
 +  def from_str(data)
 +    items = {}
-+    data.each_line { |line|
-+      line.match(/^(.*)=(.*)$/) { |m|
++    data.each_line do |line|
++      if m = line.match(/^(.*)=(.*)$/)
 +        items.merge!(m[1] => m[2])
-+      }
-+    }
++      end
+     end
+-    bridge_file.close
 +    items
    end
 -end
 \ No newline at end of file
++end
+diff --git a/lib/puppet/provider/vs_port/ovs_redhat_el6.rb b/lib/puppet/provider/vs_port/ovs_redhat_el6.rb
+new file mode 100644
+index 0000000..c50a9b9
+--- /dev/null
++++ b/lib/puppet/provider/vs_port/ovs_redhat_el6.rb
+@@ -0,0 +1,17 @@
++Puppet::Type.type(:vs_port).provide(:ovs_redhat_el6, :parent => :ovs_redhat) do
++  desc 'Openvswitch port manipulation for RedHat OSes family'
++
++  confine    :osfamily => :redhat, :operatingsystemmajrelease => 6
++  defaultfor :osfamily => :redhat, :operatingsystemmajrelease => 6
++
++  private
++
++  def dynamic?
++    # iproute doesn't behave as expected on rhel6 for dynamic interfaces
++    if File.read(BASE + @resource[:interface]) =~ /^BOOTPROTO=['"]?dhcp['"]?$/
++      return true
++    else
++      return false
++    end
++  end
 +end
 diff --git a/lib/puppet/type/vs_port.rb b/lib/puppet/type/vs_port.rb
 index df4705e..4527bd9 100644
