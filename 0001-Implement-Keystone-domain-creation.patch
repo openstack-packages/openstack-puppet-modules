@@ -1,6 +1,6 @@
-From 3a38aa6eda5a57299f20bf0cabb10442e1a2cc89 Mon Sep 17 00:00:00 2001
-From: Martin Magr <mmagr@redhat.com>
-Date: Thu, 5 Jun 2014 14:24:47 +0200
+From 9cdd6abf5e73a7e6e5080f0388bd2bea7cce729b Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Wed, 10 Sep 2014 18:32:07 +0200
 Subject: [PATCH] Implement Keystone domain creation
 
 Keystone domain has to be created for Heat. This patch implements this
@@ -211,11 +211,11 @@ index 0000000..8862fe5
 +
 +end
 diff --git a/lib/puppet/type/heat_config.rb b/lib/puppet/type/heat_config.rb
-index 3534e22..131cfad 100644
+index adcc5ce..75613a9 100644
 --- a/lib/puppet/type/heat_config.rb
 +++ b/lib/puppet/type/heat_config.rb
-@@ -16,4 +16,8 @@ Puppet::Type.newtype(:heat_config) do
-     end
+@@ -40,4 +40,8 @@ Puppet::Type.newtype(:heat_config) do
+     defaultto false
    end
  
 +  def create
@@ -262,7 +262,7 @@ index 0000000..d6e1eee
 +end
 diff --git a/manifests/keystone/domain.pp b/manifests/keystone/domain.pp
 new file mode 100644
-index 0000000..0ef4b6a
+index 0000000..5cb98b7
 --- /dev/null
 +++ b/manifests/keystone/domain.pp
 @@ -0,0 +1,73 @@
@@ -341,3 +341,4 @@ index 0000000..0ef4b6a
 +}
 -- 
 1.9.3
+

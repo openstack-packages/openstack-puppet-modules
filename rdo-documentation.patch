@@ -1,6 +1,6 @@
-From 87721197918bb50682545c0c95a8a6b0b9c8b5d6 Mon Sep 17 00:00:00 2001
-From: Martin Magr <mmagr@redhat.com>
-Date: Thu, 19 Jun 2014 12:49:20 +0200
+From fb247cf025d605a7caeb39156cb93af8b17aa229 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Wed, 10 Sep 2014 18:19:28 +0200
 Subject: [PATCH] Change default documentation URL
 
 Documentation should point to RDO docs by default. This patch is changing it.
@@ -11,13 +11,13 @@ Fixes: rhbz#1092019
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/manifests/init.pp b/manifests/init.pp
-index aa3f823..640a964 100644
+index 985a564..64eb5af 100644
 --- a/manifests/init.pp
 +++ b/manifests/init.pp
-@@ -185,7 +185,7 @@ class horizon(
+@@ -206,7 +206,7 @@ class horizon(
    $available_regions       = undef,
    $api_result_limit        = 1000,
-   $log_level               = 'DEBUG',
+   $log_level               = 'INFO',
 -  $help_url                = 'http://docs.openstack.org',
 +  $help_url                = 'http://openstack.redhat.com/Docs',
    $local_settings_template = 'horizon/local_settings.py.erb',
@@ -25,3 +25,4 @@ index aa3f823..640a964 100644
    $bind_address            = undef,
 -- 
 1.9.3
+

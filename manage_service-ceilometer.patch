@@ -1,6 +1,6 @@
-From 26fd14602be2687db9b7cb236d1014bbfefe9d16 Mon Sep 17 00:00:00 2001
-From: Martin Magr <mmagr@redhat.com>
-Date: Wed, 20 Aug 2014 15:57:55 +0200
+From 8c3bf1dbbf13747f475920bfae2ae4dc0830a47d Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Wed, 10 Sep 2014 19:04:51 +0200
 Subject: [PATCH] Add manage_service feature
 
 puppet-ceilometer lacks of disabling service managing. This patch adds
@@ -10,7 +10,7 @@ Closes-bug: #1359823
 Change-Id: Iee545b46ef5d7cf92859356ae84b8103564bf047
 
 Conflicts:
-	manifests/collector.pp
+        manifests/collector.pp
 ---
  manifests/agent/central.pp      | 13 ++++++++-----
  manifests/agent/compute.pp      | 13 ++++++++-----
@@ -18,8 +18,8 @@ Conflicts:
  manifests/alarm/evaluator.pp    | 13 ++++++++-----
  manifests/alarm/notifier.pp     | 11 +++++++----
  manifests/api.pp                | 11 +++++++----
- manifests/collector.pp          | 13 ++++++++-----
- 7 files changed, 53 insertions(+), 32 deletions(-)
+ manifests/collector.pp          | 17 ++++++++++-------
+ 7 files changed, 55 insertions(+), 34 deletions(-)
 
 diff --git a/manifests/agent/central.pp b/manifests/agent/central.pp
 index 0a07856..4f7aee2 100644
@@ -173,7 +173,7 @@ index 1b09baa..29d9d2b 100644
  
    Package['ceilometer-common'] -> Service['ceilometer-alarm-notifier']
 diff --git a/manifests/api.pp b/manifests/api.pp
-index 92406a8..9182ba2 100644
+index bdb0976..d7427e8 100644
 --- a/manifests/api.pp
 +++ b/manifests/api.pp
 @@ -37,6 +37,7 @@
@@ -202,7 +202,7 @@ index 92406a8..9182ba2 100644
  
    Package['ceilometer-common'] -> Service['ceilometer-api']
 diff --git a/manifests/collector.pp b/manifests/collector.pp
-index cc0661f..a489143 100644
+index 2506efb..d3d1ec3 100644
 --- a/manifests/collector.pp
 +++ b/manifests/collector.pp
 @@ -5,7 +5,8 @@
@@ -215,17 +215,21 @@ index cc0661f..a489143 100644
  ) {
  
    include ceilometer::params
-@@ -15,10 +16,12 @@ class ceilometer::collector (
+@@ -15,12 +16,14 @@ class ceilometer::collector (
    Package[$::ceilometer::params::collector_package_name] -> Service['ceilometer-collector']
    ensure_packages([$::ceilometer::params::collector_package_name])
  
 -  if $enabled {
 -    $service_ensure = 'running'
+-    Class['ceilometer::db'] -> Service['ceilometer-collector']
+-    Exec['ceilometer-dbsync'] ~> Service['ceilometer-collector']
 -  } else {
 -    $service_ensure = 'stopped'
 +  if $manage_service {
 +    if $enabled {
 +      $service_ensure = 'running'
++      Class['ceilometer::db'] -> Service['ceilometer-collector']
++      Exec['ceilometer-dbsync'] ~> Service['ceilometer-collector']
 +    } else {
 +      $service_ensure = 'stopped'
 +    }

@@ -1,6 +1,6 @@
-From 6259df9c598c6b52c249084a4417e014e745cd21 Mon Sep 17 00:00:00 2001
-From: Martin Magr <mmagr@redhat.com>
-Date: Mon, 25 Aug 2014 15:15:55 +0200
+From b755ba6fd4772c015aace50647cf9f45924b6ef2 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Wed, 10 Sep 2014 19:34:11 +0200
 Subject: [PATCH] Add manage_service feature
 
 puppet-glance lacks of disabling service managing. This patch adds
@@ -10,18 +10,18 @@ Change-Id: I222b1a3318f5163f6ad1e39cbb8be10c440ab99f
 Closes-bug: #1359823
 
 Conflicts:
-	manifests/api.pp
-	manifests/registry.pp
+        manifests/api.pp
+        manifests/registry.pp
 ---
  manifests/api.pp      | 15 +++++++++++----
  manifests/registry.pp | 34 +++++++++++++++++++++-------------
  2 files changed, 32 insertions(+), 17 deletions(-)
 
 diff --git a/manifests/api.pp b/manifests/api.pp
-index 4132014..c1977aa 100644
+index 9b68695..a5745ad 100644
 --- a/manifests/api.pp
 +++ b/manifests/api.pp
-@@ -92,6 +92,10 @@
+@@ -96,6 +96,10 @@
  #   (optional) User to authenticate as with keystone.
  #   Defaults to 'glance'.
  #
@@ -32,15 +32,15 @@ index 4132014..c1977aa 100644
  # [*enabled*]
  #   (optional) Whether to enable services.
  #   Defaults to true.
-@@ -167,6 +171,7 @@ class glance::api(
-   $pipeline              = 'keystone+cachemanagement',
-   $keystone_tenant       = 'services',
-   $keystone_user         = 'glance',
+@@ -181,6 +185,7 @@ class glance::api(
+   $pipeline                 = 'keystone+cachemanagement',
+   $keystone_tenant          = 'services',
+   $keystone_user            = 'glance',
 +  $manage_service           = true,
-   $enabled               = true,
-   $sql_idle_timeout      = '3600',
-   $sql_connection        = 'sqlite:///var/lib/glance/glance.sqlite',
-@@ -393,10 +398,12 @@ class glance::api(
+   $enabled                  = true,
+   $use_syslog               = false,
+   $log_facility             = 'LOG_USER',
+@@ -423,10 +428,12 @@ class glance::api(
            '/etc/glance/glance-cache.conf']:
    }
  
@@ -58,10 +58,10 @@ index 4132014..c1977aa 100644
  
    service { 'glance-api':
 diff --git a/manifests/registry.pp b/manifests/registry.pp
-index 2798d7d..2f7abba 100644
+index bac8b71..da242e3 100644
 --- a/manifests/registry.pp
 +++ b/manifests/registry.pp
-@@ -75,8 +75,13 @@
+@@ -84,8 +84,13 @@
  #    (optional) Syslog facility to receive log lines.
  #    Defaults to LOG_USER.
  #
@@ -76,15 +76,15 @@ index 2798d7d..2f7abba 100644
  #
  #  [*purge_config*]
  #    (optional) Whether to create only the specified config values in
-@@ -121,6 +126,7 @@ class glance::registry(
-   $pipeline          = 'keystone',
-   $use_syslog        = false,
-   $log_facility      = 'LOG_USER',
+@@ -128,6 +133,7 @@ class glance::registry(
+   $pipeline              = 'keystone',
+   $use_syslog            = false,
+   $log_facility          = 'LOG_USER',
 +  $manage_service        = true,
-   $enabled           = true,
-   $purge_config      = false,
-   $cert_file         = false,
-@@ -292,21 +298,23 @@ class glance::registry(
+   $enabled               = true,
+   $purge_config          = false,
+   $cert_file             = false,
+@@ -317,21 +323,23 @@ class glance::registry(
            '/etc/glance/glance-registry-paste.ini']:
    }
  

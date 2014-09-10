@@ -1,6 +1,6 @@
-From 97662a32ec863f69d15c4e3af635f997cfa92208 Mon Sep 17 00:00:00 2001
-From: Martin Magr <mmagr@redhat.com>
-Date: Mon, 25 Aug 2014 14:52:37 +0200
+From 42a4a8ae65da1e71503e2aba2a1af82a09283b63 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Wed, 10 Sep 2014 19:29:29 +0200
 Subject: [PATCH] Add manage_service feature
 
 puppet-keystone lacks of disabling service managing. This patch adds
@@ -10,13 +10,13 @@ Change-Id: I80a55857442c6cd32387481fbe68b54f52e827a1
 Closes-bug: #1359823
 
 Conflicts:
-	manifests/init.pp
+        manifests/init.pp
 ---
  manifests/init.pp | 16 ++++++++++++----
  1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/manifests/init.pp b/manifests/init.pp
-index 87cd613..ce0c7bd 100644
+index 80d8819..f5b2081 100644
 --- a/manifests/init.pp
 +++ b/manifests/init.pp
 @@ -38,6 +38,11 @@
@@ -29,18 +29,18 @@ index 87cd613..ce0c7bd 100644
 +#      Defaults to true.
 +#
  #   [enabled] If the keystone services should be enabled. Optional. Default to true.
- #   [sql_connection] Url used to connect to database.
- #   [idle_timeout] Timeout when db connections should be reaped.
-@@ -168,6 +173,7 @@ class keystone(
+ #
+ #   [*database_connection*]
+@@ -243,6 +248,7 @@ class keystone(
    $ssl_cert_subject      = '/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
    $cache_dir             = '/var/cache/keystone',
    $memcache_servers      = false,
 +  $manage_service        = true,
    $enabled               = true,
-   $sql_connection        = 'sqlite:////var/lib/keystone/keystone.db',
-   $idle_timeout          = '200',
-@@ -403,10 +409,12 @@ class keystone(
-     keystone_config { 'DEFAULT/rabbit_ha_queues': value => false }
+   $database_connection   = 'sqlite:////var/lib/keystone/keystone.db',
+   $database_idle_timeout = '200',
+@@ -552,10 +558,12 @@ class keystone(
+     }
    }
  
 -  if $enabled {
@@ -55,7 +55,7 @@ index 87cd613..ce0c7bd 100644
 +    }
    }
  
-   service { 'keystone':
+   if $validate_service {
 -- 
 1.9.3
 
