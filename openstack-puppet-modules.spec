@@ -43,7 +43,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.2
-Release:        0.3%{?dist}
+Release:        0.3.1%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -112,6 +112,7 @@ Patch121:   manage_service-keystone.patch
 Patch122:   manage_service-swift.patch
 Patch123:   manage_service-glance.patch
 Patch124:   manage_service-neutron.patch
+Patch125:   0001-Update-deprecated-Glance-CLI.patch
 
 
 BuildArch:      noarch
@@ -138,7 +139,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 13
 %setup -c -q -T -D -a 14
 %setup -c -q -T -D -a 15
-#%setup -c -q -T -D -a 16
+%setup -c -q -T -D -a 16
 %setup -c -q -T -D -a 17
 %setup -c -q -T -D -a 18
 %setup -c -q -T -D -a 19
@@ -219,7 +220,7 @@ cd %{_builddir}/%{name}-%{version}/puppet-swift-%{swift_commit}
 # puppet-glance patches
 cd %{_builddir}/%{name}-%{version}/puppet-glance-%{glance_commit}
 %patch123 -p1
-
+%patch125 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -250,7 +251,7 @@ cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet
 cp -r puppetlabs-inifile-%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
 cp -r puppet-keystone-%{keystone_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r puppet-memcached-%{memcached_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
-#cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
+cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
 cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
 cp -r puppetlabs-mysql-%{mysql_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mysql
 cp -r puppet-nagios-openstack-%{nagios_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/nagios
@@ -283,6 +284,8 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Thu Oct 2 2014 Martin Mágr <mmagr@redhat.com> - 2014.2-0.3.1
+- Added 0001-Update-deprecated-Glance-CLI.patch (rhbz#1148346)
 
 * Wed Sep 10 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2-0.3
 - fixed o-p-m master module versions
@@ -314,7 +317,7 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 * Mon Aug 18 2014 Iván Chavero <ichavero@redhat.com> - 2014.1-20
 - Updated 0001-Refacfored-a-more-suitable-ovs_redhat-provider.patch to patchset 17 (rhbz#1130657)
 - Bump Pacemaker to the latest version (rhbz#1120584)
-- Add 0001-Fixes-plugin.ini-error.patch (rhbz#1114739) 
+- Add 0001-Fixes-plugin.ini-error.patch (rhbz#1114739)
 
 * Wed Jul 30 2014 Iván Chavero <icahvero@redhat.com> - 2014.1-19.3
 - Fixed sources upload
@@ -327,7 +330,7 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 * Wed Jul 30 2014 Iván Chavero <icahvero@redhat.com> - 2014.1-19
 - Bump to the latest stable puppet modules
-- Removed puppetlabs-firewall-pull-request-367.patch 
+- Removed puppetlabs-firewall-pull-request-367.patch
 - Add puppetlabs-firewall-pull-request-367-2.patch
 - Removed 0002-Refacfored-a-more-suitable-ovs_redhat-provider.patch
 - Removed 0003-Fixes-bridge-addition-error-if-interface-has-no-IP.patch
