@@ -1,0 +1,157 @@
+From 683b386caf21c74c110773f76d7c6f1e4d715df2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 20:32:27 +0200
+Subject: [PATCH] [keystone] Add manage_service feature
+
+puppet-keystone lacks of disabling service managing. This patch adds
+$manage_service parameter to relevant class.
+
+Change-Id: I80a55857442c6cd32387481fbe68b54f52e827a1
+Closes-bug: #1359823
+---
+ keystone/manifests/init.pp                     | 20 +++++++++++++++-----
+ keystone/manifests/service.pp                  |  4 ++--
+ keystone/spec/classes/keystone_service_spec.rb |  4 ++--
+ keystone/spec/classes/keystone_spec.rb         | 19 ++++++++++++++++++-
+ 4 files changed, 37 insertions(+), 10 deletions(-)
+
+diff --git a/keystone/manifests/init.pp b/keystone/manifests/init.pp
+index 55c88f2..4b81984 100644
+--- a/keystone/manifests/init.pp
++++ b/keystone/manifests/init.pp
+@@ -38,7 +38,14 @@
+ #     Defaults to /var/cache/keystone.
+ #   [memcache_servers] List of memcache servers/ports. Optional. Used with
+ #     token_driver keystone.token.backends.memcache.Token.  Defaults to false.
+-#   [enabled] If the keystone services should be enabled. Optional. Default to true.
++#
++#   [manage_service]
++#      (optional) If Puppet should manage service startup / shutdown.
++#      Defaults to true.
++#
++#   [enabled]
++#     (optional) If the keystone services should be enabled.
++#     Defaults to true.
+ #
+ #   [*database_connection*]
+ #     (optional) Url used to connect to database.
+@@ -273,6 +280,7 @@ class keystone(
+   $ssl_cert_subject      = '/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
+   $cache_dir             = '/var/cache/keystone',
+   $memcache_servers      = false,
++  $manage_service        = true,
+   $enabled               = true,
+   $database_connection   = 'sqlite:////var/lib/keystone/keystone.db',
+   $database_idle_timeout = '200',
+@@ -597,10 +605,12 @@ class keystone(
+     }
+   }
+ 
+-  if $enabled {
+-    $service_ensure = 'running'
+-  } else {
+-    $service_ensure = 'stopped'
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
+   }
+ 
+   if $service_name == 'keystone' {
+diff --git a/keystone/manifests/service.pp b/keystone/manifests/service.pp
+index 63c148d..d0b5445 100644
+--- a/keystone/manifests/service.pp
++++ b/keystone/manifests/service.pp
+@@ -10,7 +10,7 @@
+ #
+ # [*ensure*]
+ # (optional) The desired state of the keystone service
+-# Defaults to 'running'
++# Defaults to undef
+ #
+ # [*service_name*]
+ # (optional) The name of the keystone service
+@@ -65,7 +65,7 @@
+ # Defaults to undef
+ #
+ class keystone::service(
+-  $ensure         = 'running',
++  $ensure         = undef,
+   $service_name   = $::keystone::params::service_name,
+   $enable         = true,
+   $hasstatus      = true,
+diff --git a/keystone/spec/classes/keystone_service_spec.rb b/keystone/spec/classes/keystone_service_spec.rb
+index 29d90b0..f7047bf 100644
+--- a/keystone/spec/classes/keystone_service_spec.rb
++++ b/keystone/spec/classes/keystone_service_spec.rb
+@@ -4,7 +4,7 @@ describe 'keystone::service' do
+ 
+   describe "with default parameters" do
+     it { should contain_service('keystone').with(
+-      :ensure     => 'running',
++      :ensure     => nil,
+       :enable     => true,
+       :hasstatus  => true,
+       :hasrestart => true
+@@ -21,7 +21,7 @@ describe 'keystone::service' do
+     end
+ 
+     it { should contain_service('keystone').with(
+-      :ensure     => 'running',
++      :ensure     => nil,
+       :enable     => true,
+       :hasstatus  => true,
+       :hasrestart => true
+diff --git a/keystone/spec/classes/keystone_spec.rb b/keystone/spec/classes/keystone_spec.rb
+index c2e97b7..6d8e717 100644
+--- a/keystone/spec/classes/keystone_spec.rb
++++ b/keystone/spec/classes/keystone_spec.rb
+@@ -41,6 +41,7 @@ describe 'keystone' do
+       'ssl_ca_key'            => '/etc/keystone/ssl/private/cakey.pem',
+       'ssl_cert_subject'      => '/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
+       'enabled'               => true,
++      'manage_service'        => true,
+       'database_connection'   => 'sqlite:////var/lib/keystone/keystone.db',
+       'database_idle_timeout' => '200',
+       'enable_pki_setup'      => true,
+@@ -75,6 +76,7 @@ describe 'keystone' do
+       'ssl_ca_key'            => '/etc/keystone/ssl/private/cakey.pem',
+       'ssl_cert_subject'      => '/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
+       'enabled'               => false,
++      'manage_service'        => true,
+       'database_connection'   => 'mysql://a:b@c/d',
+       'database_idle_timeout' => '300',
+       'enable_pki_setup'      => true,
+@@ -189,7 +191,7 @@ describe 'keystone' do
+       it_configures 'core keystone examples', param_hash
+ 
+       it { should contain_service('keystone').with(
+-        'ensure'     => param_hash['enabled'] ? 'running' : 'stopped',
++        'ensure'     => (param_hash['manage_service'] && param_hash['enabled']) ? 'running' : 'stopped',
+         'enable'     => param_hash['enabled'],
+         'hasstatus'  => true,
+         'hasrestart' => true
+@@ -217,6 +219,21 @@ describe 'keystone' do
+ 
+   end
+ 
++  describe 'with disabled service managing' do
++    let :params do
++      { :admin_token    => 'service_token',
++        :manage_service => false,
++        :enabled        => false }
++    end
++
++    it { should contain_service('keystone').with(
++      'ensure'     => nil,
++      'enable'     => false,
++      'hasstatus'  => true,
++      'hasrestart' => true
++    ) }
++  end
++
+   describe 'with deprecated sql_connection parameter' do
+     let :params do
+       { :admin_token    => 'service_token',

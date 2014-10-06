@@ -1,0 +1,54 @@
+From 6d8051635341913a0c15fe6ff58f6ed25cdf7ad2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 19:26:49 +0200
+Subject: [PATCH] [rabbitmq] Don't manage RabbitMQ repos
+
+Fixes: rhbz#1112853
+---
+ rabbitmq/manifests/params.pp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/rabbitmq/manifests/params.pp b/rabbitmq/manifests/params.pp
+index abe7c52..b82ed87 100644
+--- a/rabbitmq/manifests/params.pp
++++ b/rabbitmq/manifests/params.pp
+@@ -6,6 +6,7 @@ class rabbitmq::params {
+ 
+   case $::osfamily {
+     'Archlinux': {
++      $manage_repos     = true
+       $package_ensure   = 'installed'
+       $package_name     = 'rabbitmq'
+       $service_name     = 'rabbitmq'
+@@ -15,6 +16,7 @@ class rabbitmq::params {
+       # This must remain at the end as we need $base_version and $version defined first
+     }
+     'Debian': {
++      $manage_repos     = true
+       $package_ensure   = 'installed'
+       $package_name     = 'rabbitmq-server'
+       $service_name     = 'rabbitmq-server'
+@@ -23,6 +25,7 @@ class rabbitmq::params {
+       $version          = '3.1.5'
+     }
+     'RedHat': {
++      $manage_repos     = false
+       $package_ensure   = 'installed'
+       $package_name     = 'rabbitmq-server'
+       $service_name     = 'rabbitmq-server'
+@@ -33,6 +36,7 @@ class rabbitmq::params {
+       $package_source   = "http://www.rabbitmq.com/releases/rabbitmq-server/v${base_version}/rabbitmq-server-${version}.noarch.rpm"
+     }
+     'SUSE': {
++      $manage_repos     = true
+       $package_ensure   = 'installed'
+       $package_name     = 'rabbitmq-server'
+       $service_name     = 'rabbitmq-server'
+@@ -52,7 +56,6 @@ class rabbitmq::params {
+   $management_port            = '15672'
+   $package_apt_pin            = ''
+   $package_gpg_key            = 'http://www.rabbitmq.com/rabbitmq-signing-key-public.asc'
+-  $manage_repos               = true
+   $service_ensure             = 'running'
+   $service_manage             = true
+   #config

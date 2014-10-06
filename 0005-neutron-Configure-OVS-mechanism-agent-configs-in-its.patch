@@ -1,7 +1,8 @@
-From f5fd94991b271dd38f336d968b7713453cf3933e Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Mathieu=20Gagne=CC=81?= <mgagne@iweb.com>
-Date: Wed, 9 Jul 2014 20:44:07 -0400
-Subject: [PATCH] Configure OVS mechanism agent configs in its config file
+From 3ecf89afe4e903dad82c337cc09fa0efaac3a0f9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 20:14:27 +0200
+Subject: [PATCH] [neutron] Configure OVS mechanism agent configs in its config
+ file
 
 Configurations for the OVS agent should go in its config file:
 /etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
@@ -17,14 +18,14 @@ in neutron-server, not the agents themselves.
 
 Change-Id: I53d9b923784587e8a2a934f004a3b054c716daaa
 ---
- manifests/agents/ml2/ovs.pp                 | 39 ++++++-----------
- spec/classes/neutron_agents_ml2_ovs_spec.rb | 66 ++++++++++++-----------------
+ neutron/manifests/agents/ml2/ovs.pp                | 39 +++++--------
+ .../spec/classes/neutron_agents_ml2_ovs_spec.rb    | 66 +++++++++-------------
  2 files changed, 40 insertions(+), 65 deletions(-)
 
-diff --git a/manifests/agents/ml2/ovs.pp b/manifests/agents/ml2/ovs.pp
+diff --git a/neutron/manifests/agents/ml2/ovs.pp b/neutron/manifests/agents/ml2/ovs.pp
 index 34c1ddb..c999880 100644
---- a/manifests/agents/ml2/ovs.pp
-+++ b/manifests/agents/ml2/ovs.pp
+--- a/neutron/manifests/agents/ml2/ovs.pp
++++ b/neutron/manifests/agents/ml2/ovs.pp
 @@ -107,7 +107,8 @@ class neutron::agents::ml2::ovs (
      fail('Local ip for ovs agent must be set when tunneling is enabled')
    }
@@ -139,10 +140,10 @@ index 34c1ddb..c999880 100644
        ensure => $service_ensure,
        name   => $::neutron::params::ovs_cleanup_service,
        enable => $enabled,
-diff --git a/spec/classes/neutron_agents_ml2_ovs_spec.rb b/spec/classes/neutron_agents_ml2_ovs_spec.rb
+diff --git a/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb b/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb
 index a4e9f77..26d4812 100644
---- a/spec/classes/neutron_agents_ml2_ovs_spec.rb
-+++ b/spec/classes/neutron_agents_ml2_ovs_spec.rb
+--- a/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb
++++ b/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb
 @@ -33,15 +33,15 @@ describe 'neutron::agents::ml2::ovs' do
      it { should contain_class('neutron::params') }
  
@@ -269,6 +270,3 @@ index a4e9f77..26d4812 100644
 -    end
    end
  end
--- 
-1.8.3.1
-

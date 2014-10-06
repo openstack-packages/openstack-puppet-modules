@@ -1,7 +1,18 @@
-diff --git a/manifests/all.pp b/manifests/all.pp
+From 7f049ff03795fe225547d91771310888fbccda27 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 19:56:51 +0200
+Subject: [PATCH] [openstack] Set default charset to utf8
+
+---
+ openstack/manifests/all.pp                   | 2 +-
+ openstack/manifests/db/mysql.pp              | 4 ++--
+ openstack/spec/classes/openstack_all_spec.rb | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/openstack/manifests/all.pp b/openstack/manifests/all.pp
 index 8ce58b1..acbe1cb 100644
---- a/manifests/all.pp
-+++ b/manifests/all.pp
+--- a/openstack/manifests/all.pp
++++ b/openstack/manifests/all.pp
 @@ -133,7 +133,7 @@ class openstack::all (
    $mysql_account_security  = true,
    $mysql_bind_address      = '0.0.0.0',
@@ -11,10 +22,10 @@ index 8ce58b1..acbe1cb 100644
    # Keystone
    $keystone_host           = '127.0.0.1',
    $keystone_db_user        = 'keystone',
-diff --git a/manifests/db/mysql.pp b/manifests/db/mysql.pp
+diff --git a/openstack/manifests/db/mysql.pp b/openstack/manifests/db/mysql.pp
 index 7a65607..4f212f7 100644
---- a/manifests/db/mysql.pp
-+++ b/manifests/db/mysql.pp
+--- a/openstack/manifests/db/mysql.pp
++++ b/openstack/manifests/db/mysql.pp
 @@ -35,7 +35,7 @@
  # [ceilometer_db_user]. Name of ceilometer DB user. Optional. Defaults to 'ceilometer'.
  # [ceilometer_db_dbname]. Name of ceilometer DB. Optional. Defaults to 'ceilometer'.
@@ -33,10 +44,10 @@ index 7a65607..4f212f7 100644
      $enabled                = true
  ) {
  
-diff --git a/spec/classes/openstack_all_spec.rb b/spec/classes/openstack_all_spec.rb
+diff --git a/openstack/spec/classes/openstack_all_spec.rb b/openstack/spec/classes/openstack_all_spec.rb
 index 3890546..0b206e3 100644
---- a/spec/classes/openstack_all_spec.rb
-+++ b/spec/classes/openstack_all_spec.rb
+--- a/openstack/spec/classes/openstack_all_spec.rb
++++ b/openstack/spec/classes/openstack_all_spec.rb
 @@ -295,7 +295,7 @@ describe 'openstack::all' do
  
      it 'should have openstack::db::mysql configured' do

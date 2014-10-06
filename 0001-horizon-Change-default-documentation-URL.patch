@@ -1,19 +1,19 @@
-From fb247cf025d605a7caeb39156cb93af8b17aa229 Mon Sep 17 00:00:00 2001
-From: Lukas Bezdicka <lbezdick@redhat.com>
-Date: Wed, 10 Sep 2014 18:19:28 +0200
-Subject: [PATCH] Change default documentation URL
+From 4d6c4dacdbd7a36884c8c8c763f879544adb7a43 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 19:18:45 +0200
+Subject: [PATCH] [horizon] Change default documentation URL
 
 Documentation should point to RDO docs by default. This patch is changing it.
 
 Fixes: rhbz#1092019
 ---
- manifests/init.pp | 2 +-
+ horizon/manifests/init.pp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/manifests/init.pp b/manifests/init.pp
+diff --git a/horizon/manifests/init.pp b/horizon/manifests/init.pp
 index 985a564..64eb5af 100644
---- a/manifests/init.pp
-+++ b/manifests/init.pp
+--- a/horizon/manifests/init.pp
++++ b/horizon/manifests/init.pp
 @@ -206,7 +206,7 @@ class horizon(
    $available_regions       = undef,
    $api_result_limit        = 1000,
@@ -23,6 +23,3 @@ index 985a564..64eb5af 100644
    $local_settings_template = 'horizon/local_settings.py.erb',
    $configure_apache        = true,
    $bind_address            = undef,
--- 
-1.9.3
-

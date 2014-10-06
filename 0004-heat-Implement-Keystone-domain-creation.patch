@@ -1,7 +1,7 @@
-From 9cdd6abf5e73a7e6e5080f0388bd2bea7cce729b Mon Sep 17 00:00:00 2001
-From: Lukas Bezdicka <lbezdick@redhat.com>
-Date: Wed, 10 Sep 2014 18:32:07 +0200
-Subject: [PATCH] Implement Keystone domain creation
+From 372310671f44be1ae6da81e74ce971ce3ce18a6a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 20:03:50 +0200
+Subject: [PATCH] [heat] Implement Keystone domain creation
 
 Keystone domain has to be created for Heat. This patch implements this
 via helper script [1] since we don't have support for Keystone v3 API
@@ -12,20 +12,20 @@ please check [2].
 [1] https://github.com/openstack/heat/blob/master/bin/heat-keystone-setup-domain
 [2] https://bugzilla.redhat.com/show_bug.cgi?id=1076172
 ---
- lib/puppet/provider/heat_domain_id_setter/ruby.rb | 183 ++++++++++++++++++++++
- lib/puppet/type/heat_config.rb                    |   4 +
- lib/puppet/type/heat_domain_id_setter.rb          |  31 ++++
- manifests/keystone/domain.pp                      |  73 +++++++++
+ .../puppet/provider/heat_domain_id_setter/ruby.rb  | 183 +++++++++++++++++++++
+ heat/lib/puppet/type/heat_config.rb                |   4 +
+ heat/lib/puppet/type/heat_domain_id_setter.rb      |  31 ++++
+ heat/manifests/keystone/domain.pp                  |  73 ++++++++
  4 files changed, 291 insertions(+)
- create mode 100644 lib/puppet/provider/heat_domain_id_setter/ruby.rb
- create mode 100644 lib/puppet/type/heat_domain_id_setter.rb
- create mode 100644 manifests/keystone/domain.pp
+ create mode 100644 heat/lib/puppet/provider/heat_domain_id_setter/ruby.rb
+ create mode 100644 heat/lib/puppet/type/heat_domain_id_setter.rb
+ create mode 100644 heat/manifests/keystone/domain.pp
 
-diff --git a/lib/puppet/provider/heat_domain_id_setter/ruby.rb b/lib/puppet/provider/heat_domain_id_setter/ruby.rb
+diff --git a/heat/lib/puppet/provider/heat_domain_id_setter/ruby.rb b/heat/lib/puppet/provider/heat_domain_id_setter/ruby.rb
 new file mode 100644
 index 0000000..8862fe5
 --- /dev/null
-+++ b/lib/puppet/provider/heat_domain_id_setter/ruby.rb
++++ b/heat/lib/puppet/provider/heat_domain_id_setter/ruby.rb
 @@ -0,0 +1,183 @@
 +## NB: This must work with Ruby 1.8!
 +
@@ -210,10 +210,10 @@ index 0000000..8862fe5
 +    end
 +
 +end
-diff --git a/lib/puppet/type/heat_config.rb b/lib/puppet/type/heat_config.rb
+diff --git a/heat/lib/puppet/type/heat_config.rb b/heat/lib/puppet/type/heat_config.rb
 index adcc5ce..75613a9 100644
---- a/lib/puppet/type/heat_config.rb
-+++ b/lib/puppet/type/heat_config.rb
+--- a/heat/lib/puppet/type/heat_config.rb
++++ b/heat/lib/puppet/type/heat_config.rb
 @@ -40,4 +40,8 @@ Puppet::Type.newtype(:heat_config) do
      defaultto false
    end
@@ -223,11 +223,11 @@ index adcc5ce..75613a9 100644
 +  end
 +
  end
-diff --git a/lib/puppet/type/heat_domain_id_setter.rb b/lib/puppet/type/heat_domain_id_setter.rb
+diff --git a/heat/lib/puppet/type/heat_domain_id_setter.rb b/heat/lib/puppet/type/heat_domain_id_setter.rb
 new file mode 100644
 index 0000000..d6e1eee
 --- /dev/null
-+++ b/lib/puppet/type/heat_domain_id_setter.rb
++++ b/heat/lib/puppet/type/heat_domain_id_setter.rb
 @@ -0,0 +1,31 @@
 +Puppet::Type.newtype(:heat_domain_id_setter) do
 +
@@ -260,11 +260,11 @@ index 0000000..d6e1eee
 +        defaultto 'admin'
 +    end
 +end
-diff --git a/manifests/keystone/domain.pp b/manifests/keystone/domain.pp
+diff --git a/heat/manifests/keystone/domain.pp b/heat/manifests/keystone/domain.pp
 new file mode 100644
 index 0000000..5cb98b7
 --- /dev/null
-+++ b/manifests/keystone/domain.pp
++++ b/heat/manifests/keystone/domain.pp
 @@ -0,0 +1,73 @@
 +# == Class: heat::keystone::domain
 +#
@@ -339,6 +339,3 @@ index 0000000..5cb98b7
 +  }
 +
 +}
--- 
-1.9.3
-
