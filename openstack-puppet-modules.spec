@@ -1,7 +1,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.2.1
-Release:        0.4%{?dist}
+Release:        0.5%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -17,6 +17,7 @@ Patch0005: 0005-neutron-Configure-OVS-mechanism-agent-configs-in-its.patch
 Patch0006: 0006-neutron-Fixes-plugin.ini-error.patch
 Patch0007: 0007-keystone-Add-manage_service-feature.patch
 Patch0008: 0008-swift-Add-manage_service-feature.patch
+Patch0009: 0009-Fixed-firewalld-package-issue.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -37,6 +38,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0006 -p1
 %patch0007 -p1
 %patch0008 -p1
+%patch0009 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -104,6 +106,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Oct 24 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.1-0.5
+- Fixed firewalld package issue
+
 * Mon Oct 06 2014 Martin Mágr <mmagr@redhat.com> 2014.2.1-0.4
 - Update to upstream 2014.2.1
 
