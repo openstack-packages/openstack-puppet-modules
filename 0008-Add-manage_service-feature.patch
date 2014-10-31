@@ -1,0 +1,1013 @@
+From e828c55b9bf805d61fe42f35df90a42ab86359f5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Mon, 22 Sep 2014 15:50:38 +0200
+Subject: [PATCH] Add manage_service feature
+
+puppet-swift lacks of disabling service managing. This patch adds
+$manage_service and $enabled parameter to all relevant classes.
+
+Closes-bug: #1359823
+Change-Id: I3d632e3a26e9394d03d94089ae704904bf77aa51
+---
+ swift/manifests/proxy.pp                           | 136 ++++++++++++-------
+ swift/manifests/storage/account.pp                 |  35 ++++-
+ swift/manifests/storage/container.pp               |  42 ++++--
+ swift/manifests/storage/generic.pp                 |  35 ++++-
+ swift/manifests/storage/object.pp                  |  35 ++++-
+ swift/spec/classes/swift_proxy_spec.rb             |  74 +++++++++++
+ swift/spec/classes/swift_storage_account_spec.rb   | 118 ++++++++++++-----
+ swift/spec/classes/swift_storage_container_spec.rb | 147 +++++++++++++--------
+ swift/spec/classes/swift_storage_object_spec.rb    | 117 +++++++++++-----
+ 9 files changed, 551 insertions(+), 188 deletions(-)
+
+diff --git a/swift/manifests/proxy.pp b/swift/manifests/proxy.pp
+index ff7405c..d89fea9 100644
+--- a/swift/manifests/proxy.pp
++++ b/swift/manifests/proxy.pp
+@@ -6,37 +6,65 @@
+ #
+ # Installs and configures the swift proxy node.
+ #
+-# [*Parameters*]
+-#
+-# [*proxy_local_net_ip*] The address that the proxy will bind to.
+-#   Required.
+-# [*port*] The port to which the proxy server will bind.
+-#   Optional. Defaults to 8080.
+-# [*pipeline*] The list of elements of the swift proxy pipeline.
+-#   Currently supports healthcheck, cache, proxy-server, and
+-#   one of the following auth_types: tempauth, swauth, keystone.
+-#   Each of the specified elements also need to be declared externally
+-#   as a puppet class with the exception of proxy-server.
+-#   Optional. Defaults to ['healthcheck', 'cache', 'tempauth', 'proxy-server']
+-# [*workers*] Number of threads to process requests.
+-#  Optional. Defaults to the number of processors.
+-# [*allow_account_management*]
+-#   Rather or not requests through this proxy can create and
+-#   delete accounts. Optional. Defaults to true.
+-# [*account_autocreate*] Rather accounts should automatically be created.
+-#  Has to be set to true for tempauth. Optional. Defaults to true.
+-# [*read_affinity*]
+-#  Configures the read affinity of proxy-server. Optional. Defaults to undef.
+-# [*write_affinity*]
+-#  Configures the write affinity of proxy-server. Optional. Defaults to undef.
+-# [*write_affinity_node_count*]
+-#  Configures write_affinity_node_count for proxy-server.
+-#  Optional but requires write_affinity to be set. Defaults to undef.
+-# [*package_ensure*] Ensure state of the swift proxy package.
+-#   Optional. Defaults to present.
+-# [*log_name*]
+-#  Configures log_name for swift proxy-server.
+-#  Optional. Defaults to proxy-server
++# == Parameters
++#
++#  [*proxy_local_net_ip*]
++#    The address that the proxy will bind to.
++#
++#  [*port*]
++#    (optional) The port to which the proxy server will bind.
++#    Defaults to 8080.
++#
++#  [*pipeline*]
++#    (optional) The list of elements of the swift proxy pipeline.
++#    Currently supports healthcheck, cache, proxy-server, and
++#    one of the following auth_types: tempauth, swauth, keystone.
++#    Each of the specified elements also need to be declared externally
++#    as a puppet class with the exception of proxy-server.
++#    Defaults to ['healthcheck', 'cache', 'tempauth', 'proxy-server']
++#
++#  [*workers*]
++#    (optional) Number of threads to process requests.
++#    Defaults to the number of processors.
++#
++#  [*allow_account_management*]
++#    (optional) Rather or not requests through this proxy can create and
++#    delete accounts.
++#    Defaults to true.
++#
++#  [*account_autocreate*]
++#    (optional) Rather accounts should automatically be created.
++#    Has to be set to true for tempauth.
++#    Defaults to true.
++#
++#  [*read_affinity*]
++#    (optional) Configures the read affinity of proxy-server.
++#    Defaults to undef.
++#
++#  [*write_affinity*]
++#    (optional) Configures the write affinity of proxy-server.
++#    Defaults to undef.
++#
++#  [*write_affinity_node_count*]
++#    (optional) Configures write_affinity_node_count for proxy-server.
++#    Optional but requires write_affinity to be set.
++#    Defaults to undef.
++#
++#  [*enabled*]
++#    (optional) Should the service be enabled.
++#    Defaults to true
++#
++#  [*manage_service*]
++#    (optional) Whether the service should be managed by Puppet.
++#    Defaults to true.
++#
++#  [*package_ensure*]
++#    (optional) Ensure state of the swift proxy package.
++#    Defaults to present.
++#
++#  [*log_name*]
++#    Configures log_name for swift proxy-server.
++#    Optional. Defaults to proxy-server
+ #
+ # == Examples
+ #
+@@ -50,23 +78,25 @@
+ #
+ class swift::proxy(
+   $proxy_local_net_ip,
+-  $port = '8080',
+-  $pipeline = ['healthcheck', 'cache', 'tempauth', 'proxy-server'],
+-  $workers = $::processorcount,
+-  $allow_account_management = true,
+-  $account_autocreate = true,
+-  $log_headers = 'False',
+-  $log_udp_host = '',
+-  $log_udp_port = '',
+-  $log_address = '/dev/log',
+-  $log_level = 'INFO',
+-  $log_facility = 'LOG_LOCAL1',
+-  $log_handoffs = true,
+-  $log_name = 'proxy-server',
+-  $read_affinity = undef,
+-  $write_affinity = undef,
++  $port                      = '8080',
++  $pipeline                  = ['healthcheck', 'cache', 'tempauth', 'proxy-server'],
++  $workers                   = $::processorcount,
++  $allow_account_management  = true,
++  $account_autocreate        = true,
++  $log_headers               = 'False',
++  $log_udp_host              = '',
++  $log_udp_port              = '',
++  $log_address               = '/dev/log',
++  $log_level                 = 'INFO',
++  $log_facility              = 'LOG_LOCAL1',
++  $log_handoffs              = true,
++  $log_name                  = 'proxy-server',
++  $read_affinity             = undef,
++  $write_affinity            = undef,
+   $write_affinity_node_count = undef,
+-  $package_ensure = 'present'
++  $manage_service            = true,
++  $enabled                   = true,
++  $package_ensure            = 'present'
+ ) {
+ 
+   include swift::params
+@@ -130,10 +160,18 @@ class swift::proxy(
+     before  => Class[$required_classes],
+   }
+ 
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
++  }
++
+   service { 'swift-proxy':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::proxy_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     hasstatus => true,
+     subscribe => Concat['/etc/swift/proxy-server.conf'],
+diff --git a/swift/manifests/storage/account.pp b/swift/manifests/storage/account.pp
+index 1ce6865..a4398c3 100644
+--- a/swift/manifests/storage/account.pp
++++ b/swift/manifests/storage/account.pp
+@@ -1,24 +1,51 @@
++# Class swift::storage::account
++#
++# == Parameters
++#  [*enabled*]
++#    (optional) Should the service be enabled.
++#    Defaults to true
++#
++#  [*manage_service*]
++#    (optional) Whether the service should be managed by Puppet.
++#    Defaults to true.
++#
++#  [*package_ensure*]
++#    (optional) Value of package resource parameter 'ensure'.
++#    Defaults to 'present'.
++#
+ class swift::storage::account(
++  $manage_service = true,
++  $enabled        = true,
+   $package_ensure = 'present'
+ ) {
+   swift::storage::generic { 'account':
++    manage_service => $manage_service,
++    enabled        => $enabled,
+     package_ensure => $package_ensure,
+   }
+ 
+   include swift::params
+ 
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
++  }
++
+   service { 'swift-account-reaper':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::account_reaper_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     require   => Package['swift-account'],
+   }
+ 
+   service { 'swift-account-auditor':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::account_auditor_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     require   => Package['swift-account'],
+   }
+diff --git a/swift/manifests/storage/container.pp b/swift/manifests/storage/container.pp
+index a4002d8..741dcba 100644
+--- a/swift/manifests/storage/container.pp
++++ b/swift/manifests/storage/container.pp
+@@ -1,31 +1,55 @@
+ #
+ # === Parameters
++#  [*enabled*]
++#    (optional) Should the service be enabled.
++#    Defaults to true
+ #
+-# [*allowed_sync_hosts*] A list of hosts allowed in the X-Container-Sync-To
+-#   field for containers. Defaults to one entry list '127.0.0.1'.
++#  [*manage_service*]
++#    (optional) Whether the service should be managed by Puppet.
++#    Defaults to true.
++#
++#  [*package_ensure*]
++#    (optional) Value of package resource parameter 'ensure'.
++#    Defaults to 'present'.
++#
++#  [*allowed_sync_hosts*]
++#    (optional) A list of hosts allowed in the X-Container-Sync-To
++#    field for containers. Defaults to one entry list '127.0.0.1'.
+ #
+ class swift::storage::container(
+-  $package_ensure = 'present',
++  $manage_service     = true,
++  $enabled            = true,
++  $package_ensure     = 'present',
+   $allowed_sync_hosts = ['127.0.0.1'],
+ ) {
+   swift::storage::generic { 'container':
++    manage_service => $manage_service,
++    enabled        => $enabled,
+     package_ensure => $package_ensure
+   }
+ 
+   include swift::params
+ 
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
++  }
++
+   service { 'swift-container-updater':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::container_updater_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     require   => Package['swift-container'],
+   }
+ 
+   service { 'swift-container-auditor':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::container_auditor_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     require   => Package['swift-container'],
+   }
+@@ -41,8 +65,8 @@ class swift::storage::container(
+       target => '/lib/init/upstart-job',
+     }
+     service { 'swift-container-sync':
+-      ensure    => running,
+-      enable    => true,
++      ensure    => $service_ensure,
++      enable    => $enabled,
+       provider  => $::swift::params::service_provider,
+       require   => File['/etc/init/swift-container-sync.conf', '/etc/init.d/swift-container-sync']
+     }
+diff --git a/swift/manifests/storage/generic.pp b/swift/manifests/storage/generic.pp
+index 2f84f2e..341bc5a 100644
+--- a/swift/manifests/storage/generic.pp
++++ b/swift/manifests/storage/generic.pp
+@@ -2,9 +2,20 @@
+ # needed to deploy each type of storage server.
+ #
+ # == Parameters
+-#  [*package_ensure*] The desired ensure state of the swift storage packages.
+-#    Optional. Defaults to present.
+-#  [*service_provider*] The provider to use for the service
++#  [*enabled*]
++#    (optional) Should the service be enabled.
++#    Defaults to true
++#
++#  [*manage_service*]
++#    (optional) Whether the service should be managed by Puppet.
++#    Defaults to true.
++#
++#  [*package_ensure*]
++#    (optional) The desired ensure state of the swift storage packages.
++#    Defaults to present.
++#
++#  [*service_provider*]
++#    (optional) The provider to use for the service
+ #
+ # == Dependencies
+ #  Requires Class[swift::storage]
+@@ -18,6 +29,8 @@
+ #
+ # Copyright 2011 Puppetlabs Inc, unless otherwise noted.
+ define swift::storage::generic(
++  $manage_service   = true,
++  $enabled          = true,
+   $package_ensure   = 'present',
+   $service_provider = $::swift::params::service_provider
+ ) {
+@@ -42,19 +55,27 @@ define swift::storage::generic(
+     group  => 'swift',
+   }
+ 
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
++  }
++
+   service { "swift-${name}":
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => inline_template("<%= scope.lookupvar('::swift::params::${name}_service_name') %>"),
+-    enable    => true,
++    enable    => $enabled,
+     hasstatus => true,
+     provider  => $service_provider,
+     subscribe => Package["swift-${name}"],
+   }
+ 
+   service { "swift-${name}-replicator":
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => inline_template("<%= scope.lookupvar('::swift::params::${name}_replicator_service_name') %>"),
+-    enable    => true,
++    enable    => $enabled,
+     hasstatus => true,
+     provider  => $service_provider,
+     subscribe => Package["swift-${name}"],
+diff --git a/swift/manifests/storage/object.pp b/swift/manifests/storage/object.pp
+index 1e49101..587c60a 100644
+--- a/swift/manifests/storage/object.pp
++++ b/swift/manifests/storage/object.pp
+@@ -1,24 +1,51 @@
++# Class swift::storage::object
++#
++# == Parameters
++#  [*enabled*]
++#    (optional) Should the service be enabled.
++#    Defaults to true
++#
++#  [*manage_service*]
++#    (optional) Whether the service should be managed by Puppet.
++#    Defaults to true.
++#
++#  [*package_ensure*]
++#    (optional) Value of package resource parameter 'ensure'.
++#    Defaults to 'present'.
++#
+ class swift::storage::object(
++  $manage_service = true,
++  $enabled        = true,
+   $package_ensure = 'present'
+ ) {
+   swift::storage::generic { 'object':
++    manage_service => $manage_service,
++    enabled        => $enabled,
+     package_ensure => $package_ensure
+   }
+ 
+   include swift::params
+ 
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
++  }
++
+   service { 'swift-object-updater':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::object_updater_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     require   => Package['swift-object'],
+   }
+ 
+   service { 'swift-object-auditor':
+-    ensure    => running,
++    ensure    => $service_ensure,
+     name      => $::swift::params::object_auditor_service_name,
+-    enable    => true,
++    enable    => $enabled,
+     provider  => $::swift::params::service_provider,
+     require   => Package['swift-object'],
+   }
+diff --git a/swift/spec/classes/swift_proxy_spec.rb b/swift/spec/classes/swift_proxy_spec.rb
+index a0b6f64..4dfe8b0 100644
+--- a/swift/spec/classes/swift_proxy_spec.rb
++++ b/swift/spec/classes/swift_proxy_spec.rb
+@@ -151,6 +151,80 @@ describe 'swift::proxy' do
+         end
+       end
+     end
++  end
++
++  shared_examples_for 'swift-proxy' do
++    let :params do
++      { :proxy_local_net_ip => '127.0.0.1' }
++    end
++
++    [{ :enabled => true, :manage_service => true },
++     { :enabled => false, :manage_service => true }].each do |param_hash|
++      context "when service should be #{param_hash[:enabled] ? 'enabled' : 'disabled'}" do
++        before do
++          params.merge!(param_hash)
++        end
++
++        it 'configures swift-proxy service' do
++          should contain_service('swift-proxy').with(
++            :ensure    => (param_hash[:manage_service] && param_hash[:enabled]) ? 'running' : 'stopped',
++            :name      => platform_params[:service_name],
++            :provider  => platform_params[:service_provider],
++            :enable    => param_hash[:enabled],
++            :hasstatus => true,
++            :subscribe => 'Concat[/etc/swift/proxy-server.conf]'
++          )
++        end
++      end
++    end
++
++    context 'with disabled service managing' do
++      before do
++        params.merge!({
++          :manage_service => false,
++          :enabled        => false })
++      end
++
++      it 'configures swift-proxy service' do
++        should contain_service('swift-proxy').with(
++          :ensure    => nil,
++          :name      => platform_params[:service_name],
++          :provider  => platform_params[:service_provider],
++          :enable    => false,
++          :hasstatus => true,
++          :subscribe => 'Concat[/etc/swift/proxy-server.conf]'
++        )
++      end
++    end
++  end
++
++  context 'on Debian platforms' do
++    let :facts do
++      { :operatingsystem => 'Ubuntu',
++        :osfamily        => 'Debian',
++        :concat_basedir  => '/var/lib/puppet/concat' }
++    end
++
++    let :platform_params do
++      { :service_name     => 'swift-proxy',
++        :service_provider => 'upstart' }
++    end
++
++    it_configures 'swift-proxy'
++  end
++
++  context 'on RedHat platforms' do
++    let :facts do
++      { :osfamily        => 'RedHat',
++        :operatingsystem => 'RedHat',
++        :concat_basedir  => '/var/lib/puppet/concat' }
++    end
++
++    let :platform_params do
++      { :service_name     => 'openstack-swift-proxy',
++        :service_provider => nil }
++    end
+ 
++    it_configures 'swift-proxy'
+   end
+ end
+diff --git a/swift/spec/classes/swift_storage_account_spec.rb b/swift/spec/classes/swift_storage_account_spec.rb
+index 0623cc4..115fd6c 100644
+--- a/swift/spec/classes/swift_storage_account_spec.rb
++++ b/swift/spec/classes/swift_storage_account_spec.rb
+@@ -1,52 +1,106 @@
+ require 'spec_helper'
+-describe 'swift::storage::account' do
+-
+-  let :facts do
+-    {
+-      :operatingsystem => 'Ubuntu',
+-      :osfamily        => 'Debian'
+-    }
+-  end
+ 
++describe 'swift::storage::account' do
+   let :pre_condition do
+     "class { 'ssh::server::install': }
+      class { 'swift': swift_hash_suffix => 'foo' }
+      class { 'swift::storage': storage_local_net_ip => '10.0.0.1' }"
+   end
+ 
+-  let :default_params do
+-    {:package_ensure => 'present'}
++  let :params do
++    { :package_ensure => 'present',
++      :enabled        => true,
++      :manage_service => true }
+   end
+ 
+-  [{},
+-   {:package_ensure => 'latest'}
+-  ].each do |param_set|
+-    describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
+-      let :param_hash do
+-        default_params.merge(param_set)
++  shared_examples_for 'swift-storage-account' do
++
++    [{},
++     {:package_ensure => 'latest'}
++    ].each do |param_set|
++      describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
++        before do
++          params.merge!(param_set)
++        end
++
++        it { should contain_swift__storage__generic('account').with_package_ensure(params[:package_ensure]) }
++      end
++    end
++
++    [{ :enabled => true, :manage_service => true },
++     { :enabled => false, :manage_service => true }].each do |param_hash|
++      context "when service should be #{param_hash[:enabled] ? 'enabled' : 'disabled'}" do
++        before do
++          params.merge!(param_hash)
++        end
++
++        it 'configures services' do
++          platform_params[:service_names].each do |service_alias, service_name|
++            should contain_service(service_alias).with(
++              :name    => service_name,
++              :ensure  => (param_hash[:manage_service] && param_hash[:enabled]) ? 'running' : 'stopped',
++              :enable  => param_hash[:enabled]
++            )
++          end
++        end
+       end
+-      let :params do
+-        param_set
++    end
++
++    context 'with disabled service managing' do
++      before do
++        params.merge!({
++          :manage_service => false,
++          :enabled        => false })
++      end
++
++      it 'configures services' do
++        platform_params[:service_names].each do |service_alias, service_name|
++          should contain_service(service_alias).with(
++            :ensure    => nil,
++            :name      => service_name,
++            :enable    => false
++          )
++        end
+       end
+-      it { should contain_swift__storage__generic('account').with_package_ensure(param_hash[:package_ensure]) }
+     end
+   end
+-  describe 'on rhel' do
++
++  context 'on Debian platforms' do
+     let :facts do
+-      {
+-        :operatingsystem => 'RedHat',
+-        :osfamily        => 'RedHat'
++      {:operatingsystem => 'Ubuntu',
++       :osfamily        => 'Debian' }
++
++    end
++
++    let :platform_params do
++      { :service_names => {
++          'swift-account'            => 'swift-account',
++          'swift-account-replicator' => 'swift-account-replicator',
++          'swift-account-reaper'     => 'swift-account-reaper',
++          'swift-account-auditor'    => 'swift-account-auditor'
++        }
+       }
+     end
+-    it 'should have some support services' do
+-      ['swift-account-reaper', 'swift-account-auditor'].each do |service|
+-        should contain_service(service).with(
+-          :name     => "openstack-#{service}",
+-          :ensure   => 'running',
+-          :enable   => true,
+-          :require  => 'Package[swift-account]'
+-        )
+-      end
++
++    it_configures 'swift-storage-account'
++  end
++
++  context 'on RedHat platforms' do
++    let :facts do
++      { :osfamily        => 'RedHat',
++        :operatingsystem => 'RedHat' }
++    end
++
++    let :platform_params do
++      { :service_names => {
++          'swift-account'            => 'openstack-swift-account',
++          'swift-account-replicator' => 'openstack-swift-account-replicator',
++          'swift-account-reaper'     => 'openstack-swift-account-reaper',
++          'swift-account-auditor'    => 'openstack-swift-account-auditor'
++        }
++      }
+     end
++
++    it_configures 'swift-storage-account'
+   end
+ end
+diff --git a/swift/spec/classes/swift_storage_container_spec.rb b/swift/spec/classes/swift_storage_container_spec.rb
+index 38c80b9..8551b97 100644
+--- a/swift/spec/classes/swift_storage_container_spec.rb
++++ b/swift/spec/classes/swift_storage_container_spec.rb
+@@ -1,43 +1,91 @@
+ require 'spec_helper'
+-describe 'swift::storage::container' do
+-
+-  let :facts do
+-    {
+-      :operatingsystem => 'Ubuntu',
+-      :osfamily        => 'Debian'
+-    }
+-  end
+ 
++describe 'swift::storage::container' do
+   let :pre_condition do
+     "class { 'ssh::server::install': }
+      class { 'swift': swift_hash_suffix => 'foo' }
+      class { 'swift::storage': storage_local_net_ip => '10.0.0.1' }"
+   end
+ 
+-  let :default_params do
+-    {:package_ensure => 'present'}
++  let :params do
++    { :package_ensure => 'present',
++      :enabled        => true,
++      :manage_service => true }
+   end
+ 
+-  [{},
+-   {:package_ensure => 'latest'}
+-  ].each do |param_set|
+-    describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
+-      let :param_hash do
+-        default_params.merge(param_set)
++  shared_examples_for 'swift-storage-container' do
++    [{},
++     {:package_ensure => 'latest'}
++    ].each do |param_set|
++      describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
++        before do
++          params.merge!(param_set)
++        end
++
++        it { should contain_swift__storage__generic('container').with_package_ensure(params[:package_ensure]) }
+       end
+-      let :params do
+-        param_set
++    end
++
++
++    [{ :enabled => true, :manage_service => true },
++     { :enabled => false, :manage_service => true }].each do |param_hash|
++      context "when service should be #{param_hash[:enabled] ? 'enabled' : 'disabled'}" do
++        before do
++          params.merge!(param_hash)
++        end
++
++        it 'configures services' do
++          platform_params[:service_names].each do |service_alias, service_name|
++            should contain_service(service_alias).with(
++              :name    => service_name,
++              :ensure  => (param_hash[:manage_service] && param_hash[:enabled]) ? 'running' : 'stopped',
++              :enable  => param_hash[:enabled]
++            )
++          end
++        end
+       end
+-      it { should contain_swift__storage__generic('container').with_package_ensure(param_hash[:package_ensure]) }
+-      it 'should have some other services' do
+-        ['swift-container-updater', 'swift-container-auditor'].each do |service|
+-          should contain_service(service).with(
+-            :ensure   => 'running',
+-            :enable   => true,
+-            :provider => 'upstart',
+-            :require  => 'Package[swift-container]'
++    end
++
++    context 'with disabled service managing' do
++      before do
++        params.merge!({
++          :manage_service => false,
++          :enabled        => false })
++      end
++
++      it 'configures services' do
++        platform_params[:service_names].each do |service_alias, service_name|
++          should contain_service(service_alias).with(
++            :ensure    => nil,
++            :name      => service_name,
++            :enable    => false
+           )
+         end
++      end
++    end
++  end
++
++  context 'on Debian platforms' do
++    let :facts do
++      {:operatingsystem => 'Ubuntu',
++       :osfamily        => 'Debian' }
++
++    end
++
++    let :platform_params do
++      { :service_names => {
++          'swift-container'            => 'swift-container',
++          'swift-container-replicator' => 'swift-container-replicator',
++          'swift-container-updater'    => 'swift-container-updater',
++          'swift-container-auditor'    => 'swift-container-auditor'
++        }
++      }
++    end
++
++    it_configures 'swift-storage-container'
++
++    context 'Ubuntu specific resources' do
++      it 'configures sync' do
+         should contain_service('swift-container-sync').with(
+           :ensure   => 'running',
+           :enable   => true,
+@@ -56,26 +104,30 @@ describe 'swift::storage::container' do
+     end
+   end
+ 
+-  describe 'on rhel' do
++  context 'on RedHat platforms' do
+     let :facts do
+-      {
++      { :osfamily        => 'RedHat',
+         :operatingsystem => 'RedHat',
+-        :osfamily        => 'RedHat',
+-        :concat_basedir => '/var/lib/puppet/concat'
++        :concat_basedir => '/var/lib/puppet/concat' }
++    end
++
++    let :platform_params do
++      { :service_names => {
++          'swift-container'            => 'openstack-swift-container',
++          'swift-container-replicator' => 'openstack-swift-container-replicator',
++          'swift-container-updater'    => 'openstack-swift-container-updater',
++          'swift-container-auditor'    => 'openstack-swift-container-auditor'
++        }
+       }
+     end
+-    it 'should have some support services' do
+-      ['swift-container-updater', 'swift-container-auditor'].each do |service|
+-        should contain_service(service).with(
+-          :name     => "openstack-#{service}",
+-          :ensure   => 'running',
+-          :enable   => true,
+-          :require  => 'Package[swift-container]'
+-        )
++
++    it_configures 'swift-storage-container'
++
++    context 'RedHat specific resources' do
++      before do
++        params.merge!({ :allowed_sync_hosts => ['127.0.0.1', '10.1.0.1', '10.1.0.2'] })
+       end
+-    end
+ 
+-    describe 'configuration file' do
+       let :pre_condition do
+         "class { 'ssh::server::install': }
+          class { 'swift': swift_hash_suffix => 'foo' }
+@@ -86,18 +138,9 @@ describe 'swift::storage::container' do
+         "/var/lib/puppet/concat/_etc_swift_container-server.conf/fragments/00_swift-container-6001"
+       end
+ 
+-      it { should contain_file(fragment_file).with_content(/^allowed_sync_hosts = 127.0.0.1$/) }
+-
+-      describe 'with allowed_sync_hosts' do
+-
+-        let :params do
+-          { :allowed_sync_hosts => ['127.0.0.1', '10.1.0.1', '10.1.0.2'], }
+-        end
+-
+-        it {
+-          should contain_file(fragment_file).with_content(/^allowed_sync_hosts = 127.0.0.1,10.1.0.1,10.1.0.2$/)
+-        }
+-      end
++      it {
++        should contain_file(fragment_file).with_content(/^allowed_sync_hosts = 127.0.0.1,10.1.0.1,10.1.0.2$/)
++      }
+     end
+   end
+ end
+diff --git a/swift/spec/classes/swift_storage_object_spec.rb b/swift/spec/classes/swift_storage_object_spec.rb
+index 3309ea3..d98f948 100644
+--- a/swift/spec/classes/swift_storage_object_spec.rb
++++ b/swift/spec/classes/swift_storage_object_spec.rb
+@@ -1,12 +1,6 @@
+ require 'spec_helper'
+-describe 'swift::storage::object' do
+ 
+-  let :facts do
+-    {
+-      :operatingsystem => 'Ubuntu',
+-      :osfamily        => 'Debian'
+-    }
+-  end
++describe 'swift::storage::object' do
+ 
+   let :pre_condition do
+     "class { 'ssh::server::install': }
+@@ -14,39 +8,100 @@ describe 'swift::storage::object' do
+      class { 'swift::storage': storage_local_net_ip => '10.0.0.1' }"
+   end
+ 
+-  let :default_params do
+-    {:package_ensure => 'present'}
++  let :params do
++    { :package_ensure => 'present',
++      :enabled        => true,
++      :manage_service => true }
+   end
+ 
+-  [{},
+-   {:package_ensure => 'latest'}
+-  ].each do |param_set|
+-    describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
+-      let :param_hash do
+-        default_params.merge(param_set)
++  shared_examples_for 'swift-storage-object' do
++
++    [{},
++     { :package_ensure => 'latest' }
++    ].each do |param_set|
++      describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
++        before do
++          params.merge!(param_set)
++        end
++
++        it { should contain_swift__storage__generic('object').with_package_ensure(params[:package_ensure]) }
+       end
+-      let :params do
+-        param_set
++    end
++
++    [{ :enabled => true, :manage_service => true },
++     { :enabled => false, :manage_service => true }].each do |param_hash|
++      context "when service should be #{param_hash[:enabled] ? 'enabled' : 'disabled'}" do
++        before do
++          params.merge!(param_hash)
++        end
++
++        it 'configures services' do
++          platform_params[:service_names].each do |service_alias, service_name|
++            should contain_service(service_alias).with(
++              :name    => service_name,
++              :ensure  => (param_hash[:manage_service] && param_hash[:enabled]) ? 'running' : 'stopped',
++              :enable  => param_hash[:enabled]
++            )
++          end
++        end
++      end
++    end
++
++    context 'with disabled service managing' do
++      before do
++        params.merge!({
++          :manage_service => false,
++          :enabled        => false })
++      end
++
++      it 'configures services' do
++        platform_params[:service_names].each do |service_alias, service_name|
++          should contain_service(service_alias).with(
++            :ensure    => nil,
++            :name      => service_name,
++            :enable    => false
++          )
++        end
+       end
+-      it { should contain_swift__storage__generic('object').with_package_ensure(param_hash[:package_ensure]) }
+     end
+   end
+-  describe 'on rhel' do
++
++  context 'on Debian platforms' do
+     let :facts do
+-      {
+-        :operatingsystem => 'RedHat',
+-        :osfamily        => 'RedHat'
++      {:operatingsystem => 'Ubuntu',
++       :osfamily        => 'Debian' }
++
++    end
++
++    let :platform_params do
++      { :service_names => {
++          'swift-object'            => 'swift-object',
++          'swift-object-replicator' => 'swift-object-replicator',
++          'swift-object-updater'    => 'swift-object-updater',
++          'swift-object-auditor'    => 'swift-object-auditor'
++        }
+       }
+     end
+-    it 'should have some support services' do
+-      ['swift-object-updater', 'swift-object-auditor'].each do |service|
+-        should contain_service(service).with(
+-          :name     => "openstack-#{service}",
+-          :ensure   => 'running',
+-          :enable   => true,
+-          :require  => 'Package[swift-object]'
+-        )
+-      end
++
++    it_configures 'swift-storage-object'
++  end
++
++  context 'on RedHat platforms' do
++    let :facts do
++      { :osfamily        => 'RedHat',
++        :operatingsystem => 'RedHat' }
++    end
++
++    let :platform_params do
++      { :service_names => {
++          'swift-object'            => 'openstack-swift-object',
++          'swift-object-replicator' => 'openstack-swift-object-replicator',
++          'swift-object-updater'    => 'openstack-swift-object-updater',
++          'swift-object-auditor'    => 'openstack-swift-object-auditor'
++        }
++      }
+     end
++
++    it_configures 'swift-storage-object'
+   end
+ end

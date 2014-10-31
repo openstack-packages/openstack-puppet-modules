@@ -15,6 +15,8 @@ Patch0003: 0003-openstack-Set-default-charset-to-utf8.patch
 Patch0004: 0004-heat-Implement-Keystone-domain-creation.patch
 Patch0005: 0005-keystone-Add-manage_service-feature.patch
 Patch0006: 0006-Fixed-firewalld-package-issue.patch
+Patch0007: 0007-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
+Patch0008: 0008-Add-manage_service-feature.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -33,6 +35,8 @@ OpenStack via installers using Puppet configuration tool.
 %patch0004 -p1
 %patch0005 -p1
 %patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
