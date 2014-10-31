@@ -1,13 +1,13 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.2.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
 URL:            https://github.com/redhat-openstack
 
-Source0:        https://codeload.github.com/redhat-openstack/openstack-puppet-modules/legacy.tar.gz/2014.2.2
+Source0:        https://github.com/redhat-openstack/openstack-puppet-modules/archive/%{version}.tar.gz
 
 Patch0001: 0001-horizon-Change-default-documentation-URL.patch
 Patch0002: 0002-rabbitmq-Don-t-manage-RabbitMQ-repos.patch
@@ -104,6 +104,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Oct 31 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.2-2
+- Fix sources url
+
 * Fri Oct 31 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.2-1
 - Update to upstream 2014.2.2
 
