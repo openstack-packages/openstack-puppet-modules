@@ -1,4 +1,4 @@
-From 372310671f44be1ae6da81e74ce971ce3ce18a6a Mon Sep 17 00:00:00 2001
+From dfc3183eff1e245335b0e3e202a0f8b6e8ad96fa Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 20:03:50 +0200
 Subject: [PATCH] [heat] Implement Keystone domain creation

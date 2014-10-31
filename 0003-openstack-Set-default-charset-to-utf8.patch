@@ -1,4 +1,4 @@
-From 7f049ff03795fe225547d91771310888fbccda27 Mon Sep 17 00:00:00 2001
+From 7679670e737f6c98a6f6e3297c6d86115678774e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 19:56:51 +0200
 Subject: [PATCH] [openstack] Set default charset to utf8

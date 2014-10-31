@@ -1,23 +1,20 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.1
-Release:        0.5%{?dist}
+Version:        2014.2.2
+Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
 URL:            https://github.com/redhat-openstack
 
-Source0:        https://github.com/redhat-openstack/openstack-puppet-modules/archive/%{name}-%{version}.tar.gz
+Source0:        https://codeload.github.com/redhat-openstack/openstack-puppet-modules/legacy.tar.gz/2014.2.2
 
 Patch0001: 0001-horizon-Change-default-documentation-URL.patch
 Patch0002: 0002-rabbitmq-Don-t-manage-RabbitMQ-repos.patch
 Patch0003: 0003-openstack-Set-default-charset-to-utf8.patch
 Patch0004: 0004-heat-Implement-Keystone-domain-creation.patch
-Patch0005: 0005-neutron-Configure-OVS-mechanism-agent-configs-in-its.patch
-Patch0006: 0006-neutron-Fixes-plugin.ini-error.patch
-Patch0007: 0007-keystone-Add-manage_service-feature.patch
-Patch0008: 0008-swift-Add-manage_service-feature.patch
-Patch0009: 0009-Fixed-firewalld-package-issue.patch
+Patch0005: 0005-keystone-Add-manage_service-feature.patch
+Patch0006: 0006-Fixed-firewalld-package-issue.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -36,9 +33,6 @@ OpenStack via installers using Puppet configuration tool.
 %patch0004 -p1
 %patch0005 -p1
 %patch0006 -p1
-%patch0007 -p1
-%patch0008 -p1
-%patch0009 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -106,6 +100,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Oct 31 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.2-1
+- Update to upstream 2014.2.2
+
 * Fri Oct 24 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.1-0.5
 - Fixed firewalld package issue
 

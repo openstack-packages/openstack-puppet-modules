@@ -1,4 +1,4 @@
-From 683b386caf21c74c110773f76d7c6f1e4d715df2 Mon Sep 17 00:00:00 2001
+From 796bb9fabd745606217836553b713f21429a0375 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 20:32:27 +0200
 Subject: [PATCH] [keystone] Add manage_service feature
@@ -16,7 +16,7 @@ Closes-bug: #1359823
  4 files changed, 37 insertions(+), 10 deletions(-)
 
 diff --git a/keystone/manifests/init.pp b/keystone/manifests/init.pp
-index 55c88f2..4b81984 100644
+index 05e95b0..931e10c 100644
 --- a/keystone/manifests/init.pp
 +++ b/keystone/manifests/init.pp
 @@ -38,7 +38,14 @@
@@ -35,7 +35,7 @@ index 55c88f2..4b81984 100644
  #
  #   [*database_connection*]
  #     (optional) Url used to connect to database.
-@@ -273,6 +280,7 @@ class keystone(
+@@ -281,6 +288,7 @@ class keystone(
    $ssl_cert_subject      = '/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
    $cache_dir             = '/var/cache/keystone',
    $memcache_servers      = false,
@@ -43,7 +43,7 @@ index 55c88f2..4b81984 100644
    $enabled               = true,
    $database_connection   = 'sqlite:////var/lib/keystone/keystone.db',
    $database_idle_timeout = '200',
-@@ -597,10 +605,12 @@ class keystone(
+@@ -609,10 +617,12 @@ class keystone(
      }
    }
  
@@ -105,7 +105,7 @@ index 29d90b0..f7047bf 100644
        :hasstatus  => true,
        :hasrestart => true
 diff --git a/keystone/spec/classes/keystone_spec.rb b/keystone/spec/classes/keystone_spec.rb
-index c2e97b7..6d8e717 100644
+index 675d3a7..8df8548 100644
 --- a/keystone/spec/classes/keystone_spec.rb
 +++ b/keystone/spec/classes/keystone_spec.rb
 @@ -41,6 +41,7 @@ describe 'keystone' do
