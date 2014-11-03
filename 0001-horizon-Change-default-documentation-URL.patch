@@ -1,4 +1,4 @@
-From 3a6885a160f7c8c42a526be224fd2b08a40eca63 Mon Sep 17 00:00:00 2001
+From d8786fdef02ab1d16d9a846e67416a301d3514b8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 19:18:45 +0200
 Subject: [PATCH] [horizon] Change default documentation URL
