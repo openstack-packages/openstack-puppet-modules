@@ -1,4 +1,4 @@
-From 0564612d7ba89c00c49c4642022ac64631b66a81 Mon Sep 17 00:00:00 2001
+From d0c66ad8da55af968736c9432e220e8041cfd331 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Mon, 22 Sep 2014 15:50:38 +0200
 Subject: [PATCH] Add manage_service feature

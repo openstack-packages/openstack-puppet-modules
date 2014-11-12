@@ -1,4 +1,4 @@
-From 1b6c3b08eb47a08b18cab0689abf3baba8d21408 Mon Sep 17 00:00:00 2001
+From 896c10052c0b6516d640528a388fd62f596a2b5d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 24 Oct 2014 09:37:01 +0200
 Subject: [PATCH] Fixed firewalld package issue
