@@ -40,8 +40,8 @@
 %global xinetd_commit       master
 
 Name:           openstack-puppet-modules
-Version:        2014.1
-Release:        20.1%{?dist}
+Version:        XXX
+Release:        XXX{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
