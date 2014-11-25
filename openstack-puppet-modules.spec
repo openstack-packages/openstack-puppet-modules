@@ -1,6 +1,6 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.4
+Version:        2014.2.5
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -14,9 +14,8 @@ Patch0002: 0002-rabbitmq-Don-t-manage-RabbitMQ-repos.patch
 Patch0003: 0003-openstack-Set-default-charset-to-utf8.patch
 Patch0004: 0004-heat-Implement-Keystone-domain-creation.patch
 Patch0005: 0005-keystone-Add-manage_service-feature.patch
-Patch0006: 0006-Fixed-firewalld-package-issue.patch
-Patch0007: 0007-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
-Patch0008: 0008-Add-manage_service-feature.patch
+Patch0006: 0006-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
+Patch0007: 0007-Add-manage_service-feature.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -36,7 +35,6 @@ OpenStack via installers using Puppet configuration tool.
 %patch0005 -p1
 %patch0006 -p1
 %patch0007 -p1
-%patch0008 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -66,6 +64,7 @@ cp -r haproxy %{buildroot}/%{_datadir}/openstack-puppet/modules/haproxy
 cp -r heat %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r horizon %{buildroot}/%{_datadir}/openstack-puppet/modules/horizon
 cp -r inifile %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
+cp -r ipa %{buildroot}/%{_datadir}/openstack-puppet/modules/ipa
 cp -r keystone %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r memcached %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
 cp -r module-data %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
@@ -76,12 +75,14 @@ cp -r nagios %{buildroot}/%{_datadir}/openstack-puppet/modules/nagios
 cp -r neutron %{buildroot}/%{_datadir}/openstack-puppet/modules/neutron
 cp -r nova %{buildroot}/%{_datadir}/openstack-puppet/modules/nova
 cp -r nssdb %{buildroot}/%{_datadir}/openstack-puppet/modules/nssdb
+cp -r ntp %{buildroot}/%{_datadir}/openstack-puppet/modules/ntp
 cp -r openstack %{buildroot}/%{_datadir}/openstack-puppet/modules/openstack
 cp -r openstacklib %{buildroot}/%{_datadir}/openstack-puppet/modules/openstacklib
 cp -r pacemaker %{buildroot}/%{_datadir}/openstack-puppet/modules/pacemaker
 cp -r puppet %{buildroot}/%{_datadir}/openstack-puppet/modules/puppet
 cp -r qpid %{buildroot}/%{_datadir}/openstack-puppet/modules/qpid
 cp -r rabbitmq %{buildroot}/%{_datadir}/openstack-puppet/modules/rabbitmq
+cp -r redis %{buildroot}/%{_datadir}/openstack-puppet/modules/redis
 cp -r rsync %{buildroot}/%{_datadir}/openstack-puppet/modules/rsync
 cp -r sahara %{buildroot}/%{_datadir}/openstack-puppet/modules/sahara
 cp -r ssh %{buildroot}/%{_datadir}/openstack-puppet/modules/ssh
@@ -104,6 +105,54 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Nov 25 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2.5-1
+- Update to upstream 2014.2.5
+- apache       769ff363a8a3c51e24f63a2494217d2d029289c6
+- ceilometer   741e89ae5b59e6284d677dd1c3cdf4154902a378
+- certmonger   3f86b9973fc30c14a066b0f215023d5f1398b874
+- cinder       1ee8a6cab39da6beebf7a0b39207f0002368196f
+- common       2c0ed2844c606fd806bde0c02e47e79c88fab4a9
+- concat       644fb1b6dc8b64accc4d1208d6127b79a08a38b7
+- firewall     6b308177c3d279083078955942969c92b145eba0
+- galera       f7d4110886b643eb63dc5c347a0e8a06b09642e7
+- glance       a243f89a52f7dd2dc16b36d1c9b79ec1616c6596
+- gluster      6c962083d8b100dcaeb6f11dbe61e6071f3d13f0
+- haproxy      f381510e940ee11feb044c1c728ba2e5af807c79
+- heat         b1e9e9bd48c3da15be69c0797fb05e7ce0f6698f
+- horizon      353c372d582167d5635b1b2ee9474cf6822db032
+- inifile      fe9b0d5229ea37179a08c4b49239da9bc950acd1
+- ipa          08e51e96ac2c9265499deec3485e396b792587d3
+- keystone     38518cbcb3ef8ad3bb068730a21d790b27a29b74
+- memcached    49dbf102fb6eee90297b2ed6a1fa463a8c5ccee7
+- module-data  159fc5e0e21ce9df96c777f0064b5eca88e29cae
+- mongodb      0518f864afcce2ebb79f1f2edab5de323c811af7
+- mysql        40dd1805886aee56dc02860565f161c6e3b4c7e5
+- n1k-vsm      69ff094069506f98431182c6097b3b6b9ea6fdb9
+- nagios       56a1eee350c4600bb12e017d64238fb3f876abd4
+- neutron      67abde86d53969329bce37725627c2c661e49765
+- nova         181991927131206d4ea59a679e8108e36dc86c77
+- nssdb        b3799a9a7c62c3b5b7968f9860220a885b45fb8a
+- ntp          8f697e32bc279b36ada752273e6c788716b95315
+- openstack    d81d2d86280d5739cc896a48b68d7309e765047a
+- openstacklib e64e9c2a44833b25b602138b53a3187db49eaef8
+- pacemaker    0ed9ee8a29c0f27e86727d415b39d2715332df7d
+- puppet       bd467cae15eba9ca44274034d2593b0eaf30518d
+- qpid         9ffb2788c536f1694980e07a43e8133ff85fa28c
+- rabbitmq     4832bd61b5b1bfea7c9cc985508e65cd10081652
+- redis        31ecbcace3cacf26ad85d90abc2409da8973e788
+- rsync        357d51f3a6a22bc3da842736176c3510e507b4fb
+- sahara       6b696cffcba6692975dbcfee144e81b6e90e5ecf
+- ssh          d6571f8c43ac55d20a6afd8a8ce3f86ac4b0d7a4
+- staging      887275d8fb20e148c6f9eb327f1f6c8ea5ee280f
+- stdlib       62e8c1d76902e6f22cb9f7b3abd43e757b4130a3
+- swift        68a9e8eecba4a280ea1ec18fba67069a8c7dfce4
+- sysctl       c4486acc2d66de857dbccd8b4b945ea803226705
+- tempest      7a3369949fc8af41e190dd8115391354a7575ecb
+- vcsrepo      6f7507a2a48ff0a58c7db026760a2eb84e382a77
+- vlan         c937de75c28e63fba8d8738ad6a5f2ede517e53d
+- vswitch      51fd30c22b79d927fb0329e6e2b58fe67217ecee
+- xinetd       6b02de8d4f30a819eb404048e4258e3a5e8023c8
+
 * Wed Nov 12 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.4-1
 - Update to upstream 2014.2.4
 
