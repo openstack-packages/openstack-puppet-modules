@@ -1,4 +1,4 @@
-From 60a9c67b2c6f6a38d7ee99a8f095c89add6decd8 Mon Sep 17 00:00:00 2001
+From c1a8fe82adbb4849523ef0f6aa56fc58e8c654d0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 19:26:49 +0200
 Subject: [PATCH] [rabbitmq] Don't manage RabbitMQ repos

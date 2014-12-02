@@ -1,6 +1,6 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.5
+Version:        2014.2.6
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -16,6 +16,7 @@ Patch0004: 0004-heat-Implement-Keystone-domain-creation.patch
 Patch0005: 0005-keystone-Add-manage_service-feature.patch
 Patch0006: 0006-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
 Patch0007: 0007-Add-manage_service-feature.patch
+Patch0008: 0008-Fix-against-mongodb-2.6.5-from-epel.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -35,6 +36,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0005 -p1
 %patch0006 -p1
 %patch0007 -p1
+%patch0008 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -105,6 +107,11 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Dec 02 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.6-3
+- Updated to release 2014.2.6
+- mongodb      fe562b86f388a6d107bb1f3cb3b32a3978f59c2a
+- Fix against mongodb 2.6.5 from epel (rhbz#1167888)
+
 * Tue Nov 25 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2.5-1
 - Update to upstream 2014.2.5
 - apache       769ff363a8a3c51e24f63a2494217d2d029289c6

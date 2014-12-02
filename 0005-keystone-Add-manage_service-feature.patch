@@ -1,4 +1,4 @@
-From 2775d223c2d7db48bab9c7256e85705a5d4c972c Mon Sep 17 00:00:00 2001
+From 6595ec18ddd31b7653fac095c45ea633816f827d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 20:32:27 +0200
 Subject: [PATCH] [keystone] Add manage_service feature

@@ -1,0 +1,32 @@
+From 2d9cb926393f353d4f19671690ef487bb9bbaf6b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ivan=20Ne=C4=8Das?= <inecas@redhat.com>
+Date: Tue, 25 Nov 2014 18:14:37 +0100
+Subject: [PATCH] Fix against mongodb 2.6.5 from epel
+
+The updated version of mongodb-server in epel7 2.6.5 (resp. it's
+systemd script) expects the pid file to be at
+/var/run/mongodb/mongod.pid.
+
+We expect the same to happen in fedora 22
+---
+ mongodb/manifests/params.pp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/mongodb/manifests/params.pp b/mongodb/manifests/params.pp
+index 7789e27..7c273b2 100644
+--- a/mongodb/manifests/params.pp
++++ b/mongodb/manifests/params.pp
+@@ -57,7 +57,12 @@ class mongodb::params inherits mongodb::globals {
+         $dbpath              = '/var/lib/mongodb'
+         $logpath             = '/var/log/mongodb/mongodb.log'
+         $bind_ip             = pick($::mongodb::globals::bind_ip, ['127.0.0.1'])
+-        $pidfilepath         = '/var/run/mongodb/mongodb.pid'
++        if ($::operatingsystem == 'fedora' and versioncmp($::operatingsystemrelease, '22') >= 0 or
++            $::operatingsystem != 'fedora' and versioncmp($::operatingsystemrelease, '7.0') >= 0) {
++          $pidfilepath         = '/var/run/mongodb/mongod.pid'
++        } else {
++          $pidfilepath         = '/var/run/mongodb/mongodb.pid'
++        }
+         $fork                = true
+         $journal             = true
+       }
