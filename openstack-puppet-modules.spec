@@ -38,6 +38,7 @@
 %global vlan_commit         master
 %global vswitch_commit      master
 %global xinetd_commit       master
+%global openstacklib_commit master
 
 Name:           openstack-puppet-modules
 Version:        XXX
@@ -86,6 +87,7 @@ Source35:	https://github.com/puppetlabs/puppetlabs-vcsrepo/archive/%{vcsrepo_com
 Source36:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vlan-%{vlan_commit}.tar.gz
 Source37:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
 Source38:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
+Source39:	https://github.com/stackforge/puppet-openstacklib/archive/%{openstacklib_commit}/openstacklib-%{openstacklib_commit}.tar.gz
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -134,6 +136,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 36
 %setup -c -q -T -D -a 37
 %setup -c -q -T -D -a 38
+%setup -c -q -T -D -a 39
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -187,6 +190,7 @@ cp -r puppetlabs-vcsrepo-%{vcsrepo_commit} %{buildroot}/%{_datadir}/openstack-pu
 cp -r puppet-vlan-%{vlan_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vlan
 cp -r puppet-vswitch-%{vswitch_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vswitch
 cp -r puppetlabs-xinetd-%{xinetd_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/xinetd
+cp -r puppet-openstacklib-%{openstacklib_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/openstacklib
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
