@@ -1,6 +1,6 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.6
+Version:        2014.2.7
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -17,6 +17,7 @@ Patch0005: 0005-keystone-Add-manage_service-feature.patch
 Patch0006: 0006-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
 Patch0007: 0007-Add-manage_service-feature.patch
 Patch0008: 0008-Fix-against-mongodb-2.6.5-from-epel.patch
+Patch0009: 0009-Fix-support-for-Fedora-Rawhide.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -37,6 +38,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0006 -p1
 %patch0007 -p1
 %patch0008 -p1
+%patch0009 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -53,6 +55,7 @@ find %{_builddir}/%{name}-%{version}/ \( -name spec -o -name ext \) | xargs rm -
 rm -rf %{buildroot}
 install -d -m 0755 %{buildroot}/%{_datadir}/openstack-puppet/modules/
 cp -r apache %{buildroot}/%{_datadir}/openstack-puppet/modules/apache
+cp -r aviator %{buildroot}/%{_datadir}/openstack-puppet/modules/aviator
 cp -r ceilometer %{buildroot}/%{_datadir}/openstack-puppet/modules/ceilometer
 cp -r certmonger %{buildroot}/%{_datadir}/openstack-puppet/modules/certmonger
 cp -r cinder %{buildroot}/%{_datadir}/openstack-puppet/modules/cinder
@@ -107,6 +110,17 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Thu Dec 11 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2.7-1
+- Fix support for Fedora Rawhide (rhbz#1170646)
+- Updated to release 2014.2.7
+- apache       1417312b493ea79f88f22cc8b961d8db08cb9273
+- aviator      d308a263318399f0de7fd760826f8b98b2b59aba
+- ceilometer   ee2f3cd4498b2ef3a6633991206b7185c1d32897
+- horizon      168c206dfefa35abec48d7bce33ed469bf98cefb
+- keystone     821cc4ada1f50b5a6c6244cd5c689a467d06d736
+- openstacklib 999f7849a3e0653f46f7336ee0fa9c2e38630b7b
+- sahara       66301097ee42840831f8c8c7cd0482e3e2325df5
+
 * Tue Dec 02 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.6-3
 - Updated to release 2014.2.6
 - mongodb      fe562b86f388a6d107bb1f3cb3b32a3978f59c2a

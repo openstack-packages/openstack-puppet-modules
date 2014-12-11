@@ -1,0 +1,70 @@
+From ec0ecb112842c744252e35f05c17748ad6d4dce3 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Mon, 8 Dec 2014 13:02:02 -0500
+Subject: [PATCH] Fix support for Fedora Rawhide
+
+---
+ apache/manifests/version.pp        |  2 +-
+ apache/spec/classes/apache_spec.rb | 36 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/apache/manifests/version.pp b/apache/manifests/version.pp
+index dc5288d..fae008a 100644
+--- a/apache/manifests/version.pp
++++ b/apache/manifests/version.pp
+@@ -12,7 +12,7 @@ class apache::version {
+ 
+   case $::osfamily {
+     'RedHat': {
+-      if ($::operatingsystem == 'Fedora' and $distrelease >= 18) or ($::operatingsystem != 'Fedora' and $distrelease >= 7) {
++      if ($::operatingsystem == 'Fedora' and versioncmp($distrelease, '18') >= 0) or ($::operatingsystem != 'Fedora' and $distrelease >= 7) {
+         $default = '2.4'
+       } else {
+         $default = '2.2'
+diff --git a/apache/spec/classes/apache_spec.rb b/apache/spec/classes/apache_spec.rb
+index fe61a97..a9d9438 100644
+--- a/apache/spec/classes/apache_spec.rb
++++ b/apache/spec/classes/apache_spec.rb
+@@ -488,6 +488,42 @@ describe 'apache', :type => :class do
+         it { is_expected.to contain_file("/etc/httpd/conf/httpd.conf").with_content %r{^EnableSendfile Off\n} }
+       end
+     end
++    context "on Fedora" do
++      let :facts do
++        super().merge({
++          :operatingsystem => 'Fedora'
++        })
++      end
++
++      context "21" do
++        let :facts do
++          super().merge({
++            :lsbdistrelease         => '21',
++            :operatingsystemrelease => '21'
++          })
++        end
++        it { is_expected.to contain_class('apache').with_apache_version('2.4') }
++      end
++      context "Rawhide" do
++        let :facts do
++          super().merge({
++            :lsbdistrelease         => 'Rawhide',
++            :operatingsystemrelease => 'Rawhide'
++          })
++        end
++        it { is_expected.to contain_class('apache').with_apache_version('2.4') }
++      end
++      # kinda obsolete
++      context "17" do
++        let :facts do
++          super().merge({
++            :lsbdistrelease         => '17',
++            :operatingsystemrelease => '17'
++          })
++        end
++        it { is_expected.to contain_class('apache').with_apache_version('2.2') }
++      end
++    end
+   end
+   context "on a FreeBSD OS" do
+     let :facts do

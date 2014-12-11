@@ -1,4 +1,4 @@
-From 6595ec18ddd31b7653fac095c45ea633816f827d Mon Sep 17 00:00:00 2001
+From fbba7b282dcfe9ded21e3ff5f066593c56bb723d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 20:32:27 +0200
 Subject: [PATCH] [keystone] Add manage_service feature
@@ -9,22 +9,21 @@ $manage_service parameter to relevant class.
 Change-Id: I80a55857442c6cd32387481fbe68b54f52e827a1
 Closes-bug: #1359823
 ---
- keystone/manifests/init.pp                     | 20 +++++++++++++++-----
+ keystone/manifests/init.pp                     | 19 ++++++++++++++-----
  keystone/manifests/service.pp                  |  4 ++--
  keystone/spec/classes/keystone_service_spec.rb |  4 ++--
  keystone/spec/classes/keystone_spec.rb         | 19 ++++++++++++++++++-
- 4 files changed, 37 insertions(+), 10 deletions(-)
+ 4 files changed, 36 insertions(+), 10 deletions(-)
 
 diff --git a/keystone/manifests/init.pp b/keystone/manifests/init.pp
-index 05e95b0..931e10c 100644
+index b5a4166..bf95c80 100644
 --- a/keystone/manifests/init.pp
 +++ b/keystone/manifests/init.pp
-@@ -38,7 +38,14 @@
- #     Defaults to /var/cache/keystone.
- #   [memcache_servers] List of memcache servers/ports. Optional. Used with
- #     token_driver keystone.token.backends.memcache.Token.  Defaults to false.
+@@ -63,7 +63,13 @@
+ #     Toggle for token system caching. This has no effects unless 'memcache_servers' is set.
+ #     Optional. Default to true.
+ #
 -#   [enabled] If the keystone services should be enabled. Optional. Default to true.
-+#
 +#   [manage_service]
 +#      (optional) If Puppet should manage service startup / shutdown.
 +#      Defaults to true.
@@ -35,15 +34,15 @@ index 05e95b0..931e10c 100644
  #
  #   [*database_connection*]
  #     (optional) Url used to connect to database.
-@@ -281,6 +288,7 @@ class keystone(
-   $ssl_cert_subject      = '/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
-   $cache_dir             = '/var/cache/keystone',
-   $memcache_servers      = false,
-+  $manage_service        = true,
-   $enabled               = true,
-   $database_connection   = 'sqlite:////var/lib/keystone/keystone.db',
-   $database_idle_timeout = '200',
-@@ -609,10 +617,12 @@ class keystone(
+@@ -310,6 +316,7 @@ class keystone(
+   $cache_backend_argument = undef,
+   $debug_cache_backend    = false,
+   $token_caching          = true,
++  $manage_service         = true,
+   $enabled                = true,
+   $database_connection    = 'sqlite:////var/lib/keystone/keystone.db',
+   $database_idle_timeout  = '200',
+@@ -658,10 +665,12 @@ class keystone(
      }
    }
  
@@ -105,7 +104,7 @@ index 29d90b0..f7047bf 100644
        :hasstatus  => true,
        :hasrestart => true
 diff --git a/keystone/spec/classes/keystone_spec.rb b/keystone/spec/classes/keystone_spec.rb
-index 675d3a7..8df8548 100644
+index 1cfa3e8..d653c5b 100644
 --- a/keystone/spec/classes/keystone_spec.rb
 +++ b/keystone/spec/classes/keystone_spec.rb
 @@ -41,6 +41,7 @@ describe 'keystone' do
