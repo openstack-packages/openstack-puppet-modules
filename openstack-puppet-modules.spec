@@ -1,7 +1,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.2.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -18,6 +18,8 @@ Patch0006: 0006-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
 Patch0007: 0007-Add-manage_service-feature.patch
 Patch0008: 0008-Fix-against-mongodb-2.6.5-from-epel.patch
 Patch0009: 0009-Fix-support-for-Fedora-Rawhide.patch
+Patch0010: 0010-Fixed-issue-with-vlan-on-redhat-provider.patch
+Patch0011: 0011-Adds-filtering-for-BONDING-LACP.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -39,6 +41,8 @@ OpenStack via installers using Puppet configuration tool.
 %patch0007 -p1
 %patch0008 -p1
 %patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -110,6 +114,10 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Dec 12 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.7-2
+- Adds filtering for BONDING (LACP)
+- Fixed issue with vlan on redhat provider
+
 * Thu Dec 11 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2.7-1
 - Fix support for Fedora Rawhide (rhbz#1170646)
 - Updated to release 2014.2.7

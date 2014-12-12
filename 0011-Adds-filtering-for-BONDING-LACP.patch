@@ -1,0 +1,87 @@
+From 02f23fdc6b32d3fc229a815023645595791b72d6 Mon Sep 17 00:00:00 2001
+From: Gilles Dubreuil <gilles@redhat.com>
+Date: Mon, 8 Dec 2014 15:39:04 +1100
+Subject: [PATCH] Adds filtering for BONDING (LACP)
+
+- Separated ifcfg file capture from cleaning filter
+- Fixed REGEX when ifcfg file used as template
+
+RHBZ#1165185
+
+Change-Id: I26d53c832e651668b40a70010bb994e5d2ec10da
+---
+ vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb | 34 +++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb b/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
+index 2bc4374..41f6445 100644
+--- a/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
++++ b/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
+@@ -34,7 +34,7 @@ Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
+       if link?
+         extras = dynamic_default if dynamic?
+         if File.exist?(BASE + @resource[:interface])
+-          template = from_str(File.read(BASE + @resource[:interface]))
++          template = cleared(from_str(File.read(BASE + @resource[:interface])))
+         end
+       end
+ 
+@@ -42,6 +42,13 @@ Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
+       if vlan?
+         port.set('VLAN' => 'yes')
+       end
++
++      if bonding?
++        port.set('BONDING_MASTER' => 'yes')
++        config = from_str(File.read(BASE + @resource[:interface]))
++        port.set('BONDING_OPTS' => config['BONDING_OPTS']) if config.has_key?('BONDING_OPTS')
++      end
++
+       port.save(BASE + @resource[:interface])
+ 
+       bridge = IFCFG::Bridge.new(@resource[:bridge], template)
+@@ -77,6 +84,17 @@ Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
+ 
+   private
+ 
++  def bonding?
++    # To do: replace with iproute2 commands
++    if File.exists?("/proc/net/bonding/#{@resource[:interface]}")
++      return true
++    else
++      return false
++    end
++  rescue Errno::ENOENT
++    return false
++  end
++
+   def dynamic?
+     device = ''
+     device = ip('addr', 'show', @resource[:interface])
+@@ -114,14 +132,24 @@ Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
+   def from_str(data)
+     items = {}
+     data.each_line do |line|
+-      if m = line.match(/^(.*)=(.*)$/)
++      if m = line.match(/^([A-Za-z_]*)=(.*)$/)
+         items.merge!(m[1] => m[2])
+       end
+     end
+-    items.delete('VLAN') if items.has_key?('VLAN')
+     items
+   end
+ 
++  def cleared(data)
++    data.each do |key, value|
++      case key
++      when /vlan/i
++        data.delete(key)
++      when /bonding/i
++        data.delete(key)
++      end
++    end
++  end
++
+   def vlan?
+     if File.read('/proc/net/vlan/config') =~ /#{@resource[:interface]}/
+       return true
