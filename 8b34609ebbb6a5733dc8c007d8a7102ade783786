@@ -1,0 +1,9 @@
+Code-Review+2: Alan Pevec <alan.pevec@redhat.com>
+Verified+1: Gael Chamoulaud <gchamoul@redhat.com>
+Verified+1: Derek Higgins <derekh@redhat.com>
+Code-Review+2: Derek Higgins <derekh@redhat.com>
+Submitted-by: Derek Higgins <derekh@redhat.com>
+Submitted-at: Tue, 16 Dec 2014 15:51:46 +0100
+Reviewed-on: https://review.gerrithub.io/13753
+Project: openstack-packages/openstack-puppet-modules
+Branch: refs/heads/f20-master
