@@ -1,0 +1,52 @@
+From 8b0cb6ae5bf4187131a47eb0c45e65d712036f90 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Fri, 19 Dec 2014 13:04:04 +0100
+Subject: [PATCH] Deprecate support for Fedora 18
+
+Also fixes error on Rawhide: Error: comparison of String with 18
+
+Change-Id: Id59fd02af92c6d77d49195001fc4f983d66d29dd
+---
+ ceilometer/manifests/params.pp                | 10 +---------
+ ceilometer/spec/classes/ceilometer_db_spec.rb |  3 +--
+ 2 files changed, 2 insertions(+), 11 deletions(-)
+
+diff --git a/ceilometer/manifests/params.pp b/ceilometer/manifests/params.pp
+index 6ddaf2b..7993bd1 100644
+--- a/ceilometer/manifests/params.pp
++++ b/ceilometer/manifests/params.pp
+@@ -27,15 +27,7 @@ class ceilometer::params {
+       $pymongo_package_name            = 'python-pymongo'
+       $psycopg_package_name            = 'python-psycopg2'
+       $agent_notification_service_name = 'openstack-ceilometer-notification'
+-
+-      # db packages
+-      if $::operatingsystem == 'Fedora' and $::operatingsystemrelease >= 18 {
+-        # fallback to stdlib version, not provided on fedora
+-        $sqlite_package_name      = undef
+-      } else {
+-        $sqlite_package_name      = 'python-sqlite2'
+-      }
+-
++      $sqlite_package_name             = 'python-sqlite2'
+     }
+     'Debian': {
+       # package names
+diff --git a/ceilometer/spec/classes/ceilometer_db_spec.rb b/ceilometer/spec/classes/ceilometer_db_spec.rb
+index f652658..d866a6e 100644
+--- a/ceilometer/spec/classes/ceilometer_db_spec.rb
++++ b/ceilometer/spec/classes/ceilometer_db_spec.rb
+@@ -34,12 +34,11 @@ describe 'ceilometer::db' do
+     end
+   end
+ 
+-  # Fedora > 18 has python-pymongo too
+   context 'on Redhat platforms' do
+     let :facts do
+       { :osfamily => 'Redhat',
+         :operatingsystem => 'Fedora',
+-        :operatingsystemrelease => 18
++        :operatingsystemrelease => 21
+       }
+     end
+ 

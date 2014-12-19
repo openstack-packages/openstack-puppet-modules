@@ -1,7 +1,7 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.7
-Release:        3%{?dist}
+Version:        2014.2.8
+Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -18,9 +18,14 @@ Patch0006: 0006-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
 Patch0007: 0007-Add-manage_service-feature.patch
 Patch0008: 0008-Fix-against-mongodb-2.6.5-from-epel.patch
 Patch0009: 0009-Fix-support-for-Fedora-Rawhide.patch
-Patch0010: 0010-Fixed-issue-with-vlan-on-redhat-provider.patch
-Patch0011: 0011-Adds-filtering-for-BONDING-LACP.patch
-Patch0012: 0012-JSON-was-invalid.patch
+Patch0010: 0010-Adds-filtering-for-BONDING-LACP.patch
+Patch0011: 0011-JSON-was-invalid.patch
+Patch0012: 0012-Configure-auth-via-conf-file-not-paste-file.patch
+Patch0013: 0013-Set-control_exchange-in-the-main-config-file.patch
+Patch0014: 0014-Support-Neutron.patch
+Patch0015: 0015-Add-Ironic-support-into-nova-puppet-modules.patch
+Patch0016: 0016-Fix-Ironic-modules-so-services-properly-run.patch
+Patch0017: 0017-Deprecate-support-for-Fedora-18.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -45,6 +50,11 @@ OpenStack via installers using Puppet configuration tool.
 %patch0010 -p1
 %patch0011 -p1
 %patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
+%patch0015 -p1
+%patch0016 -p1
+%patch0017 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -102,6 +112,7 @@ cp -r stdlib %{buildroot}/%{_datadir}/openstack-puppet/modules/stdlib
 cp -r swift %{buildroot}/%{_datadir}/openstack-puppet/modules/swift
 cp -r sysctl %{buildroot}/%{_datadir}/openstack-puppet/modules/sysctl
 cp -r tempest %{buildroot}/%{_datadir}/openstack-puppet/modules/tempest
+cp -r trove %{buildroot}/%{_datadir}/openstack-puppet/modules/trove
 cp -r vcsrepo %{buildroot}/%{_datadir}/openstack-puppet/modules/vcsrepo
 cp -r vlan %{buildroot}/%{_datadir}/openstack-puppet/modules/vlan
 cp -r vswitch %{buildroot}/%{_datadir}/openstack-puppet/modules/vswitch
@@ -116,6 +127,24 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri Dec 19 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2.8-1
+- Updated to release 2014.2.8
+- ceilometer   953ce5032cb332bf8a15e78358ee8af6f14dd7f0
+- keystone     71a9df884b7a81bf86b6e897c16171bf556f1ea4
+- n1k-vsm      6ac71df4aa2bf806e35b83bd18ae9ea6b5605bc0
+- neutron      c3dc52023dfdf7649080c1b5bc5eae3b43991db1
+- nova         181991927131206d4ea59a679e8108e36dc86c77
+- redis        f4ffa1b907281472c8572c7dbcee8d2f454f3e27
+- trove        2ef93e8e90978915d166ed21fd53dab67f820fe7
+- vswitch      a36332da0ddb9d419e1d3f9d170058284b144f06
+- Configure-auth-via-conf-file-not-paste-file.patch
+- Set-control_exchange-in-the-main-config-file.patch
+- Support-Neutron.patch
+- Add-Ironic-support-into-nova-puppet-modules.patch
+- Fix-Ironic-modules-so-services-properly-run.patch
+- Deprecate-support-for-Fedora-18.patch
+
+
 * Fri Dec 12 2014 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.7-3
 - JSON was invalid
 

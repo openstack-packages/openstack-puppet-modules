@@ -1,0 +1,47 @@
+From 83a5a55b7e20ea7ce740f7788cdbb39a32a57efb Mon Sep 17 00:00:00 2001
+From: Solly Ross <sross@redhat.com>
+Date: Tue, 16 Dec 2014 15:40:19 -0500
+Subject: [PATCH] Set control_exchange in the main config file
+
+`control_exchange = trove` should be set in the main config file.
+
+Change-Id: I559f440a2aed76968bcdce18384f8707febb1f21
+---
+ trove/manifests/api.pp  | 1 +
+ trove/manifests/init.pp | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/trove/manifests/api.pp b/trove/manifests/api.pp
+index 47898b6..c152bf3 100644
+--- a/trove/manifests/api.pp
++++ b/trove/manifests/api.pp
+@@ -183,6 +183,7 @@ class trove::api(
+     'DEFAULT/nova_proxy_admin_user':        value => $::trove::nova_proxy_admin_user;
+     'DEFAULT/nova_proxy_admin_pass':        value => $::trove::nova_proxy_admin_pass;
+     'DEFAULT/nova_proxy_admin_tenant_name': value => $::trove::nova_proxy_admin_tenant_name;
++    'DEFAULT/control_exchange':             value => $::trove::control_exchange;
+   }
+ 
+   if $auth_url {
+diff --git a/trove/manifests/init.pp b/trove/manifests/init.pp
+index 52f5eff..ddedba4 100644
+--- a/trove/manifests/init.pp
++++ b/trove/manifests/init.pp
+@@ -139,6 +139,9 @@
+ # [*control_exchange*]
+ #   (optional) Control exchange.
+ #   Defaults to 'trove'.
++# [*use_neutron*]
++#   (optional) Use Neutron
++#   Defaults to true
+ #
+ class trove(
+   $nova_proxy_admin_pass,
+@@ -166,6 +169,7 @@ class trove(
+   $swift_url                    = false,
+   # DEPRECATED PARAMETERS
+   $mysql_module                 = undef,
++  $use_neutron                  = true,
+ ) {
+   include trove::params
+ 

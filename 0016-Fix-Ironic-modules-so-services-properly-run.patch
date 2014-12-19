@@ -1,0 +1,1791 @@
+From c1c7d44cca01f0971721ae9aa056eb533b6531a9 Mon Sep 17 00:00:00 2001
+From: Ryan Hallisey <rhallise@redhat.com>
+Date: Fri, 19 Dec 2014 07:52:31 -0500
+Subject: [PATCH] Fix Ironic modules so services properly run
+
+Initially, the module was not creating an ironic.conf file and now
+it does.  The configurations that are being put into the ironic.conf
+file come straight out of the documentation.
+
+The package 'python-pbr' is required and was not being installed
+elsewhere so it is installed by the init module.
+
+The ironic-conductor service requires the execution of 'ironic-dbsync'
+before it can be active.
+
+In the params module, the 'RedHat' packages and services were named
+incorrectly or were otherwise missing.
+---
+ ironic/.fixtures.yml                               |  11 +
+ ironic/.gitignore                                  |   5 +
+ ironic/.gitreview                                  |   4 +
+ ironic/Gemfile                                     |  18 ++
+ ironic/LICENSE                                     | 176 ++++++++++++
+ ironic/README.md                                   |  54 ++++
+ ironic/Rakefile                                    |   9 +
+ ironic/examples/ironic.pp                          |  81 ++++++
+ ironic/lib/puppet/provider/ironic.rb               | 150 +++++++++++
+ .../puppet/provider/ironic_config/ini_setting.rb   |  27 ++
+ ironic/lib/puppet/type/ironic_config.rb            |  42 +++
+ ironic/manifests/api.pp                            | 173 ++++++++++++
+ ironic/manifests/client.pp                         |  40 +++
+ ironic/manifests/conductor.pp                      |  67 +++++
+ ironic/manifests/db/mysql.pp                       |  75 ++++++
+ ironic/manifests/drivers/ipmi.pp                   |  37 +++
+ ironic/manifests/drivers/pxe.pp                    | 110 ++++++++
+ ironic/manifests/init.pp                           | 295 +++++++++++++++++++++
+ ironic/manifests/keystone/auth.pp                  | 103 +++++++
+ ironic/manifests/params.pp                         |  50 ++++
+ ironic/manifests/policy.pp                         |  29 ++
+ ironic/metadata.json                               |  39 +++
+ 22 files changed, 1595 insertions(+)
+ create mode 100644 ironic/.fixtures.yml
+ create mode 100644 ironic/.gitignore
+ create mode 100644 ironic/.gitreview
+ create mode 100644 ironic/Gemfile
+ create mode 100644 ironic/LICENSE
+ create mode 100644 ironic/README.md
+ create mode 100644 ironic/Rakefile
+ create mode 100644 ironic/examples/ironic.pp
+ create mode 100644 ironic/lib/puppet/provider/ironic.rb
+ create mode 100644 ironic/lib/puppet/provider/ironic_config/ini_setting.rb
+ create mode 100644 ironic/lib/puppet/type/ironic_config.rb
+ create mode 100644 ironic/manifests/api.pp
+ create mode 100644 ironic/manifests/client.pp
+ create mode 100644 ironic/manifests/conductor.pp
+ create mode 100644 ironic/manifests/db/mysql.pp
+ create mode 100644 ironic/manifests/drivers/ipmi.pp
+ create mode 100644 ironic/manifests/drivers/pxe.pp
+ create mode 100644 ironic/manifests/init.pp
+ create mode 100644 ironic/manifests/keystone/auth.pp
+ create mode 100644 ironic/manifests/params.pp
+ create mode 100644 ironic/manifests/policy.pp
+ create mode 100644 ironic/metadata.json
+
+diff --git a/ironic/.fixtures.yml b/ironic/.fixtures.yml
+new file mode 100644
+index 0000000..55f02ca
+--- /dev/null
++++ b/ironic/.fixtures.yml
+@@ -0,0 +1,11 @@
++fixtures:
++  repositories:
++    'inifile':  'git://github.com/puppetlabs/puppetlabs-inifile'
++    'keystone': 'git://github.com/stackforge/puppet-keystone.git'
++    'mysql':
++      repo: 'git://github.com/puppetlabs/puppetlabs-mysql.git'
++      ref: 'origin/2.2.x'
++    'openstacklib': 'git://github.com/stackforge/puppet-openstacklib.git'
++    'stdlib': 'git://github.com/puppetlabs/puppetlabs-stdlib.git'
++  symlinks:
++    'ironic': "#{source_dir}"
+diff --git a/ironic/.gitignore b/ironic/.gitignore
+new file mode 100644
+index 0000000..923be49
+--- /dev/null
++++ b/ironic/.gitignore
+@@ -0,0 +1,5 @@
++*.swp
++spec/fixtures/modules/*
++spec/fixtures/manifests/site.pp
++Gemfile.lock
++.vendor
+diff --git a/ironic/.gitreview b/ironic/.gitreview
+new file mode 100644
+index 0000000..1ac7755
+--- /dev/null
++++ b/ironic/.gitreview
+@@ -0,0 +1,4 @@
++[gerrit]
++host=review.openstack.org
++port=29418
++project=stackforge/puppet-ironic.git
+diff --git a/ironic/Gemfile b/ironic/Gemfile
+new file mode 100644
+index 0000000..d965fa9
+--- /dev/null
++++ b/ironic/Gemfile
+@@ -0,0 +1,18 @@
++source 'https://rubygems.org'
++
++group :development, :test do
++  gem 'puppetlabs_spec_helper', :require => false
++  gem 'puppet-lint', '~> 0.3.2'
++  gem 'rake', '10.1.1'
++  gem 'rspec', '< 2.99'
++  gem 'json'
++  gem 'webmock'
++end
++
++if puppetversion = ENV['PUPPET_GEM_VERSION']
++  gem 'puppet', puppetversion, :require => false
++else
++  gem 'puppet', :require => false
++end
++
++# vim:ft=ruby
+diff --git a/ironic/LICENSE b/ironic/LICENSE
+new file mode 100644
+index 0000000..68c771a
+--- /dev/null
++++ b/ironic/LICENSE
+@@ -0,0 +1,176 @@
++
++                                 Apache License
++                           Version 2.0, January 2004
++                        http://www.apache.org/licenses/
++
++   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
++
++   1. Definitions.
++
++      "License" shall mean the terms and conditions for use, reproduction,
++      and distribution as defined by Sections 1 through 9 of this document.
++
++      "Licensor" shall mean the copyright owner or entity authorized by
++      the copyright owner that is granting the License.
++
++      "Legal Entity" shall mean the union of the acting entity and all
++      other entities that control, are controlled by, or are under common
++      control with that entity. For the purposes of this definition,
++      "control" means (i) the power, direct or indirect, to cause the
++      direction or management of such entity, whether by contract or
++      otherwise, or (ii) ownership of fifty percent (50%) or more of the
++      outstanding shares, or (iii) beneficial ownership of such entity.
++
++      "You" (or "Your") shall mean an individual or Legal Entity
++      exercising permissions granted by this License.
++
++      "Source" form shall mean the preferred form for making modifications,
++      including but not limited to software source code, documentation
++      source, and configuration files.
++
++      "Object" form shall mean any form resulting from mechanical
++      transformation or translation of a Source form, including but
++      not limited to compiled object code, generated documentation,
++      and conversions to other media types.
++
++      "Work" shall mean the work of authorship, whether in Source or
++      Object form, made available under the License, as indicated by a
++      copyright notice that is included in or attached to the work
++      (an example is provided in the Appendix below).
++
++      "Derivative Works" shall mean any work, whether in Source or Object
++      form, that is based on (or derived from) the Work and for which the
++      editorial revisions, annotations, elaborations, or other modifications
++      represent, as a whole, an original work of authorship. For the purposes
++      of this License, Derivative Works shall not include works that remain
++      separable from, or merely link (or bind by name) to the interfaces of,
++      the Work and Derivative Works thereof.
++
++      "Contribution" shall mean any work of authorship, including
++      the original version of the Work and any modifications or additions
++      to that Work or Derivative Works thereof, that is intentionally
++      submitted to Licensor for inclusion in the Work by the copyright owner
++      or by an individual or Legal Entity authorized to submit on behalf of
++      the copyright owner. For the purposes of this definition, "submitted"
++      means any form of electronic, verbal, or written communication sent
++      to the Licensor or its representatives, including but not limited to
++      communication on electronic mailing lists, source code control systems,
++      and issue tracking systems that are managed by, or on behalf of, the
++      Licensor for the purpose of discussing and improving the Work, but
++      excluding communication that is conspicuously marked or otherwise
++      designated in writing by the copyright owner as "Not a Contribution."
++
++      "Contributor" shall mean Licensor and any individual or Legal Entity
++      on behalf of whom a Contribution has been received by Licensor and
++      subsequently incorporated within the Work.
++
++   2. Grant of Copyright License. Subject to the terms and conditions of
++      this License, each Contributor hereby grants to You a perpetual,
++      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
++      copyright license to reproduce, prepare Derivative Works of,
++      publicly display, publicly perform, sublicense, and distribute the
++      Work and such Derivative Works in Source or Object form.
++
++   3. Grant of Patent License. Subject to the terms and conditions of
++      this License, each Contributor hereby grants to You a perpetual,
++      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
++      (except as stated in this section) patent license to make, have made,
++      use, offer to sell, sell, import, and otherwise transfer the Work,
++      where such license applies only to those patent claims licensable
++      by such Contributor that are necessarily infringed by their
++      Contribution(s) alone or by combination of their Contribution(s)
++      with the Work to which such Contribution(s) was submitted. If You
++      institute patent litigation against any entity (including a
++      cross-claim or counterclaim in a lawsuit) alleging that the Work
++      or a Contribution incorporated within the Work constitutes direct
++      or contributory patent infringement, then any patent licenses
++      granted to You under this License for that Work shall terminate
++      as of the date such litigation is filed.
++
++   4. Redistribution. You may reproduce and distribute copies of the
++      Work or Derivative Works thereof in any medium, with or without
++      modifications, and in Source or Object form, provided that You
++      meet the following conditions:
++
++      (a) You must give any other recipients of the Work or
++          Derivative Works a copy of this License; and
++
++      (b) You must cause any modified files to carry prominent notices
++          stating that You changed the files; and
++
++      (c) You must retain, in the Source form of any Derivative Works
++          that You distribute, all copyright, patent, trademark, and
++          attribution notices from the Source form of the Work,
++          excluding those notices that do not pertain to any part of
++          the Derivative Works; and
++
++      (d) If the Work includes a "NOTICE" text file as part of its
++          distribution, then any Derivative Works that You distribute must
++          include a readable copy of the attribution notices contained
++          within such NOTICE file, excluding those notices that do not
++          pertain to any part of the Derivative Works, in at least one
++          of the following places: within a NOTICE text file distributed
++          as part of the Derivative Works; within the Source form or
++          documentation, if provided along with the Derivative Works; or,
++          within a display generated by the Derivative Works, if and
++          wherever such third-party notices normally appear. The contents
++          of the NOTICE file are for informational purposes only and
++          do not modify the License. You may add Your own attribution
++          notices within Derivative Works that You distribute, alongside
++          or as an addendum to the NOTICE text from the Work, provided
++          that such additional attribution notices cannot be construed
++          as modifying the License.
++
++      You may add Your own copyright statement to Your modifications and
++      may provide additional or different license terms and conditions
++      for use, reproduction, or distribution of Your modifications, or
++      for any such Derivative Works as a whole, provided Your use,
++      reproduction, and distribution of the Work otherwise complies with
++      the conditions stated in this License.
++
++   5. Submission of Contributions. Unless You explicitly state otherwise,
++      any Contribution intentionally submitted for inclusion in the Work
++      by You to the Licensor shall be under the terms and conditions of
++      this License, without any additional terms or conditions.
++      Notwithstanding the above, nothing herein shall supersede or modify
++      the terms of any separate license agreement you may have executed
++      with Licensor regarding such Contributions.
++
++   6. Trademarks. This License does not grant permission to use the trade
++      names, trademarks, service marks, or product names of the Licensor,
++      except as required for reasonable and customary use in describing the
++      origin of the Work and reproducing the content of the NOTICE file.
++
++   7. Disclaimer of Warranty. Unless required by applicable law or
++      agreed to in writing, Licensor provides the Work (and each
++      Contributor provides its Contributions) on an "AS IS" BASIS,
++      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
++      implied, including, without limitation, any warranties or conditions
++      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
++      PARTICULAR PURPOSE. You are solely responsible for determining the
++      appropriateness of using or redistributing the Work and assume any
++      risks associated with Your exercise of permissions under this License.
++
++   8. Limitation of Liability. In no event and under no legal theory,
++      whether in tort (including negligence), contract, or otherwise,
++      unless required by applicable law (such as deliberate and grossly
++      negligent acts) or agreed to in writing, shall any Contributor be
++      liable to You for damages, including any direct, indirect, special,
++      incidental, or consequential damages of any character arising as a
++      result of this License or out of the use or inability to use the
++      Work (including but not limited to damages for loss of goodwill,
++      work stoppage, computer failure or malfunction, or any and all
++      other commercial damages or losses), even if such Contributor
++      has been advised of the possibility of such damages.
++
++   9. Accepting Warranty or Additional Liability. While redistributing
++      the Work or Derivative Works thereof, You may choose to offer,
++      and charge a fee for, acceptance of support, warranty, indemnity,
++      or other liability obligations and/or rights consistent with this
++      License. However, in accepting such obligations, You may act only
++      on Your own behalf and on Your sole responsibility, not on behalf
++      of any other Contributor, and only if You agree to indemnify,
++      defend, and hold each Contributor harmless for any liability
++      incurred by, or claims asserted against, such Contributor by reason
++      of your accepting any such warranty or additional liability.
++
+diff --git a/ironic/README.md b/ironic/README.md
+new file mode 100644
+index 0000000..82fdf9d
+--- /dev/null
++++ b/ironic/README.md
+@@ -0,0 +1,54 @@
++puppet-ironic
++=============
++
++#### Table of Contents
++
++1. [Overview - What is the ironic module?](#overview)
++2. [Module Description - What does the module do?](#module-description)
++3. [Setup - The basics of getting started with ironic](#setup)
++4. [Implementation - An under-the-hood peek at what the module is doing](#implementation)
++5. [Limitations - OS compatibility, etc.](#limitations)
++6. [Development - Guide for contributing to the module](#development)
++7. [Contributors - Those with commits](#contributors)
++8. [Release Notes - Notes on the most recent updates to the module](#release-notes)
++
++Overview
++--------
++
++The ironic module is a part of [Stackforge](https://github.com/stackforge), an effort by the Openstack infrastructure team to provide continuous integration testing and code review for Openstack and Openstack community projects not part of the core software. The module itself is used to flexibly configure and manage the baremetal service for Openstack.
++
++Module Description
++------------------
++
++Setup
++-----
++
++**What the ironic module affects:**
++
++* ironic, the baremetal service for Openstack.
++
++Implementation
++--------------
++
++### puppet-ironic
++
++puppet-ironic is a combination of Puppet manifest and ruby code to delivery configuration and extra functionality through types and providers.
++
++Limitations
++-----------
++
++Development
++-----------
++
++Developer documentation for the entire puppet-openstack project.
++
++* https://wiki.openstack.org/wiki/Puppet-openstack#Developer_documentation
++
++Contributors
++------------
++
++* https://github.com/stackforge/puppet-ironic/graphs/contributors
++
++Release Notes
++-------------
++
+diff --git a/ironic/Rakefile b/ironic/Rakefile
+new file mode 100644
+index 0000000..84c9a70
+--- /dev/null
++++ b/ironic/Rakefile
+@@ -0,0 +1,9 @@
++require 'puppetlabs_spec_helper/rake_tasks'
++require 'puppet-lint/tasks/puppet-lint'
++
++PuppetLint.configuration.fail_on_warnings = true
++PuppetLint.configuration.send('disable_80chars')
++PuppetLint.configuration.send('disable_class_parameter_defaults')
++
++task(:default).clear
++task :default => [:spec, :lint]
+diff --git a/ironic/examples/ironic.pp b/ironic/examples/ironic.pp
+new file mode 100644
+index 0000000..e80680c
+--- /dev/null
++++ b/ironic/examples/ironic.pp
+@@ -0,0 +1,81 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++#
++# Deploy Ironic
++#
++
++$db_host     = 'db'
++$db_username = 'ironic'
++$db_name     = 'ironic'
++$db_password = 'password'
++$rabbit_user     = 'ironic'
++$rabbit_password = 'ironic'
++$rabbit_vhost    = '/'
++$rabbit_hosts    = ['rabbitmq:5672']
++$rabbit_port     = '5672'
++$glance_api_servers = 'glance:9292'
++$deploy_kernel  = 'glance://deploy_kernel_uuid'
++$deploy_ramdisk = 'glance://deploy_ramdisk_uuid'
++
++node 'db' {
++
++  class { 'mysql::server':
++    config_hash => {
++      'bind_address' => '0.0.0.0'
++    }
++  }
++
++  class { 'mysql::ruby': }
++
++  class { 'ironic::db::mysql':
++    password      => $db_password,
++    dbname        => $db_name,
++    user          => $db_username,
++    host          => $clientcert,
++    allowed_hosts => ['controller'],
++  }
++
++}
++
++node controller {
++
++  class { 'ironic':
++    db_password         => $db_password,
++    db_name             => $db_name,
++    db_user             => $db_username,
++    db_host             => $db_host,
++
++    rabbit_password     => $rabbit_password,
++    rabbit_userid       => $rabbit_user,
++    rabbit_virtual_host => $rabbit_vhost,
++    rabbit_hosts        => $rabbit_hosts,
++
++    glance_api_servers  => $glance_api_servers,
++  }
++
++  class { 'ironic::api': }
++
++  class { 'ironic::conductor': }
++
++  class { 'ironic::drivers::ipmi': }
++
++  class { 'ironic::drivers::pxe':
++    deploy_kernel  => $deploy_kernel,
++    deploy_ramdisk => $deploy_ramdisk,
++  }
++
++}
+diff --git a/ironic/lib/puppet/provider/ironic.rb b/ironic/lib/puppet/provider/ironic.rb
+new file mode 100644
+index 0000000..3637118
+--- /dev/null
++++ b/ironic/lib/puppet/provider/ironic.rb
+@@ -0,0 +1,150 @@
++require 'csv'
++require 'puppet/util/inifile'
++
++class Puppet::Provider::Ironic < Puppet::Provider
++
++  def self.conf_filename
++    '/etc/ironic/ironic.conf'
++  end
++
++  def self.withenv(hash, &block)
++    saved = ENV.to_hash
++    hash.each do |name, val|
++      ENV[name.to_s] = val
++    end
++
++    yield
++  ensure
++    ENV.clear
++    saved.each do |name, val|
++      ENV[name] = val
++    end
++  end
++
++  def self.ironic_credentials
++    @ironic_credentials ||= get_ironic_credentials
++  end
++
++  def self.get_ironic_credentials
++    auth_keys = ['auth_host', 'auth_port', 'auth_protocol',
++                 'admin_tenant_name', 'admin_user', 'admin_password']
++    conf = ironic_conf
++    if conf and conf['keystone_authtoken'] and
++        auth_keys.all?{|k| !conf['keystone_authtoken'][k].nil?}
++      return Hash[ auth_keys.map \
++                   { |k| [k, conf['keystone_authtoken'][k].strip] } ]
++    else
++      raise(Puppet::Error, "File: #{conf_filename} does not contain all \
++required sections.  Ironic types will not work if ironic is not \
++correctly configured.")
++    end
++  end
++
++  def ironic_credentials
++    self.class.ironic_credentials
++  end
++
++  def self.auth_endpoint
++    @auth_endpoint ||= get_auth_endpoint
++  end
++
++  def self.get_auth_endpoint
++    q = ironic_credentials
++    "#{q['auth_protocol']}://#{q['auth_host']}:#{q['auth_port']}/v2.0/"
++  end
++
++  def self.ironic_conf
++    return @ironic_conf if @ironic_conf
++    @ironic_conf = Puppet::Util::IniConfig::File.new
++    @ironic_conf.read(conf_filename)
++    @ironic_conf
++  end
++
++  def self.auth_ironic(*args)
++    q = ironic_credentials
++    authenv = {
++      :OS_AUTH_URL    => self.auth_endpoint,
++      :OS_USERNAME    => q['admin_user'],
++      :OS_TENANT_NAME => q['admin_tenant_name'],
++      :OS_PASSWORD    => q['admin_password']
++    }
++    begin
++      withenv authenv do
++        ironic(args)
++      end
++    rescue Exception => e
++      if (e.message =~ /\[Errno 111\] Connection refused/) or
++          (e.message =~ /\(HTTP 400\)/)
++        sleep 10
++        withenv authenv do
++          ironic(args)
++        end
++      else
++       raise(e)
++      end
++    end
++  end
++
++  def auth_ironic(*args)
++    self.class.auth_ironic(args)
++  end
++
++  def self.reset
++    @ironic_conf        = nil
++    @ironic_credentials = nil
++  end
++
++  def self.list_ironic_resources(type)
++    ids = []
++    list = auth_ironic("#{type}-list", '--format=csv',
++                        '--column=id', '--quote=none')
++    (list.split("\n")[1..-1] || []).compact.collect do |line|
++      ids << line.strip
++    end
++    return ids
++  end
++
++  def self.get_ironic_resource_attrs(type, id)
++    attrs = {}
++    net = auth_ironic("#{type}-show", '--format=shell', id)
++    last_key = nil
++    (net.split("\n") || []).compact.collect do |line|
++      if line.include? '='
++        k, v = line.split('=', 2)
++        attrs[k] = v.gsub(/\A"|"\Z/, '')
++        last_key = k
++      else
++        # Handle the case of a list of values
++        v = line.gsub(/\A"|"\Z/, '')
++        attrs[last_key] = [attrs[last_key], v]
++      end
++    end
++    return attrs
++  end
++
++  def self.get_tenant_id(catalog, name)
++    instance_type = 'keystone_tenant'
++    instance = catalog.resource("#{instance_type.capitalize!}[#{name}]")
++    if ! instance
++      instance = Puppet::Type.type(instance_type).instances.find do |i|
++        i.provider.name == name
++      end
++    end
++    if instance
++      return instance.provider.id
++    else
++      fail("Unable to find #{instance_type} for name #{name}")
++    end
++  end
++
++  def self.parse_creation_output(data)
++    hash = {}
++    data.split("\n").compact.each do |line|
++      if line.include? '='
++        hash[line.split('=').first] = line.split('=', 2)[1].gsub(/\A"|"\Z/, '')
++      end
++    end
++    hash
++  end
++
++end
+diff --git a/ironic/lib/puppet/provider/ironic_config/ini_setting.rb b/ironic/lib/puppet/provider/ironic_config/ini_setting.rb
+new file mode 100644
+index 0000000..28b819d
+--- /dev/null
++++ b/ironic/lib/puppet/provider/ironic_config/ini_setting.rb
+@@ -0,0 +1,27 @@
++Puppet::Type.type(:ironic_config).provide(
++  :ini_setting,
++  :parent => Puppet::Type.type(:ini_setting).provider(:ruby)
++) do
++
++  def section
++    resource[:name].split('/', 2).first
++  end
++
++  def setting
++    resource[:name].split('/', 2).last
++  end
++
++  def separator
++    '='
++  end
++
++  def self.file_path
++    '/etc/ironic/ironic.conf'
++  end
++
++  # added for backwards compatibility with older versions of inifile
++  def file_path
++    self.class.file_path
++  end
++
++end
+diff --git a/ironic/lib/puppet/type/ironic_config.rb b/ironic/lib/puppet/type/ironic_config.rb
+new file mode 100644
+index 0000000..c5ea8eb
+--- /dev/null
++++ b/ironic/lib/puppet/type/ironic_config.rb
+@@ -0,0 +1,42 @@
++Puppet::Type.newtype(:ironic_config) do
++
++  ensurable
++
++  newparam(:name, :namevar => true) do
++    desc 'Section/setting name to manage from /etc/ironic/ironic.conf'
++    newvalues(/\S+\/\S+/)
++  end
++
++  newproperty(:value) do
++    desc 'The value of the setting to be defined.'
++    munge do |value|
++      value = value.to_s.strip
++      value.capitalize! if value =~ /^(true|false)$/i
++      value
++    end
++
++    def is_to_s( currentvalue )
++      if resource.secret?
++        return '[old secret redacted]'
++      else
++        return currentvalue
++      end
++    end
++
++    def should_to_s( newvalue )
++      if resource.secret?
++        return '[new secret redacted]'
++      else
++        return newvalue
++      end
++    end
++  end
++
++  newparam(:secret, :boolean => true) do
++    desc 'Whether to hide the value from Puppet logs. Defaults to `false`.'
++
++    newvalues(:true, :false)
++
++    defaultto false
++  end
++end
+diff --git a/ironic/manifests/api.pp b/ironic/manifests/api.pp
+new file mode 100644
+index 0000000..8904d09
+--- /dev/null
++++ b/ironic/manifests/api.pp
+@@ -0,0 +1,173 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++
++# Configure the API service in Ironic
++#
++# === Parameters
++#
++# [*host_ip*]
++#   (optional) The listen IP for the Ironic API server.
++#   Should be an valid IP address
++#   Defaults to '0.0.0.0'.
++#
++# [*port*]
++#   (optional) The port for the Ironic API server.
++#   Should be an valid port
++#   Defaults to '0.0.0.0'.
++#
++# [*max_limit*]
++#   (optional) The maximum number of items returned in a single response
++#   from a collection resource.
++#   Should be an valid interger
++#   Defaults to '1000'.
++#
++# [*auth_host*]
++#   (optional) The IP of the server running keystone
++#   Defaults to '127.0.0.1'
++#
++# [*auth_port*]
++#   (optional) The port to use when authenticating against Keystone
++#   Defaults to 35357
++#
++# [*auth_protocol*]
++#   (optional) The protocol to use when authenticating against Keystone
++#   Defaults to 'http'
++#
++# [*auth_uri*]
++#   (optional) The uri of a Keystone service to authenticate against
++#   Defaults to false
++#
++# [*auth_admin_prefix*]
++#   (optional) Prefix to prepend at the beginning of the keystone path
++#   Defaults to false
++#
++# [*auth_version*]
++#   (optional) API version of the admin Identity API endpoint
++#   for example, use 'v3.0' for the keystone version 3.0 api
++#   Defaults to false
++#
++# [*admin_tenant_name*]
++#   (optional) The name of the tenant to create in keystone for use by the ironic services
++#   Defaults to 'services'
++#
++# [*admin_user*]
++#   (optional) The name of the user to create in keystone for use by the ironic services
++#   Defaults to 'ironic'
++#
++# [*neutron_url*]
++#   (optional) The Neutron URL to be used for requests from ironic
++#   Defaults to false
++#
++# [*admin_password*]
++#   (required) The password to set for the ironic admin user in keystone
++#
++
++class ironic::api (
++  $package_ensure    = 'present',
++  $enabled           = true,
++  $host_ip           = '0.0.0.0',
++  $port              = '6385',
++  $max_limit         = '1000',
++  $auth_host         = '127.0.0.1',
++  $auth_port         = '35357',
++  $auth_protocol     = 'http',
++  $auth_uri          = false,
++  $auth_admin_prefix = false,
++  $auth_version      = false,
++  $admin_tenant_name = 'services',
++  $admin_user        = 'ironic',
++  $neutron_url       = false,
++  $admin_password,
++) {
++
++  include ironic::params
++  include ironic::policy
++
++  Ironic_config<||> ~> Service['ironic-api']
++  Class['ironic::policy'] ~> Service['ironic-api']
++
++  # Configure ironic.conf
++  ironic_config {
++    'api/host_ip':   value => $host_ip;
++    'api/port':      value => $port;
++    'api/max_limit': value => $max_limit;
++  }
++
++  # Install package
++  if $::ironic::params::api_package {
++    Package['ironic-api'] -> Class['ironic::policy']
++    Package['ironic-api'] -> Service['ironic-api']
++    Package['ironic-api'] -> Ironic_config<||>
++    package { 'ironic-api':
++      ensure => $package_ensure,
++      name   => $::ironic::params::api_package,
++    }
++  }
++
++  if $enabled {
++    $ensure = 'running'
++  } else {
++    $ensure = 'stopped'
++  }
++
++  # Manage service
++  service { 'ironic-api':
++    ensure    => $ensure,
++    name      => $::ironic::params::api_service,
++    enable    => $enabled,
++    hasstatus => true,
++  }
++
++  if $neutron_url {
++    ironic_config { 'neutron/url': value => $neutron_url; }
++  } else {
++    ironic_config { 'neutron/url': value => "${auth_protocol}://${auth_host}:9696/"; }
++  }
++
++  if $auth_uri {
++    ironic_config { 'keystone_authtoken/auth_uri': value => $auth_uri; }
++  } else {
++    ironic_config { 'keystone_authtoken/auth_uri': value => "${auth_protocol}://${auth_host}:5000/"; }
++  }
++
++  if $auth_version {
++    ironic_config { 'keystone_authtoken/auth_version': value => $auth_version; }
++  } else {
++    ironic_config { 'keystone_authtoken/auth_version': ensure => absent; }
++  }
++
++  ironic_config {
++    'keystone_authtoken/auth_host':         value => $auth_host;
++    'keystone_authtoken/auth_port':         value => $auth_port;
++    'keystone_authtoken/auth_protocol':     value => $auth_protocol;
++    'keystone_authtoken/admin_tenant_name': value => $admin_tenant_name;
++    'keystone_authtoken/admin_user':        value => $admin_user;
++    'keystone_authtoken/admin_password':    value => $admin_password, secret => true;
++  }
++
++  if $auth_admin_prefix {
++    validate_re($auth_admin_prefix, '^(/.+[^/])?$')
++    ironic_config {
++      'keystone_authtoken/auth_admin_prefix': value => $auth_admin_prefix;
++    }
++  } else {
++    ironic_config {
++      'keystone_authtoken/auth_admin_prefix': ensure => absent;
++    }
++  }
++
++}
+diff --git a/ironic/manifests/client.pp b/ironic/manifests/client.pp
+new file mode 100644
+index 0000000..cded570
+--- /dev/null
++++ b/ironic/manifests/client.pp
+@@ -0,0 +1,40 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++
++# ironic::client
++#
++# Manages the ironic client package on systems
++#
++# === Parameters:
++#
++# [*package_ensure*]
++#   (optional) The state of the package
++#   Defaults to present
++#
++
++class ironic::client (
++  $package_ensure = present
++) {
++
++  include ironic::params
++
++  package { 'python-ironicclient':
++    ensure => $package_ensure,
++    name   => $::ironic::params::client_package,
++  }
++
++}
+diff --git a/ironic/manifests/conductor.pp b/ironic/manifests/conductor.pp
+new file mode 100644
+index 0000000..e15ba6f
+--- /dev/null
++++ b/ironic/manifests/conductor.pp
+@@ -0,0 +1,67 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++
++# Configure the conductor service in Ironic
++#
++# === Parameters
++#
++# [*max_time_interval*]
++#   (optional) Maximum time, in seconds, since the last check-in of a conductor.
++#   Should be an interger value
++#   Defaults to '120'.
++#
++
++class ironic::conductor (
++  $package_ensure    = 'present',
++  $enabled           = true,
++  $max_time_interval = '120'
++) {
++
++  include ironic::params
++
++  Ironic_config<||> ~> Service['ironic-conductor']
++
++  # Configure ironic.conf
++  ironic_config {
++    'conductor/max_time_interval': value => $max_time_interval;
++  }
++
++  # Install package
++  if $::ironic::params::conductor_package {
++    Package['ironic-conductor'] -> Service['ironic-conductor']
++    Package['ironic-conductor'] -> Ironic_config<||>
++    package { 'ironic-conductor':
++      ensure => $package_ensure,
++      name   => $::ironic::params::conductor_package,
++    }
++  }
++
++  if $enabled {
++    $ensure = 'running'
++  } else {
++    $ensure = 'stopped'
++  }
++
++  # Manage service
++  service { 'ironic-conductor':
++    ensure    => $ensure,
++    name      => $::ironic::params::conductor_service,
++    enable    => $enabled,
++    hasstatus => true,
++  }
++
++}
+diff --git a/ironic/manifests/db/mysql.pp b/ironic/manifests/db/mysql.pp
+new file mode 100644
+index 0000000..f74af87
+--- /dev/null
++++ b/ironic/manifests/db/mysql.pp
+@@ -0,0 +1,75 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++#
++# ironic::db::mysql
++#
++# [*password*]
++#   Password to use for the nova user
++#
++# [*dbname*]
++#   (optional) The name of the database
++#   Defaults to 'nova'
++#
++# [*user*]
++#   (optional) The mysql user to create
++#   Defaults to 'nova'
++#
++# [*host*]
++#   (optional) The IP address of the mysql server
++#   Defaults to '127.0.0.1'
++#
++# [*charset*]
++#   (optional) The charset to use for the nova database
++#   Defaults to 'utf8'
++#
++# [*collate*]
++#   (optional) The collate to use for the nova database
++#   Defaults to 'utf8_unicode_ci'
++#
++# [*allowed_hosts*]
++#   (optional) Additional hosts that are allowed to access this DB
++#   Defaults to undef
++#
++# [*cluster_id*]
++#   (optional) Deprecated. Does nothing
++
++class ironic::db::mysql (
++  $password,
++  $dbname        = 'ironic',
++  $user          = 'ironic',
++  $host          = '127.0.0.1',
++  $allowed_hosts = undef,
++  $charset       = 'utf8',
++  $collate       = 'utf8_unicode_ci',
++  $cluster_id    = undef,
++) {
++
++  if $cluster_id {
++    warning('The cluster_id parameter is deprecated and has no effect.')
++  }
++
++  ::openstacklib::db::mysql { 'ironic':
++    user          => $user,
++    password_hash => mysql_password($password),
++    dbname        => $dbname,
++    host          => $host,
++    charset       => $charset,
++    collate       => $collate,
++    allowed_hosts => $allowed_hosts,
++  }
++
++}
+diff --git a/ironic/manifests/drivers/ipmi.pp b/ironic/manifests/drivers/ipmi.pp
+new file mode 100644
+index 0000000..2baf03e
+--- /dev/null
++++ b/ironic/manifests/drivers/ipmi.pp
+@@ -0,0 +1,37 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++
++# Configure the IPMI driver in Ironic
++#
++# === Parameters
++#
++# [*retry_timeout*]
++#   (optional) Maximum time in seconds to retry IPMI operations.
++#   Should be an interger value
++#   Defaults to '10'.
++#
++
++class ironic::drivers::ipmi (
++  $retry_timeout = '10'
++) {
++
++  # Configure ironic.conf
++  ironic_config {
++    'ipmi/retry_timeout': value => $retry_timeout;
++  }
++
++}
+diff --git a/ironic/manifests/drivers/pxe.pp b/ironic/manifests/drivers/pxe.pp
+new file mode 100644
+index 0000000..2df4fb7
+--- /dev/null
++++ b/ironic/manifests/drivers/pxe.pp
+@@ -0,0 +1,110 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++
++# Configure the PXE driver in Ironic
++#
++# === Parameters
++#
++# [*deploy_kernel*]
++#   (optional) Default kernel image ID used in deployment phase.
++#   Should be an valid id
++#   Defaults to undef.
++#
++# [*deploy_ramdisk*]
++#   (optional) Default kernel image ID used in deployment phase.
++#   Should be an valid id
++#   Defaults to undef.
++#
++# [*pxe_append_params*]
++#   (optional) Additional append parameters for baremetal PXE boot.
++#   Should be valid pxe parameters
++#   Defaults to 'nofb nomodeset vga=normal'.
++#
++# [*pxe_config_template*]
++#   (optional) Template file for PXE configuration.
++#   Should be an valid template file
++#   Defaults to '$pybasedir/drivers/modules/pxe_config.template'.
++#
++# [*pxe_deploy_timeout*]
++#   (optional) Timeout for PXE deployments.
++#   Should be an valid integer
++#   Defaults to '0' for unlimited.
++#
++# [*tftp_server*]
++#   (optional) IP address of Ironic compute node's tftp server.
++#   Should be an valid IP address
++#   Defaults to '$my_ip'.
++#
++# [*tftp_root*]
++#   (optional) Ironic compute node's tftp root path.
++#   Should be an valid path
++#   Defaults to '/tftpboot'.
++#
++# [*images_path*]
++#   (optional) Directory where images are stored on disk.
++#   Should be an valid directory
++#   Defaults to '/tftpboot'.
++#
++# [*tftp_master_path*]
++#   (optional) Directory where master tftp images are stored on disk.
++#   Should be an valid directory
++#   Defaults to '/tftpboot/master_images'.
++#
++# [*instance_master_path*]
++#   (optional) Directory where master tftp images are stored on disk.
++#   Should be an valid directory
++#   Defaults to '/var/lib/ironic/master_images'.
++#
++
++class ironic::drivers::pxe (
++  $deploy_kernel        = undef,
++  $deploy_ramdisk       = undef,
++  $pxe_append_params    = 'nofb nomodeset vga=normal',
++  $pxe_config_template  = '$pybasedir/drivers/modules/pxe_config.template',
++  $pxe_deploy_timeout   = '0',
++  $tftp_server          = '$my_ip',
++  $tftp_root            = '/tftpboot',
++  $images_path          = '/var/lib/ironic/images/',
++  $tftp_master_path     = '/tftpboot/master_images',
++  $instance_master_path = '/var/lib/ironic/master_images',
++) {
++
++  # Configure ironic.conf
++  ironic_config {
++    'pxe/pxe_append_params': value    => $pxe_append_params;
++    'pxe/pxe_config_template': value  => $pxe_config_template;
++    'pxe/pxe_deploy_timeout': value   => $pxe_deploy_timeout;
++    'pxe/tftp_server': value          => $tftp_server;
++    'pxe/tftp_root': value            => $tftp_root;
++    'pxe/images_path': value          => $images_path;
++    'pxe/tftp_master_path': value     => $tftp_master_path;
++    'pxe/instance_master_path': value => $instance_master_path;
++  }
++
++  if $deploy_kernel {
++    ironic_config {
++      'pxe/deploy_kernel': value => $deploy_kernel;
++    }
++  }
++
++  if $deploy_ramdisk {
++    ironic_config {
++      'pxe/deploy_ramdisk': value => $deploy_ramdisk;
++    }
++  }
++
++}
+diff --git a/ironic/manifests/init.pp b/ironic/manifests/init.pp
+new file mode 100644
+index 0000000..7e3ce4e
+--- /dev/null
++++ b/ironic/manifests/init.pp
+@@ -0,0 +1,295 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++#
++# == Class: ironic
++#
++# Installs the ironic package and configures /etc/ironic/ironic.conf
++#
++# === Parameters:
++#
++# [*enabled*]
++#   (required) Whether or not to enable the ironic service
++#   true/false
++#
++# [*package_ensure*]
++#   (optional) The state of the package
++#   Defaults to 'present'
++#
++# [*verbose*]
++#   (optional) Verbose logging
++#   Defaults to False
++#
++# [*debug*]
++#   (optional) Print debug messages in the logs
++#   Defaults to False
++#
++# [*auth_strategy*]
++#   (optional) Default protocol to use when connecting to glance
++#   Defaults to 'keystone'. 'https' is the only other valid option for SSL
++#
++# [*control_exchange*]
++#   (optional) What RPC queue/exchange to use
++#   Defaults to openstack
++
++# [*rpc_backend*]
++#   (optional) what rpc/queuing service to use
++#   Defaults to impl_kombu (rabbitmq)
++#
++# [*rabbit_password*]
++# [*rabbit_host*]
++# [*rabbit_port*]
++# [*rabbit_user*]
++# [*rabbit_virtual_host*]
++#   (optional) Various rabbitmq settings
++#
++# [*rabbit_hosts*]
++#   (optional) array of rabbitmq servers for HA.
++#   A single IP address, such as a VIP, can be used for load-balancing
++#   multiple RabbitMQ Brokers.
++#   Defaults to false
++#
++# [*qpid_hostname*]
++# [*qpid_port*]
++# [*qpid_username*]
++# [*qpid_password*]
++# [*qpid_heartbeat*]
++# [*qpid_protocol*]
++# [*qpid_tcp_nodelay*]
++# [*qpid_reconnect*]
++# [*qpid_reconnect_timeout*]
++# [*qpid_reconnect_limit*]
++# [*qpid_reconnect_interval*]
++# [*qpid_reconnect_interval_min*]
++# [*qpid_reconnect_interval_max*]
++#   (optional) various QPID options
++#
++# [*use_syslog*]
++#   (optional) Use syslog for logging
++#   Defaults to false
++#
++# [*log_facility*]
++#   (optional) Syslog facility to receive log lines
++#   Defaults to LOG_USER
++#
++# [*database_connection*]
++#   (optional) Connection url for the ironic database.
++#   Defaults to: sqlite:////var/lib/ironic/ironic.sqlite
++#
++# [*database_max_retries*]
++#   (optional) Database reconnection retry times.
++#   Defaults to: 10
++#
++# [*database_idle_timeout*]
++#   (optional) Timeout before idle db connections are reaped.
++#   Defaults to: 3600
++#
++# [*database_retry_interval*]
++#   (optional) Database reconnection interval in seconds.
++#   Defaults to: 10
++#
++# [*glance_api_servers*]
++#   (optional) A list of the glance api servers available to ironic.
++#   Should be an array with [hostname|ip]:port
++#   Defaults to undef
++#
++# [*glance_num_retries*]
++#   (optional) Number retries when downloading an image from glance.
++#   Defaults to 0
++#
++# [*glance_api_insecure*]
++#   (optional) Allow to perform insecure SSL (https) requests to glance.
++#   Defaults to false
++#
++
++class ironic (
++  $enabled                     = true,
++  $package_ensure              = 'present',
++  $verbose                     = false,
++  $debug                       = false,
++  $auth_strategy               = 'keystone',
++  $control_exchange            = 'openstack',
++  $rpc_backend                 = 'ironic.openstack.common.rpc.impl_kombu',
++  $rabbit_password             = false,
++  $rabbit_host                 = 'localhost',
++  $rabbit_hosts                = false,
++  $rabbit_port                 = '5672',
++  $rabbit_user                 = 'guest',
++  $rabbit_virtual_host         = '/',
++  $qpid_hostname               = 'localhost',
++  $qpid_port                   = '5672',
++  $qpid_username               = 'guest',
++  $qpid_password               = 'guest',
++  $qpid_heartbeat              = 60,
++  $qpid_protocol               = 'tcp',
++  $qpid_tcp_nodelay            = true,
++  $qpid_reconnect              = true,
++  $qpid_reconnect_timeout      = 0,
++  $qpid_reconnect_limit        = 0,
++  $qpid_reconnect_interval_min = 0,
++  $qpid_reconnect_interval_max = 0,
++  $qpid_reconnect_interval     = 0,
++  $use_syslog                  = false,
++  $log_facility                = 'LOG_USER',
++  $database_connection         = 'sqlite:////var/lib/ironic/ovs.sqlite',
++  $database_max_retries        = '10',
++  $database_idle_timeout       = '3600',
++  $database_reconnect_interval = '10',
++  $database_retry_interval     = '10',
++  $glance_api_servers          = undef,
++  $glance_num_retries          = '0',
++  $glance_api_insecure         = false
++) {
++
++  include ironic::params
++
++  Package['ironic-common'] -> Ironic_config<||>
++
++  file { '/etc/ironic':
++    ensure  => directory,
++    require => Package['ironic-common'],
++    owner   => 'root',
++    group   => 'ironic',
++    mode    => '0750',
++  }
++
++  file { '/etc/ironic/ironic.conf':
++    require => Package['ironic-common'],
++    owner   => 'root',
++    group   => 'ironic',
++    mode    => '0640',
++  }
++
++  package { 'python-pbr':
++    ensure => $package_ensure,
++    name   => $::ironic::params::pbr_package,
++  }
++
++  package { 'ironic-common':
++    ensure  => $package_ensure,
++    name    => $::ironic::params::common_package_name,
++    require => Package['python-pbr'],
++  }
++
++  validate_re($database_connection, '(sqlite|mysql|postgresql):\/\/(\S+:\S+@\S+\/\S+)?')
++
++  case $database_connection {
++    /mysql:\/\/\S+:\S+@\S+\/\S+/: {
++      $database_backend_package = false
++    }
++    /postgresql:\/\/\S+:\S+@\S+\/\S+/: {
++      $database_backend_package = 'python-psycopg2'
++    }
++    /sqlite:\/\//: {
++      $database_backend_package = 'python-pysqlite2'
++    }
++    default: {
++      fail("Invalid database connection: ${database_connection}")
++    }
++  }
++
++  if $database_backend_package and !defined(Package[$database_backend_package]) {
++    package { 'ironic-database-backend':
++      ensure => present,
++      name   => $database_backend_package,
++    }
++  }
++
++  if is_array($glance_api_servers) {
++    ironic_config {
++      'glance/glance_api_servers': value => join($glance_api_servers, ',');
++    }
++  } elsif is_string($glance_api_servers) {
++    ironic_config {
++      'glance/glance_api_servers': value => $glance_api_servers;
++    }
++  }
++
++  ironic_config {
++    'DEFAULT/verbose':                 value => $verbose;
++    'DEFAULT/debug':                   value => $debug;
++    'DEFAULT/auth_strategy':           value => $auth_strategy;
++    'DEFAULT/control_exchange':        value => $control_exchange;
++    'DEFAULT/rpc_backend':             value => $rpc_backend;
++    'database/connection':             value => $database_connection, secret => true;
++    'database/idle_timeout':           value => $database_idle_timeout;
++    'database/retry_interval':         value => $database_retry_interval;
++    'database/max_retries':            value => $database_max_retries;
++    'glance/glance_num_retries':       value => $glance_num_retries;
++    'glance/glance_api_insecure':      value => $glance_api_insecure;
++  }
++
++  Ironic_config['database/connection'] ~> Exec['ironic-dbsync']
++
++  exec { 'ironic-dbsync':
++    command     => $::ironic::params::dbsync_command,
++    path        => '/usr/bin',
++    user        => 'ironic',
++    refreshonly => true,
++    logoutput   => on_failure,
++  }
++
++  if $rpc_backend == 'ironic.openstack.common.rpc.impl_kombu' {
++    if ! $rabbit_password {
++      fail('When rpc_backend is rabbitmq, you must set rabbit password')
++    }
++    if $rabbit_hosts {
++      ironic_config { 'DEFAULT/rabbit_hosts':     value  => join($rabbit_hosts, ',') }
++      ironic_config { 'DEFAULT/rabbit_ha_queues': value  => true }
++    } else  {
++      ironic_config { 'DEFAULT/rabbit_host':      value => $rabbit_host }
++      ironic_config { 'DEFAULT/rabbit_port':      value => $rabbit_port }
++      ironic_config { 'DEFAULT/rabbit_hosts':     value => "${rabbit_host}:${rabbit_port}" }
++      ironic_config { 'DEFAULT/rabbit_ha_queues': value => false }
++    }
++
++    ironic_config {
++      'DEFAULT/rabbit_userid':       value => $rabbit_user;
++      'DEFAULT/rabbit_password':     value => $rabbit_password, secret => true;
++      'DEFAULT/rabbit_virtual_host': value => $rabbit_virtual_host;
++    }
++  }
++
++  if $rpc_backend == 'ironic.openstack.common.rpc.impl_qpid' {
++    ironic_config {
++      'DEFAULT/qpid_hostname':               value => $qpid_hostname;
++      'DEFAULT/qpid_port':                   value => $qpid_port;
++      'DEFAULT/qpid_username':               value => $qpid_username;
++      'DEFAULT/qpid_password':               value => $qpid_password, secret => true;
++      'DEFAULT/qpid_heartbeat':              value => $qpid_heartbeat;
++      'DEFAULT/qpid_protocol':               value => $qpid_protocol;
++      'DEFAULT/qpid_tcp_nodelay':            value => $qpid_tcp_nodelay;
++      'DEFAULT/qpid_reconnect':              value => $qpid_reconnect;
++      'DEFAULT/qpid_reconnect_timeout':      value => $qpid_reconnect_timeout;
++      'DEFAULT/qpid_reconnect_limit':        value => $qpid_reconnect_limit;
++      'DEFAULT/qpid_reconnect_interval_min': value => $qpid_reconnect_interval_min;
++      'DEFAULT/qpid_reconnect_interval_max': value => $qpid_reconnect_interval_max;
++      'DEFAULT/qpid_reconnect_interval':     value => $qpid_reconnect_interval;
++    }
++  }
++
++  if $use_syslog {
++    ironic_config {
++      'DEFAULT/use_syslog':           value => true;
++      'DEFAULT/syslog_log_facility':  value => $log_facility;
++    }
++  } else {
++    ironic_config {
++      'DEFAULT/use_syslog':           value => false;
++    }
++  }
++
++}
+diff --git a/ironic/manifests/keystone/auth.pp b/ironic/manifests/keystone/auth.pp
+new file mode 100644
+index 0000000..8f8b214
+--- /dev/null
++++ b/ironic/manifests/keystone/auth.pp
+@@ -0,0 +1,103 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++#
++# ironic::keystone::auth
++#
++# Configures Ironic user, service and endpoint in Keystone.
++#
++# === Parameters
++#
++# [*password*]
++#   (required) Password for Ironic user.
++#
++# [*auth_name*]
++#   Username for Ironic service. Defaults to 'ironic'.
++#
++# [*email*]
++#   Email for Ironic user. Defaults to 'ironic@localhost'.
++#
++# [*tenant*]
++#   Tenant for Ironic user. Defaults to 'services'.
++#
++# [*configure_endpoint*]
++#   Should Ironic endpoint be configured? Defaults to 'true'.
++#
++# [*service_type*]
++#   Type of service. Defaults to 'baremetal'.
++#
++# [*public_protocol*]
++#   Protocol for public endpoint. Defaults to 'http'.
++#
++# [*public_address*]
++#   Public address for endpoint. Defaults to '127.0.0.1'.
++#
++# [*admin_address*]
++#   Admin address for endpoint. Defaults to '127.0.0.1'.
++#
++# [*internal_address*]
++#   Internal address for endpoint. Defaults to '127.0.0.1'.
++#
++# [*port*]
++#   Port for endpoint. Defaults to '6385'.
++#
++# [*public_port*]
++#   Port for public endpoint. Defaults to $port.
++#
++# [*region*]
++#   Region for endpoint. Defaults to 'RegionOne'.
++#
++class ironic::keystone::auth (
++  $password,
++  $auth_name          = 'ironic',
++  $email              = 'ironic@localhost',
++  $tenant             = 'services',
++  $configure_endpoint = true,
++  $service_type       = 'baremetal',
++  $public_protocol    = 'http',
++  $public_address     = '127.0.0.1',
++  $admin_address      = '127.0.0.1',
++  $internal_address   = '127.0.0.1',
++  $port               = '6385',
++  $public_port        = undef,
++  $region             = 'RegionOne'
++) {
++
++  Keystone_user_role["${auth_name}@${tenant}"] ~> Service <| name == 'ironic-server' |>
++  Keystone_endpoint["${region}/${auth_name}"]  ~> Service <| name == 'ironic-server' |>
++
++  if ! $public_port {
++    $real_public_port = $port
++  } else {
++    $real_public_port = $public_port
++  }
++
++  keystone::resource::service_identity { $auth_name:
++    configure_user      => true,
++    configure_user_role => true,
++    configure_endpoint  => $configure_endpoint,
++    service_type        => $service_type,
++    service_description => 'Ironic Networking Service',
++    region              => $region,
++    password            => $password,
++    email               => $email,
++    tenant              => $tenant,
++    public_url          => "${public_protocol}://${public_address}:${real_public_port}/",
++    internal_url        => "http://${internal_address}:${port}/",
++    admin_url           => "http://${admin_address}:${port}/",
++  }
++
++}
+diff --git a/ironic/manifests/params.pp b/ironic/manifests/params.pp
+new file mode 100644
+index 0000000..c1c93c7
+--- /dev/null
++++ b/ironic/manifests/params.pp
+@@ -0,0 +1,50 @@
++#
++# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
++#
++# Author: Emilien Macchi <emilien.macchi@enovance.com>
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++#
++# ironic::params
++#
++
++class ironic::params {
++
++  $dbsync_command =
++    'ironic-dbsync --config-file /etc/ironic/ironic.conf'
++
++  case $::osfamily {
++    'RedHat': {
++      $common_package_name = 'openstack-ironic-common'
++      $api_package         = 'openstack-ironic-api'
++      $api_service         = 'openstack-ironic-api'
++      $conductor_package   = 'openstack-ironic-conductor'
++      $conductor_service   = 'openstack-ironic-conductor'
++      $client_package      = 'python-ironicclient'
++      $pbr_package         = 'python-pbr'
++    }
++    'Debian': {
++      $common_package_name = 'ironic-common'
++      $api_service         = 'ironic-api'
++      $api_package         = 'ironic-api'
++      $conductor_service   = 'ironic-conductor'
++      $conductor_package   = 'ironic-conductor'
++      $client_package      = 'python-ironicclient'
++      $pbr_package         = 'python-pbr'
++    }
++    default: {
++      fail("Unsupported osfamily ${::osfamily}")
++    }
++  }
++
++}
+diff --git a/ironic/manifests/policy.pp b/ironic/manifests/policy.pp
+new file mode 100644
+index 0000000..70b2c66
+--- /dev/null
++++ b/ironic/manifests/policy.pp
+@@ -0,0 +1,29 @@
++# == Class: ironic::policy
++#
++# Configure the ironic policies
++#
++# === Parameters
++#
++# [*policies*]
++#   (optional) Set of policies to configure for ironic
++#   Example : { 'ironic-context_is_admin' => {'context_is_admin' => 'true'}, 'ironic-default' => {'default' => 'rule:admin_or_owner'} }
++#   Defaults to empty hash.
++#
++# [*policy_path*]
++#   (optional) Path to the ironic policy.json file
++#   Defaults to /etc/ironic/policy.json
++#
++class ironic::policy (
++  $policies    = {},
++  $policy_path = '/etc/ironic/policy.json',
++) {
++
++  validate_hash($policies)
++
++  Openstacklib::Policy::Base {
++    file_path => $policy_path,
++  }
++
++  create_resources('openstacklib::policy::base', $policies)
++
++}
+diff --git a/ironic/metadata.json b/ironic/metadata.json
+new file mode 100644
+index 0000000..6e0ab78
+--- /dev/null
++++ b/ironic/metadata.json
+@@ -0,0 +1,39 @@
++{
++  "name": "stackforge-ironic",
++  "version": "5.0.0",
++  "author": "eNovance and StackForge Contributors",
++  "summary": "Puppet module for OpenStack Ironic",
++  "license": "Apache License 2.0",
++  "source": "git://github.com/stackforge/puppet-ironic.git",
++  "project_page": "https://launchpad.net/puppet-ironic",
++  "issues_url": "https://bugs.launchpad.net/puppet-ironic",
++  "requirements": [
++    { "name": "pe","version_requirement": "3.x" },
++    { "name": "puppet","version_requirement": "3.x" }
++  ],
++  "operatingsystem_support": [
++    {
++      "operatingsystem": "Debian",
++      "operatingsystemrelease": ["7"]
++    },
++    {
++      "operatingsystem": "Fedora",
++      "operatingsystemrelease": ["20"]
++    },
++    {
++      "operatingsystem": "RedHat",
++      "operatingsystemrelease": ["6.5","7"]
++    },
++    {
++      "operatingsystem": "Ubuntu",
++      "operatingsystemrelease": ["12.04","14.04"]
++    }
++  ],
++  "description": "Installs and configures OpenStack Ironic (Bare metal).",
++  "dependencies": [
++    { "name": "puppetlabs/inifile", "version_requirement": ">=1.0.0 <2.0.0" },
++    { "name": "stackforge/keystone", "version_requirement": ">=5.0.0 <6.0.0" },
++    { "name": "puppetlabs/stdlib", "version_requirement": ">=4.0.0 <5.0.0" },
++    { "name": "stackforge/openstacklib", "version_requirement": ">=5.0.0" }
++  ]
++}

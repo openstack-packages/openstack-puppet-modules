@@ -1,0 +1,63 @@
+From cb90258b417dc7ea0d5a0af1055051eeb459c822 Mon Sep 17 00:00:00 2001
+From: Solly Ross <sross@redhat.com>
+Date: Tue, 16 Dec 2014 15:31:29 -0500
+Subject: [PATCH] Configure auth via conf file, not paste file
+
+The paste file now lives in /usr/share, and shouldn't be
+modified.  Configure the keystone auth token settings in
+trove.conf instead.
+
+Change-Id: Ib2cc2211cc645ad71e9f57c1c52177074472afcb
+---
+ trove/manifests/api.pp               | 14 +++++++-------
+ trove/spec/classes/trove_api_spec.rb | 12 ++++++------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/trove/manifests/api.pp b/trove/manifests/api.pp
+index ce54bd1..47898b6 100644
+--- a/trove/manifests/api.pp
++++ b/trove/manifests/api.pp
+@@ -192,13 +192,13 @@ class trove::api(
+   }
+ 
+   # auth config
+-  trove_api_paste_ini {
+-    'filter:authtoken/auth_host':         value => $auth_host;
+-    'filter:authtoken/auth_port':         value => $auth_port;
+-    'filter:authtoken/auth_protocol':     value => $auth_protocol;
+-    'filter:authtoken/admin_tenant_name': value => $keystone_tenant;
+-    'filter:authtoken/admin_user'       : value => $keystone_user;
+-    'filter:authtoken/admin_password'   : value => $keystone_password;
++  trove_config {
++    'keystone_authtoken/auth_host':         value => $auth_host;
++    'keystone_authtoken/auth_port':         value => $auth_port;
++    'keystone_authtoken/auth_protocol':     value => $auth_protocol;
++    'keystone_authtoken/admin_tenant_name': value => $keystone_tenant;
++    'keystone_authtoken/admin_user':        value => $keystone_user;
++    'keystone_authtoken/admin_password':    value => $keystone_password, secret => true;
+   }
+ 
+   # SSL Options
+diff --git a/trove/spec/classes/trove_api_spec.rb b/trove/spec/classes/trove_api_spec.rb
+index b3e151f..d4b454f 100644
+--- a/trove/spec/classes/trove_api_spec.rb
++++ b/trove/spec/classes/trove_api_spec.rb
+@@ -66,12 +66,12 @@ describe 'trove::api' do
+         should contain_trove_config('DEFAULT/nova_proxy_admin_user').with_value('admin')
+         should contain_trove_config('DEFAULT/nova_proxy_admin_pass').with_value('verysecrete')
+         should contain_trove_config('DEFAULT/nova_proxy_admin_tenant_name').with_value('admin')
+-        should contain_trove_api_paste_ini('filter:authtoken/auth_host').with_value('10.0.0.10')
+-        should contain_trove_api_paste_ini('filter:authtoken/auth_port').with_value('35357')
+-        should contain_trove_api_paste_ini('filter:authtoken/auth_protocol').with_value('https')
+-        should contain_trove_api_paste_ini('filter:authtoken/admin_tenant_name').with_value('_services_')
+-        should contain_trove_api_paste_ini('filter:authtoken/admin_user').with_value('trove')
+-        should contain_trove_api_paste_ini('filter:authtoken/admin_password').with_value('passw0rd')
++        should contain_trove_config('keystone_authtoken/auth_host').with_value('10.0.0.10')
++        should contain_trove_config('keystone_authtoken/auth_port').with_value('35357')
++        should contain_trove_config('keystone_authtoken/auth_protocol').with_value('https')
++        should contain_trove_config('keystone_authtoken/admin_tenant_name').with_value('_services_')
++        should contain_trove_config('keystone_authtoken/admin_user').with_value('trove')
++        should contain_trove_config('keystone_authtoken/admin_password').with_value('passw0rd')
+       end
+ 
+       context 'when using a single RabbitMQ server' do
