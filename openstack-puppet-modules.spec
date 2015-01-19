@@ -1,6 +1,6 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.8
+Version:        2014.2.9
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -37,7 +37,6 @@ OpenStack via installers using Puppet configuration tool.
 
 %prep
 %setup
-
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
@@ -55,6 +54,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0015 -p1
 %patch0016 -p1
 %patch0017 -p1
+
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -86,6 +86,7 @@ cp -r heat %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r horizon %{buildroot}/%{_datadir}/openstack-puppet/modules/horizon
 cp -r inifile %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
 cp -r ipa %{buildroot}/%{_datadir}/openstack-puppet/modules/ipa
+cp -r ironic %{buildroot}/%{_datadir}/openstack-puppet/modules/ironic
 cp -r keystone %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r memcached %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
 cp -r module-data %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
@@ -127,6 +128,14 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon Jan 19 2015 Gael Chamoulaud <gchamoul@redhat.com> - 2014.2.9-1
+- Updated to release 2014.2.9
+- ironic       9aab12eab342b313881de6af9cd0d4e7c7dcdcd6
+- keystone     b65ddba19f5d89fe13bd0264e988ef702ba2b5c9
+- glance       9fb3db4a693b6839c2caa45df4cd37f9c21451de
+- cinder       f6af237764cca3319594e731b6b808a7c557cd4c
+- redis        d72af9ab3c2911b6dc18c5cc12e700630ebdcfb2
+
 * Fri Dec 19 2014 Lukas Bezdicka <lbezdick@redhat.com> - 2014.2.8-1
 - Updated to release 2014.2.8
 - ceilometer   953ce5032cb332bf8a15e78358ee8af6f14dd7f0
