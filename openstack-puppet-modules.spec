@@ -1,7 +1,7 @@
 
 Name:           openstack-puppet-modules
 Version:        2014.2.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -26,6 +26,7 @@ Patch0014: 0014-Support-Neutron.patch
 Patch0015: 0015-Add-Ironic-support-into-nova-puppet-modules.patch
 Patch0016: 0016-Fix-Ironic-modules-so-services-properly-run.patch
 Patch0017: 0017-Deprecate-support-for-Fedora-18.patch
+Patch0018: 0018-Automates-generation-of-NFS-config-file.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -37,6 +38,7 @@ OpenStack via installers using Puppet configuration tool.
 
 %prep
 %setup
+
 %patch0001 -p1
 %patch0002 -p1
 %patch0003 -p1
@@ -54,7 +56,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0015 -p1
 %patch0016 -p1
 %patch0017 -p1
-
+%patch0018 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -128,6 +130,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Jan 20 2015 Gael Chamoulaud <gchamoul@redhat.com> 2014.2.9-2
+- Update to upstream 2014.2.9
+
 * Mon Jan 19 2015 Gael Chamoulaud <gchamoul@redhat.com> - 2014.2.9-1
 - Updated to release 2014.2.9
 - ironic       9aab12eab342b313881de6af9cd0d4e7c7dcdcd6

@@ -1,32 +1,31 @@
-From f3c953cf617c0e784b5aa432eba07609d479a863 Mon Sep 17 00:00:00 2001
+From b5e06ad64c3fa195028925c2e526da459984e7c2 Mon Sep 17 00:00:00 2001
 From: Ryan Hallisey <rhallise@redhat.com>
-Date: Tue, 23 Dec 2014 08:21:27 -0500
-Subject: [PATCH] Fix Ironic modules so services properly run in Juno
+Date: Fri, 19 Dec 2014 07:52:31 -0500
+Subject: [PATCH] Fix Ironic modules so services properly run
 
 Initially, the module was not creating an ironic.conf file and now
 it does.  The configurations that are being put into the ironic.conf
 file come straight out of the documentation.
+
+The package 'python-pbr' is required and was not being installed
+elsewhere so it is installed by the init module.
 
 The ironic-conductor service requires the execution of 'ironic-dbsync'
 before it can be active.
 
 In the params module, the 'RedHat' packages and services were named
 incorrectly or were otherwise missing.
-
-Change-Id: I73cecc590038fa7d9518453c448bfc243ddedff1
 ---
- examples/ironic.pp               |  2 +-
- manifests/api.pp                 | 18 ++++++++++++++----
- manifests/init.pp                | 37 ++++++++++++++++++++++++-------------
- manifests/params.pp              | 27 +++++++++++++++------------
- spec/classes/ironic_api_spec.rb  |  5 +++--
- spec/classes/ironic_init_spec.rb | 10 +++++-----
- 6 files changed, 62 insertions(+), 37 deletions(-)
+ ironic/examples/ironic.pp  |  2 +-
+ ironic/manifests/api.pp    | 18 ++++++++++++++----
+ ironic/manifests/init.pp   | 40 ++++++++++++++++++++++++++++------------
+ ironic/manifests/params.pp | 29 +++++++++++++++++------------
+ 4 files changed, 60 insertions(+), 29 deletions(-)
 
-diff --git a/examples/ironic.pp b/examples/ironic.pp
+diff --git a/ironic/examples/ironic.pp b/ironic/examples/ironic.pp
 index c4096ae..e80680c 100644
---- a/examples/ironic.pp
-+++ b/examples/ironic.pp
+--- a/ironic/examples/ironic.pp
++++ b/ironic/examples/ironic.pp
 @@ -31,7 +31,7 @@ $glance_api_servers = 'glance:9292'
  $deploy_kernel  = 'glance://deploy_kernel_uuid'
  $deploy_ramdisk = 'glance://deploy_ramdisk_uuid'
@@ -36,10 +35,10 @@ index c4096ae..e80680c 100644
  
    class { 'mysql::server':
      config_hash => {
-diff --git a/manifests/api.pp b/manifests/api.pp
+diff --git a/ironic/manifests/api.pp b/ironic/manifests/api.pp
 index 6b50a62..8904d09 100644
---- a/manifests/api.pp
-+++ b/manifests/api.pp
+--- a/ironic/manifests/api.pp
++++ b/ironic/manifests/api.pp
 @@ -68,6 +68,10 @@
  #   (optional) The name of the user to create in keystone for use by the ironic services
  #   Defaults to 'ironic'
@@ -97,11 +96,11 @@ index 6b50a62..8904d09 100644
  
 -
  }
-diff --git a/manifests/init.pp b/manifests/init.pp
-index ab59b24..129e216 100644
---- a/manifests/init.pp
-+++ b/manifests/init.pp
-@@ -156,25 +156,27 @@ class ironic (
+diff --git a/ironic/manifests/init.pp b/ironic/manifests/init.pp
+index ab59b24..7e3ce4e 100644
+--- a/ironic/manifests/init.pp
++++ b/ironic/manifests/init.pp
+@@ -156,25 +156,32 @@ class ironic (
  
    include ironic::params
  
@@ -132,16 +131,20 @@ index ab59b24..129e216 100644
 +  }
  
 -  package { 'ironic':
--    ensure => $package_ensure,
++  package { 'python-pbr':
+     ensure => $package_ensure,
 -    name   => $::ironic::params::package_name,
++    name   => $::ironic::params::pbr_package,
++  }
++
 +  package { 'ironic-common':
 +    ensure  => $package_ensure,
 +    name    => $::ironic::params::common_package_name,
-+    notify  => Exec['ironic-dbsync'],
++    require => Package['python-pbr'],
    }
  
    validate_re($database_connection, '(sqlite|mysql|postgresql):\/\/(\S+:\S+@\S+\/\S+)?')
-@@ -182,7 +184,6 @@ class ironic (
+@@ -182,7 +189,6 @@ class ironic (
    case $database_connection {
      /mysql:\/\/\S+:\S+@\S+\/\S+/: {
        $database_backend_package = false
@@ -149,7 +152,7 @@ index ab59b24..129e216 100644
      }
      /postgresql:\/\/\S+:\S+@\S+\/\S+/: {
        $database_backend_package = 'python-psycopg2'
-@@ -226,6 +227,16 @@ class ironic (
+@@ -226,6 +232,16 @@ class ironic (
      'glance/glance_api_insecure':      value => $glance_api_insecure;
    }
  
@@ -166,11 +169,11 @@ index ab59b24..129e216 100644
    if $rpc_backend == 'ironic.openstack.common.rpc.impl_kombu' {
      if ! $rabbit_password {
        fail('When rpc_backend is rabbitmq, you must set rabbit password')
-diff --git a/manifests/params.pp b/manifests/params.pp
-index a9dc9f5..fba26f2 100644
---- a/manifests/params.pp
-+++ b/manifests/params.pp
-@@ -20,22 +20,25 @@
+diff --git a/ironic/manifests/params.pp b/ironic/manifests/params.pp
+index a9dc9f5..c1c93c7 100644
+--- a/ironic/manifests/params.pp
++++ b/ironic/manifests/params.pp
+@@ -20,22 +20,27 @@
  
  class ironic::params {
  
@@ -191,6 +194,7 @@ index a9dc9f5..fba26f2 100644
 +      $conductor_package   = 'openstack-ironic-conductor'
 +      $conductor_service   = 'openstack-ironic-conductor'
 +      $client_package      = 'python-ironicclient'
++      $pbr_package         = 'python-pbr'
      }
      'Debian': {
 -      $package_name       = 'ironic-common'
@@ -205,72 +209,7 @@ index a9dc9f5..fba26f2 100644
 +      $conductor_service   = 'ironic-conductor'
 +      $conductor_package   = 'ironic-conductor'
 +      $client_package      = 'python-ironicclient'
++      $pbr_package         = 'python-pbr'
      }
      default: {
        fail("Unsupported osfamily ${::osfamily}")
-diff --git a/spec/classes/ironic_api_spec.rb b/spec/classes/ironic_api_spec.rb
-index 54c4404..48e619b 100644
---- a/spec/classes/ironic_api_spec.rb
-+++ b/spec/classes/ironic_api_spec.rb
-@@ -66,6 +66,7 @@ describe 'ironic::api' do
-       should contain_ironic_config('keystone_authtoken/admin_password').with_value(p[:admin_password])
-       should contain_ironic_config('keystone_authtoken/admin_user').with_value(p[:admin_user])
-       should contain_ironic_config('keystone_authtoken/auth_uri').with_value('http://127.0.0.1:5000/')
-+      should contain_ironic_config('neutron/url').with_value('http://127.0.0.1:9696/')
-     end
- 
-     context 'when overriding parameters' do
-@@ -74,8 +75,8 @@ describe 'ironic::api' do
-           :port => '3430',
-           :host_ip => '127.0.0.1',
-           :max_limit => '10',
--		  :auth_protocol => 'https',
--		  :auth_host => '1.2.3.4'
-+          :auth_protocol => 'https',
-+          :auth_host => '1.2.3.4'
-         )
-       end
-       it 'should replace default parameter with new value' do
-diff --git a/spec/classes/ironic_init_spec.rb b/spec/classes/ironic_init_spec.rb
-index e7df8bf..5c2f6ee 100644
---- a/spec/classes/ironic_init_spec.rb
-+++ b/spec/classes/ironic_init_spec.rb
-@@ -102,7 +102,7 @@ describe 'ironic' do
-         :owner   => 'root',
-         :group   => 'ironic',
-         :mode    => '0750',
--        :require => 'Package[ironic]'
-+        :require => 'Package[ironic-common]'
-       )
-     end
- 
-@@ -111,14 +111,14 @@ describe 'ironic' do
-         :owner   => 'root',
-         :group   => 'ironic',
-         :mode    => '0640',
--        :require => 'Package[ironic]'
-+        :require => 'Package[ironic-common]'
-       )
-     end
- 
-     it 'installs ironic package' do
--      should contain_package('ironic').with(
-+      should contain_package('ironic-common').with(
-         :ensure => 'present',
--        :name   => platform_params[:common_package_name]
-+        :name   => platform_params[:common_package_name],
-       )
-     end
- 
-@@ -233,7 +233,7 @@ describe 'ironic' do
-     end
- 
-     let :platform_params do
--      { :common_package_name => 'openstack-ironic' }
-+      { :common_package_name => 'openstack-ironic-common' }
-     end
- 
-     it_configures 'ironic'
--- 
-2.1.0
-

@@ -1,0 +1,162 @@
+From 07c70498f76a449293675b538fe2a769c8381123 Mon Sep 17 00:00:00 2001
+From: Ryan Hefner <ryan.hefner@netapp.com>
+Date: Thu, 13 Nov 2014 14:43:06 -0500
+Subject: [PATCH] Automates generation of NFS config file
+
+Currently, a user must have a file already created that contains the
+NFS shares that they want to use. This change allows a user to specify
+a list of NFS shares and have Puppet write them to a new file. If the
+nfs_shares option is blank, then the manifest will function as it does
+currently.
+
+Change-Id: Idef1c7722bbee198e6d87e3c06217275de5469ad
+---
+ cinder/manifests/backend/netapp.pp                | 18 ++++++++++++++++--
+ cinder/manifests/volume/netapp.pp                 | 11 +++++++++--
+ cinder/spec/classes/cinder_volume_netapp_spec.rb  | 14 +++++++++++++-
+ cinder/spec/defines/cinder_backend_netapp_spec.rb | 14 +++++++++++++-
+ 4 files changed, 51 insertions(+), 6 deletions(-)
+
+diff --git a/cinder/manifests/backend/netapp.pp b/cinder/manifests/backend/netapp.pp
+index 39d397b..b89abe7 100644
+--- a/cinder/manifests/backend/netapp.pp
++++ b/cinder/manifests/backend/netapp.pp
+@@ -94,9 +94,14 @@
+ #   last M minutes, where M is the value of the expiry_thres_minutes parameter.
+ #   Defaults to 60
+ #
++# [*nfs_shares*]
++#   (optional) Array of NFS exports in the form of host:/share; will be written into
++#    file specified in nfs_shares_config
++#    Defaults to undef
++#
+ # [*nfs_shares_config*]
+ #   (optional) File with the list of available NFS shares
+-#   Defaults to ''
++#   Defaults to '/etc/cinder/shares.conf'
+ #
+ # [*netapp_copyoffload_tool_path*]
+ #   (optional) This option specifies the path of the NetApp Copy Offload tool
+@@ -166,7 +171,8 @@ define cinder::backend::netapp (
+   $expiry_thres_minutes         = '720',
+   $thres_avl_size_perc_start    = '20',
+   $thres_avl_size_perc_stop     = '60',
+-  $nfs_shares_config            = '',
++  $nfs_shares                   = undef,
++  $nfs_shares_config            = '/etc/cinder/shares.conf',
+   $netapp_copyoffload_tool_path = '',
+   $netapp_controller_ips        = '',
+   $netapp_sa_password           = '',
+@@ -174,6 +180,14 @@ define cinder::backend::netapp (
+   $netapp_webservice_path       = '/devmgr/v2',
+ ) {
+ 
++  if $nfs_shares {
++    file {$nfs_shares_config:
++      content => join($nfs_shares, "\n"),
++      require => Package['cinder'],
++      notify  => Service['cinder-volume']
++    }
++  }
++
+   cinder_config {
+     "${volume_backend_name}/volume_backend_name":          value => $volume_backend_name;
+     "${volume_backend_name}/volume_driver":                value => 'cinder.volume.drivers.netapp.common.NetAppDriver';
+diff --git a/cinder/manifests/volume/netapp.pp b/cinder/manifests/volume/netapp.pp
+index c06fc55..0a82582 100644
+--- a/cinder/manifests/volume/netapp.pp
++++ b/cinder/manifests/volume/netapp.pp
+@@ -92,9 +92,14 @@
+ #   'minutes, where M is the value of the expiry_thres_minutes parameter.
+ #   Defaults to 60
+ #
++# [*nfs_shares*]
++#   (optional) Array of NFS exports in the form of host:/share; will be written into
++#    file specified in nfs_shares_config
++#    Defaults to undef
++#
+ # [*nfs_shares_config*]
+ #   (optional) File with the list of available NFS shares
+-#   Defaults to ''
++#   Defaults to '/etc/cinder/shares.conf'
+ #
+ # [*netapp_copyoffload_tool_path*]
+ #   (optional) This option specifies the path of the NetApp Copy Offload tool
+@@ -163,7 +168,8 @@ class cinder::volume::netapp (
+   $expiry_thres_minutes         = '720',
+   $thres_avl_size_perc_start    = '20',
+   $thres_avl_size_perc_stop     = '60',
+-  $nfs_shares_config            = '',
++  $nfs_shares                   = undef,
++  $nfs_shares_config            = '/etc/cinder/shares.conf',
+   $netapp_copyoffload_tool_path = '',
+   $netapp_controller_ips        = '',
+   $netapp_sa_password           = '',
+@@ -186,6 +192,7 @@ class cinder::volume::netapp (
+     expiry_thres_minutes         => $expiry_thres_minutes,
+     thres_avl_size_perc_start    => $thres_avl_size_perc_start,
+     thres_avl_size_perc_stop     => $thres_avl_size_perc_stop,
++    nfs_shares                   => $nfs_shares,
+     nfs_shares_config            => $nfs_shares_config,
+     netapp_copyoffload_tool_path => $netapp_copyoffload_tool_path,
+     netapp_controller_ips        => $netapp_controller_ips,
+diff --git a/cinder/spec/classes/cinder_volume_netapp_spec.rb b/cinder/spec/classes/cinder_volume_netapp_spec.rb
+index 8c9a1db..dd6a337 100644
+--- a/cinder/spec/classes/cinder_volume_netapp_spec.rb
++++ b/cinder/spec/classes/cinder_volume_netapp_spec.rb
+@@ -23,7 +23,7 @@ describe 'cinder::volume::netapp' do
+       :expiry_thres_minutes         => '720',
+       :thres_avl_size_perc_start    => '20',
+       :thres_avl_size_perc_stop     => '60',
+-      :nfs_shares_config            => '',
++      :nfs_shares_config            => '/etc/cinder/shares.conf',
+       :netapp_copyoffload_tool_path => '',
+       :netapp_controller_ips        => '',
+       :netapp_sa_password           => '',
+@@ -67,4 +67,16 @@ describe 'cinder::volume::netapp' do
+   context 'with provided parameters' do
+     it_configures 'netapp volume driver'
+   end
++
++  context 'with NFS shares provided' do
++    let (:req_params) { params.merge!({
++        :nfs_shares => ['10.0.0.1:/test1', '10.0.0.2:/test2'],
++        :nfs_shares_config => '/etc/cinder/shares.conf',
++    }) }
++
++    it 'writes NFS shares to file' do
++      should contain_file("#{req_params[:nfs_shares_config]}")
++        .with_content("10.0.0.1:/test1\n10.0.0.2:/test2")
++    end
++  end
+ end
+diff --git a/cinder/spec/defines/cinder_backend_netapp_spec.rb b/cinder/spec/defines/cinder_backend_netapp_spec.rb
+index d9e7b94..1428a3d 100644
+--- a/cinder/spec/defines/cinder_backend_netapp_spec.rb
++++ b/cinder/spec/defines/cinder_backend_netapp_spec.rb
+@@ -26,7 +26,7 @@ describe 'cinder::backend::netapp' do
+       :expiry_thres_minutes         => '720',
+       :thres_avl_size_perc_start    => '20',
+       :thres_avl_size_perc_stop     => '60',
+-      :nfs_shares_config            => '',
++      :nfs_shares_config            => '/etc/cinder/shares.conf',
+       :netapp_copyoffload_tool_path => '',
+       :netapp_controller_ips        => '',
+       :netapp_sa_password           => '',
+@@ -77,4 +77,16 @@ describe 'cinder::backend::netapp' do
+ 
+     it { should contain_cinder_config("#{req_params[:volume_backend_name]}/use_multipath_for_image_xfer").with_value('true') }
+   end
++
++  context 'with NFS shares provided' do
++    let (:req_params) { params.merge!({
++        :nfs_shares => ['10.0.0.1:/test1', '10.0.0.2:/test2'],
++        :nfs_shares_config => '/etc/cinder/shares.conf',
++    }) }
++
++    it 'writes NFS shares to file' do
++      should contain_file("#{req_params[:nfs_shares_config]}") \
++        .with_content("10.0.0.1:/test1\n10.0.0.2:/test2")
++    end
++  end
+ end

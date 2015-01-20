@@ -1,4 +1,4 @@
-From 872c2581ac353fd2a7a0949f60310b9c06eb826a Mon Sep 17 00:00:00 2001
+From feafe7f16e293307e045bda5f323315340f9cc03 Mon Sep 17 00:00:00 2001
 From: Ryan Hallisey <rhallise@redhat.com>
 Date: Fri, 19 Dec 2014 07:45:23 -0500
 Subject: [PATCH] Add Ironic support into nova puppet modules

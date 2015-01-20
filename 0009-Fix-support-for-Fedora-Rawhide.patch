@@ -1,4 +1,4 @@
-From 3a021dd735a9af650edf04d8415b81f0a568fff4 Mon Sep 17 00:00:00 2001
+From 8175584afaeceb8239a14344da8534a935a3d296 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Mon, 8 Dec 2014 13:02:02 -0500
 Subject: [PATCH] Fix support for Fedora Rawhide

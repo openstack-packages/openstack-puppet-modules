@@ -1,4 +1,4 @@
-From 8b0cb6ae5bf4187131a47eb0c45e65d712036f90 Mon Sep 17 00:00:00 2001
+From 99dee49d9edb7f511f85ffc71d44942d142111f0 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Fri, 19 Dec 2014 13:04:04 +0100
 Subject: [PATCH] Deprecate support for Fedora 18

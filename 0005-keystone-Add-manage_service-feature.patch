@@ -1,4 +1,4 @@
-From 99d11ee9e8b7464e68719e6bb042cec4bcbb3e9f Mon Sep 17 00:00:00 2001
+From 238ba533d31c5aa172205d44aebc7d942d9a73fb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 20:32:27 +0200
 Subject: [PATCH] [keystone] Add manage_service feature
@@ -16,7 +16,7 @@ Closes-bug: #1359823
  4 files changed, 36 insertions(+), 10 deletions(-)
 
 diff --git a/keystone/manifests/init.pp b/keystone/manifests/init.pp
-index b5a4166..bf95c80 100644
+index 53d2de3..705a829 100644
 --- a/keystone/manifests/init.pp
 +++ b/keystone/manifests/init.pp
 @@ -63,7 +63,13 @@
@@ -42,7 +42,7 @@ index b5a4166..bf95c80 100644
    $enabled                = true,
    $database_connection    = 'sqlite:////var/lib/keystone/keystone.db',
    $database_idle_timeout  = '200',
-@@ -658,10 +665,12 @@ class keystone(
+@@ -662,10 +669,12 @@ class keystone(
      }
    }
  
