@@ -96,9 +96,9 @@ Source33:   https://github.com/purpleidea/puppet-puppet/archive/%{puppet_commit}
 Source34:   https://github.com/dprince/puppet-qpid/archive/%{qpid_commit}/qpid-%{qpid_commit}.tar.gz
 Source35:   https://github.com/puppetlabs/puppetlabs-rabbitmq/archive/%{rabbitmq_commit}/rabbitmq-%{rabbitmq_commit}.tar.gz
 Source36:   https://github.com/arioch/puppet-redis/archive/%{redis_commit}/redis-%{redis_commit}.tar.gz
-Source30:   https://github.com/puppetlabs/puppetlabs-rsync/archive/%{rsync_commit}/rsync-%{rsync_commit}.tar.gz
-Source30:   https://github.com/frozencemetery/puppet-sahara/archive/%{sahara_commit}/sahara-%{sahara_commit}.tar.gz
-Source30:   https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/ssh-%{ssh_commit}.tar.gz
+Source37:   https://github.com/puppetlabs/puppetlabs-rsync/archive/%{rsync_commit}/rsync-%{rsync_commit}.tar.gz
+Source38:   https://github.com/frozencemetery/puppet-sahara/archive/%{sahara_commit}/sahara-%{sahara_commit}.tar.gz
+Source39:   https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/ssh-%{ssh_commit}.tar.gz
 Source40:   https://github.com/nanliu/puppet-staging/archive/%{staging_commit}/staging-%{staging_commit}.tar.gz
 Source41:   https://github.com/puppetlabs/puppetlabs-stdlib/archive/%{stdlib_commit}/stdlib-%{stdlib_commit}.tar.gz
 Source42:   https://github.com/stackforge/puppet-swift/archive/%{swift_commit}/swift-%{swift_commit}.tar.gz
