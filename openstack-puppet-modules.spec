@@ -1,44 +1,55 @@
 
-%global apache_commit       master
-%global ceilometer_commit   master
-%global certmonger_commit   master
-%global cinder_commit       master
-%global common_commit       master
-%global concat_commit       master
-%global firewall_commit     master
-%global galera_commit       master
-%global glance_commit       master
-%global gluster_commit      master
-%global haproxy_commit      master
-%global heat_commit         master
-%global horizon_commit      master
-%global inifile_commit      master
-%global keystone_commit     master
-%global memcached_commit    master
-%global module_data_commit  master
-%global mongodb_commit      master
-%global mysql_commit        master
-%global neutron_commit      master
-%global nova_commit         master
-%global nssdb_commit        master
-%global openstack_commit    master
-%global pacemaker_commit    master
-%global puppet_commit       master
-%global qpid_commit         master
-%global rabbitmq_commit     master
-%global rsync_commit        master
-%global sahara_commit       master
-%global ssh_commit          master
-%global staging_commit      master
-%global stdlib_commit       master
-%global swift_commit        master
-%global sysctl_commit       master
-%global tempest_commit      master
-%global vcsrepo_commit      master
-%global vlan_commit         master
-%global vswitch_commit      master
-%global xinetd_commit       master
-%global openstacklib_commit master
+%global apache_commit           master
+%global aviator_commit          master
+%global ceilometer_commit       master
+%global certmonger_commit       master
+%global cinder_commit           master
+%global common_commit           master
+%global concat_commit           master
+%global firewall_commit         master
+%global galera_commit           master
+%global glance_commit           master
+%global gluster_commit          master
+%global haproxy_commit          master
+%global heat_commit             master
+%global horizon_commit          master
+%global inifile_commit          master
+%global keystone_commit         master
+%global memcached_commit        master
+%global module_data_commit      master
+%global mongodb_commit          master
+%global mysql_commit            master
+%global neutron_commit          master
+%global nova_commit             master
+%global nssdb_commit            master
+%global openstack_commit        master
+%global pacemaker_commit        master
+%global puppet_commit           master
+%global qpid_commit             master
+%global rabbitmq_commit         master
+%global rsync_commit            master
+%global sahara_commit           master
+%global ssh_commit              master
+%global staging_commit          master
+%global stdlib_commit           master
+%global swift_commit            master
+%global sysctl_commit           master
+%global tempest_commit          master
+%global vcsrepo_commit          master
+%global vlan_commit             master
+%global vswitch_commit          master
+%global xinetd_commit           master
+%global openstacklib_commit     master
+%global ironic_commit           master
+%global manila_commit           master
+%global redis_commit            master
+%global timezone_commit         master
+%global ipa_commit              master
+%global module_collectd_commit  master
+%global n1k_vsm_commit          master
+%global nagios_commit           master
+%global ntp_commit              master
+%global trove_commit            master
 
 Name:           openstack-puppet-modules
 Version:        XXX
@@ -48,46 +59,57 @@ License:        ASL 2.0 and GPLv2 and GPLv3
 
 URL:            https://github.com/redhat-openstack
 
-Source0:	https://github.com/puppetlabs/puppetlabs-apache/archive/%{apache_commit}/apache-%{apache_commit}.tar.gz
-Source1:	https://github.com/stackforge/puppet-ceilometer/archive/%{ceilometer_commit}/ceilometer-%{ceilometer_commit}.tar.gz
-Source2:	https://github.com/rcritten/puppet-certmonger/archive/%{certmonger_commit}/certmonger-%{certmonger_commit}.tar.gz
-Source3:	https://github.com/stackforge/puppet-cinder/archive/%{cinder_commit}/cinder-%{cinder_commit}.tar.gz
-Source4:	https://github.com/purpleidea/puppet-common/archive/%{common_commit}/common-%{common_commit}.tar.gz
-Source5:	https://github.com/ripienaar/puppet-concat/archive/%{concat_commit}/concat-%{concat_commit}.tar.gz
-Source6:	https://github.com/puppetlabs/puppetlabs-firewall/archive/%{firewall_commit}/firewall-%{firewall_commit}.tar.gz
-Source7:	https://github.com/rohara/puppet-galera/archive/%{galera_commit}/galera-%{galera_commit}.tar.gz
-Source8:	https://github.com/stackforge/puppet-glance/archive/%{glance_commit}/glance-%{glance_commit}.tar.gz
-Source9:	https://github.com/purpleidea/puppet-gluster/archive/%{gluster_commit}/gluster-%{gluster_commit}.tar.gz
-Source10:	https://github.com/puppetlabs/puppetlabs-haproxy/archive/%{haproxy_commit}/haproxy-%{haproxy_commit}.tar.gz
-Source11:	https://github.com/stackforge/puppet-heat/archive/%{heat_commit}/heat-%{heat_commit}.tar.gz
-Source12:	https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}/horizon-%{horizon_commit}.tar.gz
-Source13:	https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
-Source14:	https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
-Source15:	https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/memcached-%{memcached_commit}.tar.gz
-#Source16:	https://github.com/ripienaar/puppet-module-data/archive/%{module_data_commit}/module-data-%{module_data_commit}.tar.gz
-Source17:	https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
-Source18:	https://github.com/packstack/puppetlabs-mysql/archive/%{mysql_commit}/mysql-%{mysql_commit}.tar.gz
-Source19:	https://github.com/stackforge/puppet-neutron/archive/%{neutron_commit}/neutron-%{neutron_commit}.tar.gz
-Source20:	https://github.com/stackforge/puppet-nova/archive/%{nova_commit}/nova-%{nova_commit}.tar.gz
-Source21:	https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/nssdb-%{nssdb_commit}.tar.gz
-Source22:	https://github.com/stackforge/puppet-openstack/archive/%{openstack_commit}/openstack-%{openstack_commit}.tar.gz
-Source23:	https://github.com/radez/puppet-pacemaker/archive/%{pacemaker_commit}/pacemaker-%{pacemaker_commit}.tar.gz
-Source24:	https://github.com/purpleidea/puppet-puppet/archive/%{puppet_commit}/puppet-%{puppet_commit}.tar.gz
-Source25:	https://github.com/dprince/puppet-qpid/archive/%{qpid_commit}/qpid-%{qpid_commit}.tar.gz
-Source26:	https://github.com/puppetlabs/puppetlabs-rabbitmq/archive/%{rabbitmq_commit}/rabbitmq-%{rabbitmq_commit}.tar.gz
-Source27:	https://github.com/puppetlabs/puppetlabs-rsync/archive/%{rsync_commit}/rsync-%{rsync_commit}.tar.gz
-Source28:	https://github.com/stackforge/puppet-sahara/archive/%{sahara_commit}/sahara-%{sahara_commit}.tar.gz
-Source29:	https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/ssh-%{ssh_commit}.tar.gz
-Source30:	https://github.com/nanliu/puppet-staging/archive/%{staging_commit}/staging-%{staging_commit}.tar.gz
-Source31:	https://github.com/puppetlabs/puppetlabs-stdlib/archive/%{stdlib_commit}/stdlib-%{stdlib_commit}.tar.gz
-Source32:	https://github.com/stackforge/puppet-swift/archive/%{swift_commit}/swift-%{swift_commit}.tar.gz
-Source33:	https://github.com/puppetlabs/puppetlabs-sysctl/archive/%{sysctl_commit}/sysctl-%{sysctl_commit}.tar.gz
-Source34:	https://github.com/stackforge/puppet-tempest/archive/%{tempest_commit}/tempest-%{tempest_commit}.tar.gz
-Source35:	https://github.com/puppetlabs/puppetlabs-vcsrepo/archive/%{vcsrepo_commit}/vcsrepo-%{vcsrepo_commit}.tar.gz
-Source36:	https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vlan-%{vlan_commit}.tar.gz
-Source37:	https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
-Source38:	https://github.com/packstack/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
-Source39:	https://github.com/stackforge/puppet-openstacklib/archive/%{openstacklib_commit}/openstacklib-%{openstacklib_commit}.tar.gz
+Source0:    https://github.com/puppetlabs/puppetlabs-apache/archive/%{apache_commit}/apache-%{apache_commit}.tar.gz
+Source1:    https://github.com/aimonb/puppet_aviator/archive/%{aviator_commit}/aviator-%{aviator_commit}.tar.gz
+Source2:    https://github.com/stackforge/puppet-ceilometer/archive/%{ceilometer_commit}/ceilometer-%{ceilometer_commit}.tar.gz
+Source3:    https://github.com/rcritten/puppet-certmonger/archive/%{certmonger_commit}/certmonger-%{certmonger_commit}.tar.gz
+Source4:    https://github.com/stackforge/puppet-cinder/archive/%{cinder_commit}/cinder-%{cinder_commit}.tar.gz
+Source5:    https://github.com/purpleidea/puppet-common/archive/%{common_commit}/common-%{common_commit}.tar.gz
+Source6:    https://github.com/puppetlabs/puppetlabs-concat/archive/%{concat_commit}/concat-%{concat_commit}.tar.gz
+Source7:    https://github.com/puppetlabs/puppetlabs-firewall/archive/%{firewall_commit}/firewall-%{firewall_commit}.tar.gz
+Source8:    https://github.com/redhat-openstack/puppet-galera/archive/%{galera_commit}/galera-%{galera_commit}.tar.gz
+Source9:    https://github.com/stackforge/puppet-glance/archive/%{glance_commit}/glance-%{glance_commit}.tar.gz
+Source10:   https://github.com/purpleidea/puppet-gluster/archive/%{gluster_commit}/gluster-%{gluster_commit}.tar.gz
+Source11:   https://github.com/puppetlabs/puppetlabs-haproxy/archive/%{haproxy_commit}/haproxy-%{haproxy_commit}.tar.gz
+Source12:   https://github.com/stackforge/puppet-heat/archive/%{heat_commit}/heat-%{heat_commit}.tar.gz
+Source13:   https://github.com/stackforge/puppet-horizon/archive/%{horizon_commit}/horizon-%{horizon_commit}.tar.gz
+Source14:   https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_commit}/inifile-%{inifile_commit}.tar.gz
+Source15:   https://github.com/xbezdick/puppet-ipa/archive/%{ipa_commit}/ipa-%{ipa_commit}.tar.gz
+Source16:   https://github.com/stackforge/puppet-ironic/archive/%{ironic_commit}/ironic-%{ironic_commit}.tar.gz
+Source17:   https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
+Source18:   https://github.com/stackforge/puppet-manila/archive/%{manila_commit}/manilla-%{manila_commit}.tar.gz
+Source19:   https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/memcached-%{memcached_commit}.tar.gz
+Source20:   https://github.com/pdxcat/puppet-module-collectd/archive/%{module_collectd_commit}/module-collectd-%{module_collectd_commit}.tar.gz
+Source21:   https://github.com/ripienaar/puppet-module-data/archive/%{module_data_commit}/module-data-%{module_data_commit}.tar.gz
+Source22:   https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
+Source23:   https://github.com/puppetlabs/puppetlabs-mysql/archive/%{mysql_commit}/mysql-%{mysql_commit}.tar.gz
+Source24:   https://github.com/stackforge/puppet-n1k-vsm/archive/%{n1k_vsm_commit}/n1k-vsm-%{n1k_vsm_commit}.tar.gz
+Source25:   https://github.com/gildub/puppet-nagios-openstack/archive/%{nagios_commit}/nagios-%{nagios_commit}.tar.gz
+Source26:   https://github.com/stackforge/puppet-neutron/archive/%{neutron_commit}/neutron-%{neutron_commit}.tar.gz
+Source27:   https://github.com/stackforge/puppet-nova/archive/%{nova_commit}/nova-%{nova_commit}.tar.gz
+Source28:   https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/nssdb-%{nssdb_commit}.tar.gz
+Source29:   https://github.com/puppetlabs/puppetlabs-ntp/archive/%{ntp_commit}/ntp-%{ntp_commit}.tar.gz
+Source30:   https://github.com/stackforge/puppet-openstack/archive/%{openstack_commit}/openstack-%{openstack_commit}.tar.gz
+Source31:   https://github.com/stackforge/puppet-openstacklib/archive/%{openstacklib_commit}/openstacklib-%{openstacklib_commit}.tar.gz
+Source32:   https://github.com/redhat-openstack/puppet-pacemaker/archive/%{pacemaker_commit}/pacemaker-%{pacemaker_commit}.tar.gz
+Source33:   https://github.com/purpleidea/puppet-puppet/archive/%{puppet_commit}/puppet-%{puppet_commit}.tar.gz
+Source34:   https://github.com/dprince/puppet-qpid/archive/%{qpid_commit}/qpid-%{qpid_commit}.tar.gz
+Source35:   https://github.com/puppetlabs/puppetlabs-rabbitmq/archive/%{rabbitmq_commit}/rabbitmq-%{rabbitmq_commit}.tar.gz
+Source36:   https://github.com/arioch/puppet-redis/archive/%{redis_commit}/redis-%{redis_commit}.tar.gz
+Source30:   https://github.com/puppetlabs/puppetlabs-rsync/archive/%{rsync_commit}/rsync-%{rsync_commit}.tar.gz
+Source30:   https://github.com/frozencemetery/puppet-sahara/archive/%{sahara_commit}/sahara-%{sahara_commit}.tar.gz
+Source30:   https://github.com/saz/puppet-ssh/archive/%{ssh_commit}/ssh-%{ssh_commit}.tar.gz
+Source40:   https://github.com/nanliu/puppet-staging/archive/%{staging_commit}/staging-%{staging_commit}.tar.gz
+Source41:   https://github.com/puppetlabs/puppetlabs-stdlib/archive/%{stdlib_commit}/stdlib-%{stdlib_commit}.tar.gz
+Source42:   https://github.com/stackforge/puppet-swift/archive/%{swift_commit}/swift-%{swift_commit}.tar.gz
+Source43:   https://github.com/puppetlabs/puppetlabs-sysctl/archive/%{sysctl_commit}/sysctl-%{sysctl_commit}.tar.gz
+Source44:   https://github.com/stackforge/puppet-tempest/archive/%{tempest_commit}/tempest-%{tempest_commit}.tar.gz
+Source45:   https://github.com/saz/puppet-timezone/archive/%{timezone_commit}/timezone-%{timezone_commit}.tar.gz
+Source46:   https://github.com/stackforge/puppet-trove/archive/%{trove_commit}/trove-%{trove_commit}.tar.gz
+Source47:   https://github.com/puppetlabs/puppetlabs-vcsrepo/archive/%{vcsrepo_commit}/vcsrepo-%{vcsrepo_commit}.tar.gz
+Source48:   https://github.com/derekhiggins/puppet-vlan/archive/%{vlan_commit}/vlan-%{vlan_commit}.tar.gz
+Source49:   https://github.com/stackforge/puppet-vswitch/archive/%{vswitch_commit}/vswitch-%{vswitch_commit}.tar.gz
+Source50:   https://github.com/puppetlabs/puppetlabs-xinetd/archive/%{xinetd_commit}/xinetd-%{xinetd_commit}.tar.gz
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -113,7 +135,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 13
 %setup -c -q -T -D -a 14
 %setup -c -q -T -D -a 15
-#%setup -c -q -T -D -a 16
+%setup -c -q -T -D -a 16
 %setup -c -q -T -D -a 17
 %setup -c -q -T -D -a 18
 %setup -c -q -T -D -a 19
@@ -137,6 +159,17 @@ A collection of Puppet modules used to install and configure OpenStack.
 %setup -c -q -T -D -a 37
 %setup -c -q -T -D -a 38
 %setup -c -q -T -D -a 39
+%setup -c -q -T -D -a 40
+%setup -c -q -T -D -a 41
+%setup -c -q -T -D -a 42
+%setup -c -q -T -D -a 43
+%setup -c -q -T -D -a 44
+%setup -c -q -T -D -a 45
+%setup -c -q -T -D -a 46
+%setup -c -q -T -D -a 47
+%setup -c -q -T -D -a 48
+%setup -c -q -T -D -a 49
+%setup -c -q -T -D -a 50
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -152,11 +185,12 @@ find %{_builddir}/%{name}-%{version}/ \( -name "*.rb" -o -name "*.erb" \) -exec 
 rm -rf %{buildroot}
 install -d -m 0755 %{buildroot}/%{_datadir}/openstack-puppet/modules/
 cp -r puppetlabs-apache-%{apache_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/apache
+cp -r puppet_aviator-%{aviator_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/aviator
 cp -r puppet-ceilometer-%{ceilometer_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ceilometer
 cp -r puppet-certmonger-%{certmonger_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/certmonger
 cp -r puppet-cinder-%{cinder_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/cinder
 cp -r puppet-common-%{common_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/common
-cp -r puppet-concat-%{concat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/concat
+cp -r puppetlabs-concat-%{concat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/concat
 cp -r puppetlabs-firewall-%{firewall_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/firewall
 cp -r puppet-galera-%{galera_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/galera
 cp -r puppet-glance-%{glance_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/glance
@@ -164,20 +198,27 @@ cp -r puppet-gluster-%{gluster_commit} %{buildroot}/%{_datadir}/openstack-puppet
 cp -r puppetlabs-haproxy-%{haproxy_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/haproxy
 cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/horizon
-cp -r puppetlabs-inifile-%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
+cp -r puppetlabs-inifileI%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
+cp -r puppet-ipa-%{ipa_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ipa
+cp -r puppet-ironic-%{ironic_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ironic
 cp -r puppet-keystone-%{keystone_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
 cp -r puppet-memcached-%{memcached_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/memcached
-#cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
+cp -r puppet-module-data-%{module_data_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/module-data
 cp -r puppetlabs-mongodb-%{mongodb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mongodb
 cp -r puppetlabs-mysql-%{mysql_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/mysql
+cp -r puppet-n1k-vsm-%{n1k_vsm_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/n1k-vsm
+cp -r puppet-nagios-openstack-%{nagios_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/nagios
 cp -r puppet-neutron-%{neutron_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/neutron
 cp -r puppet-nova-%{nova_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/nova
 cp -r puppet-nssdb-%{nssdb_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/nssdb
+cp -r puppetlabs-ntp-%{ntp_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ntp
 cp -r puppet-openstack-%{openstack_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/openstack
+cp -r puppet-openstacklib-%{openstacklib_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/openstacklib
 cp -r puppet-pacemaker-%{pacemaker_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/pacemaker
 cp -r puppet-puppet-%{puppet_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/puppet
 cp -r puppet-qpid-%{qpid_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/qpid
-cp -r puppetlabs-rabbitmq-%{rabbitmq_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rabbitmq
+cp -r puppet-rabbitmq-%{rabbitmq_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rabbitmq
+cp -r puppet-redis-%{redis_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/redis
 cp -r puppetlabs-rsync-%{rsync_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rsync
 cp -r puppet-sahara-%{sahara_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/sahara
 cp -r puppet-ssh-%{ssh_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ssh
@@ -186,11 +227,12 @@ cp -r puppetlabs-stdlib-%{stdlib_commit} %{buildroot}/%{_datadir}/openstack-pupp
 cp -r puppet-swift-%{swift_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/swift
 cp -r puppetlabs-sysctl-%{sysctl_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/sysctl
 cp -r puppet-tempest-%{tempest_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/tempest
+cp -r puppet-trove-%{trove_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/trove
 cp -r puppetlabs-vcsrepo-%{vcsrepo_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vcsrepo
 cp -r puppet-vlan-%{vlan_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vlan
 cp -r puppet-vswitch-%{vswitch_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vswitch
 cp -r puppetlabs-xinetd-%{xinetd_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/xinetd
-cp -r puppet-openstacklib-%{openstacklib_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/openstacklib
+cp Puppetfile %{buildroot}/%{_datadir}/openstack-puppet/Puppetfile
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
