@@ -185,7 +185,7 @@ find %{_builddir}/%{name}-%{version}/ \( -name "*.rb" -o -name "*.erb" \) -exec 
 rm -rf %{buildroot}
 install -d -m 0755 %{buildroot}/%{_datadir}/openstack-puppet/modules/
 cp -r puppetlabs-apache-%{apache_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/apache
-cp -r puppet_aviator-%{aviator_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/aviator
+cp -r puppet-aviator-%{aviator_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/aviator
 cp -r puppet-ceilometer-%{ceilometer_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ceilometer
 cp -r puppet-certmonger-%{certmonger_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/certmonger
 cp -r puppet-cinder-%{cinder_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/cinder
@@ -198,7 +198,7 @@ cp -r puppet-gluster-%{gluster_commit} %{buildroot}/%{_datadir}/openstack-puppet
 cp -r puppetlabs-haproxy-%{haproxy_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/haproxy
 cp -r puppet-heat-%{heat_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/heat
 cp -r puppet-horizon-%{horizon_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/horizon
-cp -r puppetlabs-inifileI%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
+cp -r puppetlabs-inifile-%{inifile_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/inifile
 cp -r puppet-ipa-%{ipa_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ipa
 cp -r puppet-ironic-%{ironic_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/ironic
 cp -r puppet-keystone-%{keystone_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/keystone
@@ -217,7 +217,7 @@ cp -r puppet-openstacklib-%{openstacklib_commit} %{buildroot}/%{_datadir}/openst
 cp -r puppet-pacemaker-%{pacemaker_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/pacemaker
 cp -r puppet-puppet-%{puppet_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/puppet
 cp -r puppet-qpid-%{qpid_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/qpid
-cp -r puppet-rabbitmq-%{rabbitmq_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rabbitmq
+cp -r puppetlabs-rabbitmq-%{rabbitmq_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rabbitmq
 cp -r puppet-redis-%{redis_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/redis
 cp -r puppetlabs-rsync-%{rsync_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/rsync
 cp -r puppet-sahara-%{sahara_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/sahara
@@ -232,7 +232,6 @@ cp -r puppetlabs-vcsrepo-%{vcsrepo_commit} %{buildroot}/%{_datadir}/openstack-pu
 cp -r puppet-vlan-%{vlan_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vlan
 cp -r puppet-vswitch-%{vswitch_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/vswitch
 cp -r puppetlabs-xinetd-%{xinetd_commit} %{buildroot}/%{_datadir}/openstack-puppet/modules/xinetd
-cp Puppetfile %{buildroot}/%{_datadir}/openstack-puppet/Puppetfile
 rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncproxy.init
 
 
