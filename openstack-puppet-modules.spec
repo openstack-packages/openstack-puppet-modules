@@ -84,7 +84,7 @@ Source21:   https://github.com/ripienaar/puppet-module-data/archive/%{module_dat
 Source22:   https://github.com/puppetlabs/puppetlabs-mongodb/archive/%{mongodb_commit}/mongodb-%{mongodb_commit}.tar.gz
 Source23:   https://github.com/puppetlabs/puppetlabs-mysql/archive/%{mysql_commit}/mysql-%{mysql_commit}.tar.gz
 Source24:   https://github.com/stackforge/puppet-n1k-vsm/archive/%{n1k_vsm_commit}/n1k-vsm-%{n1k_vsm_commit}.tar.gz
-Source25:   https://github.com/gildub/puppet-nagios-openstack/archive/%{nagios_commit}/nagios-%{nagios_commit}.tar.gz
+Source25:   https://github.com/gildub/puppet-nagios-openstack/archive/%{nagios_commit}/nagios-openstack-%{nagios_commit}.tar.gz
 Source26:   https://github.com/stackforge/puppet-neutron/archive/%{neutron_commit}/neutron-%{neutron_commit}.tar.gz
 Source27:   https://github.com/stackforge/puppet-nova/archive/%{nova_commit}/nova-%{nova_commit}.tar.gz
 Source28:   https://github.com/rcritten/puppet-nssdb/archive/%{nssdb_commit}/nssdb-%{nssdb_commit}.tar.gz
