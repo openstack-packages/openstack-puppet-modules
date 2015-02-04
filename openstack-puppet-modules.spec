@@ -77,7 +77,7 @@ Source14:   https://github.com/puppetlabs/puppetlabs-inifile/archive/%{inifile_c
 Source15:   https://github.com/xbezdick/puppet-ipa/archive/%{ipa_commit}/ipa-%{ipa_commit}.tar.gz
 Source16:   https://github.com/stackforge/puppet-ironic/archive/%{ironic_commit}/ironic-%{ironic_commit}.tar.gz
 Source17:   https://github.com/stackforge/puppet-keystone/archive/%{keystone_commit}/keystone-%{keystone_commit}.tar.gz
-Source18:   https://github.com/stackforge/puppet-manila/archive/%{manila_commit}/manilla-%{manila_commit}.tar.gz
+Source18:   https://github.com/stackforge/puppet-manila/archive/%{manila_commit}/manila-%{manila_commit}.tar.gz
 Source19:   https://github.com/saz/puppet-memcached/archive/%{memcached_commit}/memcached-%{memcached_commit}.tar.gz
 Source20:   https://github.com/pdxcat/puppet-module-collectd/archive/%{module_collectd_commit}/module-collectd-%{module_collectd_commit}.tar.gz
 Source21:   https://github.com/ripienaar/puppet-module-data/archive/%{module_data_commit}/module-data-%{module_data_commit}.tar.gz
