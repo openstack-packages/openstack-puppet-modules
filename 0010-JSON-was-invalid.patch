@@ -1,4 +1,4 @@
-From d087c904325b621f97d9874db7b6c33b42368990 Mon Sep 17 00:00:00 2001
+From d1e8116c8b6f49fd052685b0cb2cf53cd949aba1 Mon Sep 17 00:00:00 2001
 From: Gilles Dubreuil <gilles@redhat.com>
 Date: Fri, 12 Dec 2014 15:40:58 +1100
 Subject: [PATCH] JSON was invalid

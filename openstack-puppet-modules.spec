@@ -1,7 +1,7 @@
 
 Name:           openstack-puppet-modules
-Version:        2014.2.9
-Release:        2%{?dist}
+Version:        2014.2.10
+Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -12,21 +12,20 @@ Source0:        https://github.com/redhat-openstack/openstack-puppet-modules/arc
 Patch0001: 0001-horizon-Change-default-documentation-URL.patch
 Patch0002: 0002-rabbitmq-Don-t-manage-RabbitMQ-repos.patch
 Patch0003: 0003-openstack-Set-default-charset-to-utf8.patch
-Patch0004: 0004-heat-Implement-Keystone-domain-creation.patch
-Patch0005: 0005-keystone-Add-manage_service-feature.patch
-Patch0006: 0006-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
-Patch0007: 0007-Add-manage_service-feature.patch
-Patch0008: 0008-Fix-against-mongodb-2.6.5-from-epel.patch
-Patch0009: 0009-Fix-support-for-Fedora-Rawhide.patch
-Patch0010: 0010-Adds-filtering-for-BONDING-LACP.patch
-Patch0011: 0011-JSON-was-invalid.patch
-Patch0012: 0012-Configure-auth-via-conf-file-not-paste-file.patch
-Patch0013: 0013-Set-control_exchange-in-the-main-config-file.patch
-Patch0014: 0014-Support-Neutron.patch
-Patch0015: 0015-Add-Ironic-support-into-nova-puppet-modules.patch
-Patch0016: 0016-Fix-Ironic-modules-so-services-properly-run.patch
-Patch0017: 0017-Deprecate-support-for-Fedora-18.patch
-Patch0018: 0018-Automates-generation-of-NFS-config-file.patch
+Patch0004: 0004-keystone-Add-manage_service-feature.patch
+Patch0005: 0005-Configure-OVS-mechanism-agent-configs-in-its-config-.patch
+Patch0006: 0006-Add-manage_service-feature.patch
+Patch0007: 0007-Fix-against-mongodb-2.6.5-from-epel.patch
+Patch0008: 0008-Fix-support-for-Fedora-Rawhide.patch
+Patch0009: 0009-Adds-filtering-for-BONDING-LACP.patch
+Patch0010: 0010-JSON-was-invalid.patch
+Patch0011: 0011-Configure-auth-via-conf-file-not-paste-file.patch
+Patch0012: 0012-Set-control_exchange-in-the-main-config-file.patch
+Patch0013: 0013-Support-Neutron.patch
+Patch0014: 0014-Makes-kombu_ssl_-parameters-optional-when-rabbit_use.patch
+Patch0015: 0015-Switch-to-TLSv1-as-SSLv3-is-considered-insecure-and-.patch
+Patch0016: 0016-Add-Ironic-support-into-nova-puppet-modules.patch
+Patch0017: 0017-Fix-prefetch-refresh-for-providers.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -56,7 +55,6 @@ OpenStack via installers using Puppet configuration tool.
 %patch0015 -p1
 %patch0016 -p1
 %patch0017 -p1
-%patch0018 -p1
 
 find %{_builddir}/%{name}-%{version}/ -type f -name ".*" -exec rm {} +
 find %{_builddir}/%{name}-%{version}/ -size 0 -exec rm {} +
@@ -130,6 +128,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Feb 11 2015 Lukas Bezdicka <lbezdick@redhat.com> 2014.2.10-1
+- Update to upstream 2014.2.10
+
 * Tue Jan 20 2015 Gael Chamoulaud <gchamoul@redhat.com> 2014.2.9-2
 - Update to upstream 2014.2.9
 

@@ -1,4 +1,4 @@
-From efd6feb2a8c5aa16958af7eef31a7b29ab3340c4 Mon Sep 17 00:00:00 2001
+From ffc268a5d45b92300ad9d9854d5558f72bdb4385 Mon Sep 17 00:00:00 2001
 From: Solly Ross <sross@redhat.com>
 Date: Tue, 16 Dec 2014 15:31:29 -0500
 Subject: [PATCH] Configure auth via conf file, not paste file

@@ -1,4 +1,4 @@
-From 238ba533d31c5aa172205d44aebc7d942d9a73fb Mon Sep 17 00:00:00 2001
+From 08c5bcc85662885bb62be0a00fb17645f41e22ac Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 20:32:27 +0200
 Subject: [PATCH] [keystone] Add manage_service feature
@@ -16,7 +16,7 @@ Closes-bug: #1359823
  4 files changed, 36 insertions(+), 10 deletions(-)
 
 diff --git a/keystone/manifests/init.pp b/keystone/manifests/init.pp
-index 53d2de3..705a829 100644
+index 15836d5..6faa34b 100644
 --- a/keystone/manifests/init.pp
 +++ b/keystone/manifests/init.pp
 @@ -63,7 +63,13 @@
@@ -104,7 +104,7 @@ index 29d90b0..f7047bf 100644
        :hasstatus  => true,
        :hasrestart => true
 diff --git a/keystone/spec/classes/keystone_spec.rb b/keystone/spec/classes/keystone_spec.rb
-index 1cfa3e8..d653c5b 100644
+index 7ccd0be..2b6d22e 100644
 --- a/keystone/spec/classes/keystone_spec.rb
 +++ b/keystone/spec/classes/keystone_spec.rb
 @@ -41,6 +41,7 @@ describe 'keystone' do

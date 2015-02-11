@@ -1,4 +1,4 @@
-From c0a0e1613a1a1dd00ed9ee2a060d35c2308c2805 Mon Sep 17 00:00:00 2001
+From 6072fa1fa5974daf23c5f222c1145a07414f5b3c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ivan=20Ne=C4=8Das?= <inecas@redhat.com>
 Date: Tue, 25 Nov 2014 18:14:37 +0100
 Subject: [PATCH] Fix against mongodb 2.6.5 from epel

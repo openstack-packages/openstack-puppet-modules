@@ -1,4 +1,4 @@
-From 57615207994659b9cd212a75488b13024f814171 Mon Sep 17 00:00:00 2001
+From 6ce65e7c4c26f4729739d674140608de7ac59537 Mon Sep 17 00:00:00 2001
 From: Solly Ross <sross@redhat.com>
 Date: Tue, 16 Dec 2014 15:40:19 -0500
 Subject: [PATCH] Set control_exchange in the main config file

@@ -1,4 +1,4 @@
-From 39441fbbb20871e7e4610dbf96a6f8345bb38edf Mon Sep 17 00:00:00 2001
+From 150e4a19160e709d26be6be4cb0eacf209e5dfa2 Mon Sep 17 00:00:00 2001
 From: Solly Ross <sross@redhat.com>
 Date: Tue, 16 Dec 2014 15:42:00 -0500
 Subject: [PATCH] Support Neutron

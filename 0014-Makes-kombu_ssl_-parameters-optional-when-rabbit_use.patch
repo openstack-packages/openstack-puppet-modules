@@ -1,0 +1,148 @@
+From 363d6932bca1a00ab2f37060a5bce4d0356eadd3 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Mon, 2 Feb 2015 13:36:00 +0100
+Subject: [PATCH] Makes kombu_ssl_* parameters optional when rabbit_use_ssl =>
+ true
+
+The kombu_ssl_* parameters should not be required when rabbit_use_ssl => true
+Rather, rabbit_use_ssl must be set to true if the kombu_ssl_* parameters are
+used.
+
+Change-Id: I1b2cbb15a7778c3d072409c43b39d1f41b7b48b6
+Closes-Bug: 1356083
+(cherry picked from commit 15b0a7dc825b1182f9e0e35c109ed7a6aaa51fd7)
+---
+ glance/manifests/notify/rabbitmq.pp                | 41 ++++++++++++----------
+ glance/spec/classes/glance_notify_rabbitmq_spec.rb | 15 +++++---
+ 2 files changed, 33 insertions(+), 23 deletions(-)
+
+diff --git a/glance/manifests/notify/rabbitmq.pp b/glance/manifests/notify/rabbitmq.pp
+index cfe973b..1fc4012 100644
+--- a/glance/manifests/notify/rabbitmq.pp
++++ b/glance/manifests/notify/rabbitmq.pp
+@@ -60,18 +60,6 @@ class glance::notify::rabbitmq(
+     $amqp_durable_queues_real = $amqp_durable_queues
+   }
+ 
+-  if $rabbit_use_ssl {
+-    if !$kombu_ssl_ca_certs {
+-      fail('The kombu_ssl_ca_certs parameter is required when rabbit_use_ssl is set to true')
+-    }
+-    if !$kombu_ssl_certfile {
+-      fail('The kombu_ssl_certfile parameter is required when rabbit_use_ssl is set to true')
+-    }
+-    if !$kombu_ssl_keyfile {
+-      fail('The kombu_ssl_keyfile parameter is required when rabbit_use_ssl is set to true')
+-    }
+-  }
+-
+   if $rabbit_hosts {
+     glance_api_config {
+       'DEFAULT/rabbit_hosts':     value => join($rabbit_hosts, ',');
+@@ -98,19 +86,34 @@ class glance::notify::rabbitmq(
+   }
+ 
+   if $rabbit_use_ssl {
+-    glance_api_config {
+-      'DEFAULT/kombu_ssl_ca_certs': value => $kombu_ssl_ca_certs;
+-      'DEFAULT/kombu_ssl_certfile': value => $kombu_ssl_certfile;
+-      'DEFAULT/kombu_ssl_keyfile':  value => $kombu_ssl_keyfile;
+-      'DEFAULT/kombu_ssl_version':  value => $kombu_ssl_version;
++    glance_api_config { 'DEFAULT/kombu_ssl_version': value => $kombu_ssl_version }
++
++    if $kombu_ssl_ca_certs {
++      glance_api_config { 'DEFAULT/kombu_ssl_ca_certs': value => $kombu_ssl_ca_certs }
++    } else {
++      glance_api_config { 'DEFAULT/kombu_ssl_ca_certs': ensure => absent}
++    }
++
++    if $kombu_ssl_certfile {
++      glance_api_config { 'DEFAULT/kombu_ssl_certfile': value => $kombu_ssl_certfile }
++    } else {
++      glance_api_config { 'DEFAULT/kombu_ssl_certfile': ensure => absent}
++    }
++
++    if $kombu_ssl_keyfile {
++      glance_api_config { 'DEFAULT/kombu_ssl_keyfile': value => $kombu_ssl_keyfile }
++    } else {
++      glance_api_config { 'DEFAULT/kombu_ssl_keyfile': ensure => absent}
+     }
+   } else {
+     glance_api_config {
++      'DEFAULT/kombu_ssl_version':  ensure => absent;
+       'DEFAULT/kombu_ssl_ca_certs': ensure => absent;
+       'DEFAULT/kombu_ssl_certfile': ensure => absent;
+       'DEFAULT/kombu_ssl_keyfile':  ensure => absent;
+-      'DEFAULT/kombu_ssl_version':  ensure => absent;
++    }
++    if ($kombu_ssl_keyfile or $kombu_ssl_certfile or $kombu_ssl_ca_certs) {
++      notice('Configuration of certificates with $rabbit_use_ssl == false is a useless config')
+     }
+   }
+-
+ }
+diff --git a/glance/spec/classes/glance_notify_rabbitmq_spec.rb b/glance/spec/classes/glance_notify_rabbitmq_spec.rb
+index 224aa02..1b75082 100644
+--- a/glance/spec/classes/glance_notify_rabbitmq_spec.rb
++++ b/glance/spec/classes/glance_notify_rabbitmq_spec.rb
+@@ -28,18 +28,24 @@ describe 'glance::notify::rabbitmq' do
+     it { should contain_glance_api_config('DEFAULT/rabbit_notification_topic').with_value('notifications') }
+   end
+ 
+-  describe 'when passing params' do
++  describe 'when passing params and use ssl' do
+     let :params do
+       {
+         :rabbit_password        => 'pass',
+         :rabbit_userid          => 'guest2',
+         :rabbit_host            => 'localhost2',
+         :rabbit_port            => '5673',
++        :rabbit_use_ssl         => true,
+         :rabbit_durable_queues  => true,
+       }
+       it { should contain_glance_api_config('DEFAULT/rabbit_userid').with_value('guest2') }
+       it { should contain_glance_api_config('DEFAULT/rabbit_host').with_value('localhost2') }
+       it { should contain_glance_api_config('DEFAULT/rabbit_port').with_value('5673') }
++      it { should contain_glance_api_config('DEFAULT/rabbit_use_ssl').with_value('true') }
++      it { should contain_glance_api_config('DEFAULT/kombu_ssl_ca_certs').with_ensure('absent') }
++      it { should contain_glance_api_config('DEFAULT/kombu_ssl_certfile').with_ensure('absent') }
++      it { should contain_glance_api_config('DEFAULT/kombu_ssl_keyfile').with_ensure('absent') }
++      it { should contain_glance_api_config('DEFAULT/kombu_ssl_version').with_value('TLSv1') }
+       it { should contain_glance_api_config('DEFAULT/rabbit_durable_queues').with_value('true') }
+     end
+   end
+@@ -47,7 +53,7 @@ describe 'glance::notify::rabbitmq' do
+   describe 'with rabbit ssl cert parameters' do
+     let :params do
+       {
+-        :rabbit_password    => 'pass',
++        :rabbit_password        => 'pass',
+         :rabbit_use_ssl     => 'true',
+         :kombu_ssl_ca_certs => '/etc/ca.cert',
+         :kombu_ssl_certfile => '/etc/certfile',
+@@ -55,8 +61,7 @@ describe 'glance::notify::rabbitmq' do
+         :kombu_ssl_version  => 'TLSv1',
+       }
+     end
+-
+-    it { should contain_glance_api_config('DEFAULT/rabbit_use_ssl').with_value('true') }
++    it { should contain_glance_api_config('DEFAULT/rabbit_use_ssl').with_value(true) }
+     it { should contain_glance_api_config('DEFAULT/kombu_ssl_ca_certs').with_value('/etc/ca.cert') }
+     it { should contain_glance_api_config('DEFAULT/kombu_ssl_certfile').with_value('/etc/certfile') }
+     it { should contain_glance_api_config('DEFAULT/kombu_ssl_keyfile').with_value('/etc/key') }
+@@ -89,6 +94,7 @@ describe 'glance::notify::rabbitmq' do
+         :rabbit_userid          => 'guest2',
+         :rabbit_host            => 'localhost2',
+         :rabbit_port            => '5673',
++        :rabbit_use_ssl         => true,
+         :rabbit_durable_queues  => true,
+       }
+     end
+@@ -96,6 +102,7 @@ describe 'glance::notify::rabbitmq' do
+     it { should contain_glance_api_config('DEFAULT/rabbit_host').with_value('localhost2') }
+     it { should contain_glance_api_config('DEFAULT/rabbit_port').with_value('5673') }
+     it { should contain_glance_api_config('DEFAULT/rabbit_hosts').with_value('localhost2:5673') }
++    it { should contain_glance_api_config('DEFAULT/rabbit_use_ssl').with_value('true') }
+     it { should contain_glance_api_config('DEFAULT/amqp_durable_queues').with_value('true') }
+   end
+ 

@@ -1,0 +1,82 @@
+From a7873c3dbca5702e7c65acfe1b7d8f99f37b35c9 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Fri, 2 Jan 2015 20:07:25 +0100
+Subject: [PATCH] Switch to TLSv1 as SSLv3 is considered insecure and is
+ disabled by default
+
+Rabbitmq won't talk to us anymore if we try to use SSLv3 as it disabled
+support for SSLv3. Openstack components use python's openssl
+implementation which does not support TLSv1.1 and TLSv1.2 yet so we
+just switch to TLSv1. Support for newer TLS should come with python
+2.7.9+
+
+Closes-Bug: #1409667
+Change-Id: I3834decbc73a97a627023b132324a6c4aec2468a
+(cherry picked from commit 7b801ad37ac36e5eddd3d844e3f483edcfa38442)
+---
+ cinder/manifests/init.pp           | 4 ++--
+ cinder/spec/classes/cinder_spec.rb | 8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/cinder/manifests/init.pp b/cinder/manifests/init.pp
+index 1080b3b..d18eceb 100644
+--- a/cinder/manifests/init.pp
++++ b/cinder/manifests/init.pp
+@@ -50,7 +50,7 @@
+ #   (optional) SSL version to use (valid only if SSL enabled).
+ #   Valid values are TLSv1, SSLv23 and SSLv3. SSLv2 may be
+ #   available on some distributions.
+-#   Defaults to 'SSLv3'
++#   Defaults to 'TLSv1'
+ #
+ # [amqp_durable_queues]
+ #   Use durable queues in amqp.
+@@ -123,7 +123,7 @@ class cinder (
+   $kombu_ssl_ca_certs          = undef,
+   $kombu_ssl_certfile          = undef,
+   $kombu_ssl_keyfile           = undef,
+-  $kombu_ssl_version           = 'SSLv3',
++  $kombu_ssl_version           = 'TLSv1',
+   $amqp_durable_queues         = false,
+   $qpid_hostname               = 'localhost',
+   $qpid_port                   = '5672',
+diff --git a/cinder/spec/classes/cinder_spec.rb b/cinder/spec/classes/cinder_spec.rb
+index 4dea2e4..e64ff67 100644
+--- a/cinder/spec/classes/cinder_spec.rb
++++ b/cinder/spec/classes/cinder_spec.rb
+@@ -202,7 +202,7 @@ describe 'cinder' do
+         :kombu_ssl_ca_certs => '/path/to/ssl/ca/certs',
+         :kombu_ssl_certfile => '/path/to/ssl/cert/file',
+         :kombu_ssl_keyfile  => '/path/to/ssl/keyfile',
+-        :kombu_ssl_version  => 'SSLv3'
++        :kombu_ssl_version  => 'TLSv1'
+       })
+     end
+ 
+@@ -211,7 +211,7 @@ describe 'cinder' do
+       should contain_cinder_config('DEFAULT/kombu_ssl_ca_certs').with_value('/path/to/ssl/ca/certs')
+       should contain_cinder_config('DEFAULT/kombu_ssl_certfile').with_value('/path/to/ssl/cert/file')
+       should contain_cinder_config('DEFAULT/kombu_ssl_keyfile').with_value('/path/to/ssl/keyfile')
+-      should contain_cinder_config('DEFAULT/kombu_ssl_version').with_value('SSLv3')
++      should contain_cinder_config('DEFAULT/kombu_ssl_version').with_value('TLSv1')
+     end
+   end
+ 
+@@ -227,7 +227,7 @@ describe 'cinder' do
+       should contain_cinder_config('DEFAULT/kombu_ssl_ca_certs').with_ensure('absent')
+       should contain_cinder_config('DEFAULT/kombu_ssl_certfile').with_ensure('absent')
+       should contain_cinder_config('DEFAULT/kombu_ssl_keyfile').with_ensure('absent')
+-      should contain_cinder_config('DEFAULT/kombu_ssl_version').with_value('SSLv3')
++      should contain_cinder_config('DEFAULT/kombu_ssl_version').with_value('TLSv1')
+     end
+   end
+ 
+@@ -238,7 +238,7 @@ describe 'cinder' do
+         :kombu_ssl_ca_certs => 'undef',
+         :kombu_ssl_certfile => 'undef',
+         :kombu_ssl_keyfile  => 'undef',
+-        :kombu_ssl_version  => 'SSLv3'
++        :kombu_ssl_version  => 'TLSv1'
+       })
+     end
+ 
