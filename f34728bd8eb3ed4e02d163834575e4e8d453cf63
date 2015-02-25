@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_9259eb00",
+        "filename": "openstack-puppet-modules.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1003941
+      },
+      "writtenOn": "2015-02-25T10:33:56Z",
+      "side": 1,
+      "message": "We should remove the sed command to avoid issues with Ruby scripts, as it happened with puppetlabs-concat.",
+      "range": {
+        "startLine": 25,
+        "startChar": 64,
+        "endLine": 25,
+        "endChar": 68
+      },
+      "revId": "f34728bd8eb3ed4e02d163834575e4e8d453cf63",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
