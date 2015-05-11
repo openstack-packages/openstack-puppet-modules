@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -9,6 +9,8 @@ URL:            https://github.com/redhat-openstack
 # commit https://github.com/redhat-openstack/openstack-puppet-modules/commit/e03749d196d9d58f8046d2b69e5da300a7b90a90
 # timestamp 2015-04-23 16:09
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
+
+Patch0001: 0001-Merge-pull-request-285-from-imcsk8-tripleo-update.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -20,6 +22,8 @@ OpenStack via installers using Puppet configuration tool.
 
 %prep
 %setup -q -n %{name}-%{version}
+
+%patch0001 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -46,5 +50,8 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon May 11 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 2015.1.0-2
+- Add patch to fix TripleO support
+
 * Thu Apr 30 2015 Alan Pevec <alan.pevec@redhat.com> 2015.1.0-1
 - OpenStack Kilo release

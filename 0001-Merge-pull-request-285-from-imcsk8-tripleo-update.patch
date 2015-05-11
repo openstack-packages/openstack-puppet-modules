@@ -1,0 +1,203 @@
+From 98811269517e11c62a9376a6882b5c47153b9de2 Mon Sep 17 00:00:00 2001
+From: Emilien Macchi <emilien.macchi@enovance.com>
+Date: Fri, 8 May 2015 15:57:50 -0400
+Subject: [PATCH] Merge pull request #285 from imcsk8/tripleo-update
+
+Automatic update :: Update TripleO
+(cherry picked from commit 456cf20810942569a3f105b631169869aadaee36)
+---
+ Puppetfile                                |  3 +-
+ tripleo/Gemfile                           |  2 +-
+ tripleo/lib/facter/galera_bootstrapped.rb | 19 +++++++
+ tripleo/manifests/loadbalancer.pp         | 87 +++++++++++++++++--------------
+ 4 files changed, 69 insertions(+), 42 deletions(-)
+ create mode 100644 tripleo/lib/facter/galera_bootstrapped.rb
+
+diff --git a/Puppetfile b/Puppetfile
+index d3fce8f..5ec5806 100644
+--- a/Puppetfile
++++ b/Puppetfile
+@@ -207,7 +207,7 @@ mod 'timezone',
+   :git => 'https://github.com/saz/puppet-timezone.git'
+ 
+ mod 'tripleo',
+-  :commit => 'e0921709d946d8db95f2a399a1b9da93d6b73d06',
++  :commit => 'a388f84654701f5d6604e0833a6a8fe1b90fcfdd',
+   :git => 'https://github.com/stackforge/puppet-tripleo.git'
+ 
+ mod 'trove',
+@@ -233,3 +233,4 @@ mod 'vswitch',
+ mod 'xinetd',
+   :commit => '4f16fc824e04d724a486634bd9c26ef549f10ff5',
+   :git => 'https://github.com/puppetlabs/puppetlabs-xinetd.git'
++
+diff --git a/tripleo/Gemfile b/tripleo/Gemfile
+index 3800d2e..10b37ac 100644
+--- a/tripleo/Gemfile
++++ b/tripleo/Gemfile
+@@ -2,7 +2,7 @@ source 'https://rubygems.org'
+ 
+ group :development, :test do
+   gem 'puppetlabs_spec_helper', :require => false
+-  gem 'rspec-puppet', '~> 2.0.0', :require => false
++  gem 'rspec-puppet', '~> 2.1.0', :require => false
+ 
+   gem 'metadata-json-lint'
+   gem 'puppet-lint-param-docs'
+diff --git a/tripleo/lib/facter/galera_bootstrapped.rb b/tripleo/lib/facter/galera_bootstrapped.rb
+new file mode 100644
+index 0000000..ea9fe8c
+--- /dev/null
++++ b/tripleo/lib/facter/galera_bootstrapped.rb
+@@ -0,0 +1,19 @@
++# Copyright 2015 Red Hat, Inc.
++# All Rights Reserved.
++#
++# Licensed under the Apache License, Version 2.0 (the "License"); you may
++# not use this file except in compliance with the License. You may obtain
++# a copy of the License at
++#
++# http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
++# License for the specific language governing permissions and limitations
++# under the License.
++Facter.add('galera_bootstrapped') do
++  setcode do
++    FileTest.exists?('/var/lib/mysql/grastate.dat')
++  end
++end
+diff --git a/tripleo/manifests/loadbalancer.pp b/tripleo/manifests/loadbalancer.pp
+index 6601cf9..6b5999a 100644
+--- a/tripleo/manifests/loadbalancer.pp
++++ b/tripleo/manifests/loadbalancer.pp
+@@ -19,6 +19,10 @@
+ #
+ # === Parameters:
+ #
++# [*manage_vip*]
++#  Whether to enable keepalived to manage the VIPs or not
++#  Defaults to true
++#
+ # [*controller_host*]
+ #  (Deprecated)Host or group of hosts to load-balance the services
+ #  Can be a string or an array.
+@@ -143,6 +147,7 @@ class tripleo::loadbalancer (
+   $control_virtual_interface,
+   $public_virtual_interface,
+   $public_virtual_ip,
++  $manage_vip                = true,
+   $controller_host           = undef,
+   $controller_hosts          = undef,
+   $controller_hosts_names    = undef,
+@@ -185,46 +190,48 @@ class tripleo::loadbalancer (
+     $controller_hosts_names_real = $controller_hosts_names
+   }
+ 
+-  case $::osfamily {
+-    'RedHat': {
+-      $keepalived_name_is_process = false
+-      $keepalived_vrrp_script     = 'systemctl status haproxy.service'
+-    } # RedHat
+-    'Debian': {
+-      $keepalived_name_is_process = true
+-      $keepalived_vrrp_script     = undef
+-    }
+-    default: {
+-      warning('Please configure keepalived defaults in tripleo::loadbalancer.')
+-      $keepalived_name_is_process = undef
+-      $keepalived_vrrp_script     = undef
++  if $manage_vip {
++    case $::osfamily {
++      'RedHat': {
++        $keepalived_name_is_process = false
++        $keepalived_vrrp_script     = 'systemctl status haproxy.service'
++      } # RedHat
++      'Debian': {
++        $keepalived_name_is_process = true
++        $keepalived_vrrp_script     = undef
++      }
++      default: {
++        warning('Please configure keepalived defaults in tripleo::loadbalancer.')
++        $keepalived_name_is_process = undef
++        $keepalived_vrrp_script     = undef
++      }
++    }
++
++    class { '::keepalived': }
++    keepalived::vrrp_script { 'haproxy':
++      name_is_process => $keepalived_name_is_process,
++      script          => $keepalived_vrrp_script,
++    }
++
++    # KEEPALIVE INSTANCE CONTROL
++    keepalived::instance { '51':
++      interface    => $control_virtual_interface,
++      virtual_ips  => [join([$controller_virtual_ip, ' dev ', $control_virtual_interface])],
++      state        => 'MASTER',
++      track_script => ['haproxy'],
++      priority     => 101,
++    }
++
++    # KEEPALIVE INSTANCE PUBLIC
++    keepalived::instance { '52':
++      interface    => $public_virtual_interface,
++      virtual_ips  => [join([$public_virtual_ip, ' dev ', $public_virtual_interface])],
++      state        => 'MASTER',
++      track_script => ['haproxy'],
++      priority     => 101,
+     }
+   }
+ 
+-  class { '::keepalived': }
+-  keepalived::vrrp_script { 'haproxy':
+-    name_is_process => $keepalived_name_is_process,
+-    script          => $keepalived_vrrp_script,
+-  }
+-
+-  # KEEPALIVE INSTANCE CONTROL
+-  keepalived::instance { '51':
+-    interface    => $control_virtual_interface,
+-    virtual_ips  => [join([$controller_virtual_ip, ' dev ', $control_virtual_interface])],
+-    state        => 'MASTER',
+-    track_script => ['haproxy'],
+-    priority     => 101,
+-  }
+-
+-  # KEEPALIVE INSTANCE PUBLIC
+-  keepalived::instance { '52':
+-    interface    => $public_virtual_interface,
+-    virtual_ips  => [join([$public_virtual_ip, ' dev ', $public_virtual_interface])],
+-    state        => 'MASTER',
+-    track_script => ['haproxy'],
+-    priority     => 101,
+-  }
+-
+   sysctl::value { 'net.ipv4.ip_nonlocal_bind': value => '1' }
+ 
+   class { '::haproxy':
+@@ -247,11 +254,11 @@ class tripleo::loadbalancer (
+   }
+ 
+   haproxy::listen { 'haproxy.stats':
+-    ipaddress        => '*',
++    ipaddress        => $controller_virtual_ip,
+     ports            => '1993',
+     mode             => 'http',
+     options          => {
+-      'stats' => 'enable',
++      'stats' => ['enable', 'uri /'],
+     },
+     collect_exported => false,
+   }
+@@ -572,7 +579,7 @@ class tripleo::loadbalancer (
+ 
+   if $rabbitmq {
+     haproxy::listen { 'rabbitmq':
+-      ipaddress        => [$controller_virtual_ip, $public_virtual_ip],
++      ipaddress        => [$controller_virtual_ip],
+       ports            => 5672,
+       options          => {
+         'timeout' => [ 'client 0', 'server 0' ],
