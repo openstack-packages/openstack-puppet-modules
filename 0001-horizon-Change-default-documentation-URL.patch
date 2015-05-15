@@ -1,4 +1,4 @@
-From 82ec48214a6d29f6eb3d7dca60db1458e4a2e875 Mon Sep 17 00:00:00 2001
+From 79044628d5f26c30e5423ad5c9c625c7b2030efc Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 19:18:45 +0200
 Subject: [PATCH] [horizon] Change default documentation URL
@@ -11,15 +11,15 @@ Fixes: rhbz#1092019
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/horizon/manifests/init.pp b/horizon/manifests/init.pp
-index 08f6a73..e6680af 100644
+index 9e772c4..459f631 100644
 --- a/horizon/manifests/init.pp
 +++ b/horizon/manifests/init.pp
-@@ -210,7 +210,7 @@ class horizon(
-   $available_regions       = undef,
-   $api_result_limit        = 1000,
-   $log_level               = 'INFO',
--  $help_url                = 'http://docs.openstack.org',
-+  $help_url                = 'http://openstack.redhat.com/Docs',
-   $local_settings_template = 'horizon/local_settings.py.erb',
-   $configure_apache        = true,
-   $bind_address            = undef,
+@@ -224,7 +224,7 @@ class horizon(
+   $available_regions                   = undef,
+   $api_result_limit                    = 1000,
+   $log_level                           = 'INFO',
+-  $help_url                            = 'http://docs.openstack.org',
++  $help_url                            = 'http://openstack.redhat.com/Docs',
+   $local_settings_template             = 'horizon/local_settings.py.erb',
+   $configure_apache                    = true,
+   $bind_address                        = undef,

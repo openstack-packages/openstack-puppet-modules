@@ -1,0 +1,58 @@
+From 9ae68ada07e57c68d36c57f255ba61ffad3219c0 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Thu, 9 Apr 2015 15:23:36 +0200
+Subject: [PATCH] Deprecate mysql::server resource creation
+
+Class mysql::server should be called manually and bind host should
+be specified for this class as create_resource causes dependancy
+issues and bind_host override collides with mysql::server default
+setting.
+---
+ galera/manifests/server.pp | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/galera/manifests/server.pp b/galera/manifests/server.pp
+index ca20bbe..843e60a 100644
+--- a/galera/manifests/server.pp
++++ b/galera/manifests/server.pp
+@@ -85,14 +85,12 @@
+ # }
+ #
+ class galera::server (
+-  $mysql_server_hash     = {},
+   $bootstrap             = false,
+   $debug                 = false,
+   $service_name          = 'mariadb',
+   $service_enable        = true,
+   $service_ensure        = 'running',
+   $manage_service        = false,
+-  $wsrep_bind_address    = '0.0.0.0',
+   $wsrep_node_address    = undef,
+   $wsrep_provider        = '/usr/lib64/galera/libgalera_smm.so',
+   $wsrep_cluster_name    = 'galera_cluster',
+@@ -103,11 +101,23 @@ class galera::server (
+   $wsrep_ssl             = false,
+   $wsrep_ssl_key         = undef,
+   $wsrep_ssl_cert        = undef,
++  $create_mysql_resource = true,
++  # DEPRECATED OPTIONS
++  $mysql_server_hash     = {},
++  $wsrep_bind_address    = '0.0.0.0',
+ )  {
+ 
+-  $mysql_server_class = { 'mysql::server' => $mysql_server_hash }
++  if $create_mysql_resource {
++  warning("DEPRECATED: ::mysql::server should be called manually, please set create_mysql_resource to false and call class ::mysql::server with your config")
+ 
+-  create_resources( 'class', $mysql_server_class )
++    $mysql_server_class = { 'mysql::server' => $mysql_server_hash }
++
++    create_resources( 'class', $mysql_server_class )
++  }
++
++  if $wsrep_bind_address {
++    warning("DEPRECATED: wsrep_bind_address is deprecated, you should use bind_address of mysql module")
++  }
+ 
+   $wsrep_provider_options = wsrep_options({
+     'socket.ssl'      => $wsrep_ssl,

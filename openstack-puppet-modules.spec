@@ -1,5 +1,5 @@
 Name:           openstack-puppet-modules
-Version:        2015.1.1
+Version:        2015.1.2
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -7,6 +7,12 @@ License:        ASL 2.0 and GPLv2 and GPLv3
 URL:            https://github.com/redhat-openstack
 
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
+
+Patch0001: 0001-horizon-Change-default-documentation-URL.patch
+Patch0002: 0002-Sync-amqp-support-with-other-openstack-modules.patch
+Patch0003: 0003-Deprecate-mysql-server-resource-creation.patch
+Patch0004: 0004-Add-support-for-WEBROOT-in-local_settings.patch
+Patch0005: 0005-Fix-support-for-auth_uri-setting-in-neutron-provider.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -19,6 +25,11 @@ OpenStack via installers using Puppet configuration tool.
 %prep
 %setup -q -n %{name}-%{version}
 
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -45,6 +56,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Fri May 15 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.2-1
+- Update to upstream 2015.1.2
+
 * Wed May 13 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.1-1
 -  Updated to release 2015.1.1
 

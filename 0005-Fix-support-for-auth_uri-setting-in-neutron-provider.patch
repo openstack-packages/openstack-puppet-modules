@@ -1,0 +1,54 @@
+From 66a91fe94e820c101853793960df7a0ed39a16c3 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Tue, 12 May 2015 18:15:57 +0200
+Subject: [PATCH] Fix support for auth_uri setting in neutron provider
+
+Change-Id: I4824c09e6af4a800b5ac0c22bf5daea99452bd7e
+
+Signed-off-by: Gael Chamoulaud <gchamoul@redhat.com>
+---
+ neutron/lib/puppet/provider/neutron.rb | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/neutron/lib/puppet/provider/neutron.rb b/neutron/lib/puppet/provider/neutron.rb
+index f73bae9..c3917af 100644
+--- a/neutron/lib/puppet/provider/neutron.rb
++++ b/neutron/lib/puppet/provider/neutron.rb
+@@ -26,13 +26,21 @@ class Puppet::Provider::Neutron < Puppet::Provider
+   end
+ 
+   def self.get_neutron_credentials
+-    auth_keys = ['auth_host', 'auth_port', 'auth_protocol',
+-                 'admin_tenant_name', 'admin_user', 'admin_password']
++    auth_keys = ['admin_tenant_name', 'admin_user', 'admin_password']
++    deprecated_auth_url = ['auth_host', 'auth_port', 'auth_protocol']
+     conf = neutron_conf
+     if conf and conf['keystone_authtoken'] and
+-        auth_keys.all?{|k| !conf['keystone_authtoken'][k].nil?}
++        auth_keys.all?{|k| !conf['keystone_authtoken'][k].nil?} and
++        ( deprecated_auth_url.all?{|k| !conf['keystone_authtoken'][k].nil?} or
++        !conf['keystone_authtoken']['auth_uri'].nil? )
+       creds = Hash[ auth_keys.map \
+                    { |k| [k, conf['keystone_authtoken'][k].strip] } ]
++      if !conf['keystone_authtoken']['auth_uri'].nil?
++        creds['auth_uri'] = conf['keystone_authtoken']['auth_uri']
++      else
++        q = conf['keystone_authtoken']
++        creds['auth_uri'] = "#{q['auth_protocol']}://#{q['auth_host']}:#{q['auth_port']}/v2.0/"
++      end
+       if conf['DEFAULT'] and !conf['DEFAULT']['nova_region_name'].nil?
+         creds['nova_region_name'] = conf['DEFAULT']['nova_region_name']
+       end
+@@ -54,7 +62,11 @@ correctly configured.")
+ 
+   def self.get_auth_endpoint
+     q = neutron_credentials
+-    "#{q['auth_protocol']}://#{q['auth_host']}:#{q['auth_port']}/v2.0/"
++    if q['auth_uri'].nil?
++      return "#{q['auth_protocol']}://#{q['auth_host']}:#{q['auth_port']}/v2.0/"
++    else
++      return "#{q['auth_uri']}".strip
++    end
+   end
+ 
+   def self.neutron_conf
