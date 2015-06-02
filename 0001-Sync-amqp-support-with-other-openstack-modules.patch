@@ -1,4 +1,4 @@
-From 460636a9eb7b5360759d6969b8c9c7797596e243 Mon Sep 17 00:00:00 2001
+From 9c87aad57b80515b0207a611b5829968ee54e188 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Wed, 1 Apr 2015 11:25:57 -0400
 Subject: [PATCH] Sync amqp support with other openstack modules
@@ -303,10 +303,10 @@ index 1916979..f8dcbcc 100644
      }
    }
 diff --git a/trove/manifests/init.pp b/trove/manifests/init.pp
-index 2dbc392..448f0f1 100644
+index ea3ce33..bc1b45b 100644
 --- a/trove/manifests/init.pp
 +++ b/trove/manifests/init.pp
-@@ -69,7 +69,7 @@
+@@ -75,7 +75,7 @@
  #   (optional) SSL version to use (valid only if SSL enabled).
  #   Valid values are TLSv1, SSLv23 and SSLv3. SSLv2 may be
  #   available on some distributions.
@@ -315,7 +315,7 @@ index 2dbc392..448f0f1 100644
  #
  # [*amqp_durable_queues*]
  #   (optional) Define queues as "durable" to rabbitmq.
-@@ -169,7 +169,7 @@ class trove(
+@@ -179,7 +179,7 @@ class trove(
    $kombu_ssl_ca_certs           = undef,
    $kombu_ssl_certfile           = undef,
    $kombu_ssl_keyfile            = undef,
@@ -325,7 +325,7 @@ index 2dbc392..448f0f1 100644
    $database_connection          = 'sqlite:////var/lib/trove/trove.sqlite',
    $database_idle_timeout        = 3600,
 diff --git a/trove/manifests/taskmanager.pp b/trove/manifests/taskmanager.pp
-index 5ac9d26..d3061b8 100644
+index a416790..0b29a4c 100644
 --- a/trove/manifests/taskmanager.pp
 +++ b/trove/manifests/taskmanager.pp
 @@ -120,39 +120,60 @@ class trove::taskmanager(

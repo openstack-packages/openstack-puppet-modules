@@ -1,4 +1,4 @@
-From 66a91fe94e820c101853793960df7a0ed39a16c3 Mon Sep 17 00:00:00 2001
+From 91f60c0586db353fe7ffe0efe9cc76f0187e9a26 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Tue, 12 May 2015 18:15:57 +0200
 Subject: [PATCH] Fix support for auth_uri setting in neutron provider
@@ -11,7 +11,7 @@ Signed-off-by: Gael Chamoulaud <gchamoul@redhat.com>
  1 file changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/neutron/lib/puppet/provider/neutron.rb b/neutron/lib/puppet/provider/neutron.rb
-index f73bae9..c3917af 100644
+index 4313e2f..ef946ea 100644
 --- a/neutron/lib/puppet/provider/neutron.rb
 +++ b/neutron/lib/puppet/provider/neutron.rb
 @@ -26,13 +26,21 @@ class Puppet::Provider::Neutron < Puppet::Provider

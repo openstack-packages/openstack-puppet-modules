@@ -1,4 +1,4 @@
-From 5e8bb0326cc63bc924f35d605d5c28f9efcb2616 Mon Sep 17 00:00:00 2001
+From cac261b36225b1f77a84911a4e4963ea9da12499 Mon Sep 17 00:00:00 2001
 From: Javier Pena <jpena@redhat.com>
 Date: Tue, 14 Apr 2015 15:47:55 +0200
 Subject: [PATCH] Add support for WEBROOT in local_settings
