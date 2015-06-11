@@ -58,6 +58,7 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 %changelog
 * Thu Jun 11 2015 Ivan Chavero <ichavero@redhat.com> 2015.1.4-1
 - Update to upstream 2015.1.4
+- Bump glance to master
 
 * Tue Jun 02 2015 Ivan Chavero <ichavero@redhat.com> 2015.1.3-1
 - Update to upstream 2015.1.3
