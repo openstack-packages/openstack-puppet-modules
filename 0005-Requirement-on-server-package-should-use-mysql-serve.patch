@@ -1,0 +1,38 @@
+From 758e9ace3dee810cbb8cd54a3e2a5985eb3da03a Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Mon, 8 Jun 2015 15:50:07 +0200
+Subject: [PATCH] Requirement on server package should use 'mysql-server'
+
+The resouce providing package is called mysql-server, depending on
+package name does not seem to work with puppet 4.1.0.
+---
+ mysql/manifests/server/installdb.pp | 2 +-
+ mysql/manifests/server/service.pp   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mysql/manifests/server/installdb.pp b/mysql/manifests/server/installdb.pp
+index 6123626..1d57dc1 100644
+--- a/mysql/manifests/server/installdb.pp
++++ b/mysql/manifests/server/installdb.pp
+@@ -19,7 +19,7 @@ class mysql::server::installdb {
+       creates   => "${datadir}/mysql",
+       logoutput => on_failure,
+       path      => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
+-      require   => Package[$mysql::server::package_name],
++      require   => Package['mysql-server'],
+     }
+ 
+     if $mysql::server::restart {
+diff --git a/mysql/manifests/server/service.pp b/mysql/manifests/server/service.pp
+index 418ef2a..4d33def 100644
+--- a/mysql/manifests/server/service.pp
++++ b/mysql/manifests/server/service.pp
+@@ -31,7 +31,7 @@ class mysql::server::service {
+     name     => $mysql::server::service_name,
+     enable   => $mysql::server::real_service_enabled,
+     provider => $mysql::server::service_provider,
+-    require  => Package[$mysql::server::package_name],
++    require  => Package['mysql-server'],
+   }
+ 
+   # only establish ordering between config file and service if

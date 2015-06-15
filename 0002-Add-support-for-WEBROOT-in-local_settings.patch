@@ -1,4 +1,4 @@
-From 7b7094ad6697b116314ebed694dde8232a4a6a23 Mon Sep 17 00:00:00 2001
+From df11142e86ade924157548a26a698d2d61bfef06 Mon Sep 17 00:00:00 2001
 From: Javier Pena <jpena@redhat.com>
 Date: Tue, 14 Apr 2015 15:47:55 +0200
 Subject: [PATCH] Add support for WEBROOT in local_settings
@@ -17,7 +17,7 @@ Change-Id: Ibbeec600502964b51c0c725c35d2afd6fd7bd9e9
  4 files changed, 29 insertions(+), 3 deletions(-)
 
 diff --git a/horizon/manifests/wsgi/apache.pp b/horizon/manifests/wsgi/apache.pp
-index 797fe91..b4f9e63 100644
+index 1333420..51e688b 100644
 --- a/horizon/manifests/wsgi/apache.pp
 +++ b/horizon/manifests/wsgi/apache.pp
 @@ -170,8 +170,8 @@ class horizon::wsgi::apache (

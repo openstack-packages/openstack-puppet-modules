@@ -1,5 +1,5 @@
 Name:           openstack-puppet-modules
-Version:        2015.1.4
+Version:        2015.1.6
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -8,11 +8,11 @@ URL:            https://github.com/redhat-openstack
 
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
 
-Patch0001: 0001-Automatic-update.patch
-Patch0002: 0002-Sync-amqp-support-with-other-openstack-modules.patch
-Patch0003: 0003-Add-support-for-WEBROOT-in-local_settings.patch
-Patch0004: 0004-Fix-support-for-auth_uri-setting-in-neutron-provider.patch
-Patch0005: 0005-Change-default-documentation-URL.patch
+Patch0001: 0001-Sync-amqp-support-with-other-openstack-modules.patch
+Patch0002: 0002-Add-support-for-WEBROOT-in-local_settings.patch
+Patch0003: 0003-Change-default-documentation-URL.patch
+Patch0004: 0004-Allow-customization-of-dhcp_domain-setting-from-agen.patch
+Patch0005: 0005-Requirement-on-server-package-should-use-mysql-serve.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -56,6 +56,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon Jun 15 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.6-1
+- Update to upstream 2015.1.6
+
 * Thu Jun 11 2015 Ivan Chavero <ichavero@redhat.com> 2015.1.4-1
 - Update to upstream 2015.1.4
 - Bump glance to master
