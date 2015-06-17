@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -13,6 +13,9 @@ Patch0002: 0002-Add-support-for-WEBROOT-in-local_settings.patch
 Patch0003: 0003-Change-default-documentation-URL.patch
 Patch0004: 0004-Allow-customization-of-dhcp_domain-setting-from-agen.patch
 Patch0005: 0005-Requirement-on-server-package-should-use-mysql-serve.patch
+Patch0006: 0006-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
+Patch0007: 0007-Fix-support-for-puppet-4.patch
+Patch0008: 0008-Rabbitmq-set-repos_ensure-to-false.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -30,6 +33,9 @@ OpenStack via installers using Puppet configuration tool.
 %patch0003 -p1
 %patch0004 -p1
 %patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
+%patch0008 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -56,6 +62,11 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 17 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.6-2
+- [Rabbitmq] set repos_ensure to false
+- Fix support for puppet 4
+- Explicitly say that ovs_redhat parent is ovs
+
 * Mon Jun 15 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.6-1
 - Update to upstream 2015.1.6
 
