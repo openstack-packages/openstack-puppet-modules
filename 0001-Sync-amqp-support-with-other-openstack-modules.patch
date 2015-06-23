@@ -1,4 +1,4 @@
-From e13c2c47432ad12a69afdf66feab0a34cd9c0120 Mon Sep 17 00:00:00 2001
+From f74cc3eaeb1446eed7070cbaded12689b0eae708 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Wed, 1 Apr 2015 11:25:57 -0400
 Subject: [PATCH] Sync amqp support with other openstack modules

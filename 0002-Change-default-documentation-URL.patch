@@ -1,4 +1,4 @@
-From 15a02c19b3f3dcf10467a6bc937ae2070335303c Mon Sep 17 00:00:00 2001
+From 84eb9ccc71aae784bdd078b708d9823efc376b0d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 19:18:45 +0200
 Subject: [PATCH] Change default documentation URL

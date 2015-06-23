@@ -1,4 +1,4 @@
-From b5c0e5793e5c4f61cc5a688e98347a9f8f387a4b Mon Sep 17 00:00:00 2001
+From 6443bee200aefe1bbe1061f38ad84b404b7d3a0e Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Mon, 8 Jun 2015 15:57:53 +0200
 Subject: [PATCH] Explicitly say that ovs_redhat parent is ovs

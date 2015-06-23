@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
-Version:        2015.1.6
-Release:        2%{?dist}
+Version:        2015.1.7
+Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -9,13 +9,13 @@ URL:            https://github.com/redhat-openstack
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
 
 Patch0001: 0001-Sync-amqp-support-with-other-openstack-modules.patch
-Patch0002: 0002-Add-support-for-WEBROOT-in-local_settings.patch
-Patch0003: 0003-Change-default-documentation-URL.patch
-Patch0004: 0004-Allow-customization-of-dhcp_domain-setting-from-agen.patch
-Patch0005: 0005-Requirement-on-server-package-should-use-mysql-serve.patch
-Patch0006: 0006-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
-Patch0007: 0007-Fix-support-for-puppet-4.patch
-Patch0008: 0008-Rabbitmq-set-repos_ensure-to-false.patch
+Patch0002: 0002-Change-default-documentation-URL.patch
+Patch0003: 0003-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
+Patch0004: 0004-Fix-support-for-puppet-4.patch
+Patch0005: 0005-Rabbitmq-set-repos_ensure-to-false.patch
+Patch0006: 0006-Remove-control-over-the-galera_master_node.patch
+Patch0007: 0007-Add-manage_service-parameter-to-all-agents-ml2-class.patch
+Patch0008: 0008-Fix-support-for-puppet4.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -62,6 +62,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Jun 23 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-1
+- Update to upstream 2015.1.7
+
 * Wed Jun 17 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.6-2
 - [Rabbitmq] set repos_ensure to false
 - Fix support for puppet 4

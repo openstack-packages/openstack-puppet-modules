@@ -1,0 +1,69 @@
+From 002dd9d341951a56d403105bdc7c3ef259cc7f1d Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Mon, 22 Jun 2015 13:53:42 +0200
+Subject: [PATCH] Fix support for puppet4
+
+model is no longer available and instead using model.catalog to
+access catalog one has to use @resource.catalog.
+
+Change-Id: I82382b9f9da7db6910a3d9b5c7060c3f03473585
+Close-Bug: #1466555
+---
+ neutron/lib/puppet/provider/neutron_network/neutron.rb | 2 +-
+ neutron/lib/puppet/provider/neutron_port/neutron.rb    | 2 +-
+ neutron/lib/puppet/provider/neutron_router/neutron.rb  | 2 +-
+ neutron/lib/puppet/provider/neutron_subnet/neutron.rb  | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/neutron/lib/puppet/provider/neutron_network/neutron.rb b/neutron/lib/puppet/provider/neutron_network/neutron.rb
+index e5a0c39..b1ef753 100644
+--- a/neutron/lib/puppet/provider/neutron_network/neutron.rb
++++ b/neutron/lib/puppet/provider/neutron_network/neutron.rb
+@@ -58,7 +58,7 @@ Puppet::Type.type(:neutron_network).provide(
+     end
+ 
+     if @resource[:tenant_name]
+-      tenant_id = self.class.get_tenant_id(model.catalog,
++      tenant_id = self.class.get_tenant_id(@resource.catalog,
+                                            @resource[:tenant_name])
+       network_opts << "--tenant_id=#{tenant_id}"
+     elsif @resource[:tenant_id]
+diff --git a/neutron/lib/puppet/provider/neutron_port/neutron.rb b/neutron/lib/puppet/provider/neutron_port/neutron.rb
+index 609bc63..14da7c5 100644
+--- a/neutron/lib/puppet/provider/neutron_port/neutron.rb
++++ b/neutron/lib/puppet/provider/neutron_port/neutron.rb
+@@ -72,7 +72,7 @@ Puppet::Type.type(:neutron_port).provide(
+ 
+     if @resource[:tenant_name]
+       tenant_id = self.class.get_tenant_id(
+-        model.catalog,
++        @resource.catalog,
+         @resource[:tenant_name]
+       )
+       opts << "--tenant_id=#{tenant_id}"
+diff --git a/neutron/lib/puppet/provider/neutron_router/neutron.rb b/neutron/lib/puppet/provider/neutron_router/neutron.rb
+index fa5f7f0..7cf36e5 100644
+--- a/neutron/lib/puppet/provider/neutron_router/neutron.rb
++++ b/neutron/lib/puppet/provider/neutron_router/neutron.rb
+@@ -51,7 +51,7 @@ Puppet::Type.type(:neutron_router).provide(
+     end
+ 
+     if @resource[:tenant_name]
+-      tenant_id = self.class.get_tenant_id(model.catalog,
++      tenant_id = self.class.get_tenant_id(@resource.catalog,
+                                            @resource[:tenant_name])
+       opts << "--tenant_id=#{tenant_id}"
+     elsif @resource[:tenant_id]
+diff --git a/neutron/lib/puppet/provider/neutron_subnet/neutron.rb b/neutron/lib/puppet/provider/neutron_subnet/neutron.rb
+index 0da2180..aa8cd2d 100644
+--- a/neutron/lib/puppet/provider/neutron_subnet/neutron.rb
++++ b/neutron/lib/puppet/provider/neutron_subnet/neutron.rb
+@@ -126,7 +126,7 @@ Puppet::Type.type(:neutron_subnet).provide(
+     end
+ 
+     if @resource[:tenant_name]
+-      tenant_id = self.class.get_tenant_id(model.catalog,
++      tenant_id = self.class.get_tenant_id(@resource.catalog,
+                                            @resource[:tenant_name])
+       opts << "--tenant_id=#{tenant_id}"
+     elsif @resource[:tenant_id]

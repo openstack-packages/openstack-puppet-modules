@@ -1,0 +1,229 @@
+From 7115b154642a0392fac47195e7b9b4a2e2311fe9 Mon Sep 17 00:00:00 2001
+From: Jason Guiditta <jguiditt@redhat.com>
+Date: Mon, 22 Jun 2015 10:49:01 -0400
+Subject: [PATCH] Add manage_service parameter to all agents::ml2 classes that
+ did not yet have it.
+
+This existed in the older agents::ovs and agents::linuxbridge classes
+which were recently removed, adding here for consistency.
+
+When set to false, enables puppet to configure a service without
+starting/stopping it on each run.  This may be necessary when
+using an external clustering system (Corosync/Pacemaker, for
+example).  Defaults to true.
+
+Change-Id: I3242f790e7d3231a81b447c10aa2d741b7b68a3e
+---
+ neutron/manifests/agents/ml2/linuxbridge.pp               | 15 +++++++++++----
+ neutron/manifests/agents/ml2/ovs.pp                       | 15 +++++++++++----
+ neutron/manifests/agents/ml2/sriov.pp                     | 15 +++++++++++----
+ .../spec/classes/neutron_agents_ml2_linuxbridge_spec.rb   | 10 ++++++++++
+ neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb       |  9 +++++++++
+ neutron/spec/classes/neutron_agents_ml2_sriov_spec.rb     | 12 +++++++++++-
+ 6 files changed, 63 insertions(+), 13 deletions(-)
+
+diff --git a/neutron/manifests/agents/ml2/linuxbridge.pp b/neutron/manifests/agents/ml2/linuxbridge.pp
+index e6cc118..a9bef40 100644
+--- a/neutron/manifests/agents/ml2/linuxbridge.pp
++++ b/neutron/manifests/agents/ml2/linuxbridge.pp
+@@ -12,6 +12,10 @@
+ #   (required) Whether or not to enable the agent.
+ #   Defaults to true.
+ #
++# [*manage_service*]
++#   (optional) Whether to start/stop the service
++#   Defaults to true
++#
+ # [*tunnel_types*]
+ #   (optional) List of types of tunnels to use when utilizing tunnels.
+ #   Supported tunnel types are: vxlan.
+@@ -57,6 +61,7 @@
+ class neutron::agents::ml2::linuxbridge (
+   $package_ensure   = 'present',
+   $enabled          = true,
++  $manage_service   = true,
+   $tunnel_types     = [],
+   $local_ip         = false,
+   $vxlan_group      = '224.0.0.1',
+@@ -143,10 +148,12 @@ class neutron::agents::ml2::linuxbridge (
+     }
+   }
+ 
+-  if $enabled {
+-    $service_ensure = 'running'
+-  } else {
+-    $service_ensure = 'stopped'
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
+   }
+ 
+   service { 'neutron-plugin-linuxbridge-agent':
+diff --git a/neutron/manifests/agents/ml2/ovs.pp b/neutron/manifests/agents/ml2/ovs.pp
+index 299ca1a..8b97903 100644
+--- a/neutron/manifests/agents/ml2/ovs.pp
++++ b/neutron/manifests/agents/ml2/ovs.pp
+@@ -29,6 +29,10 @@
+ #   (required) Whether or not to enable the OVS Agent
+ #   Defaults to true
+ #
++# [*manage_service*]
++#   (optional) Whether to start/stop the service
++#   Defaults to true
++#
+ # [*bridge_uplinks*]
+ #   (optional) List of interfaces to connect to the bridge when doing
+ #   bridge mapping.
+@@ -91,6 +95,7 @@
+ class neutron::agents::ml2::ovs (
+   $package_ensure             = 'present',
+   $enabled                    = true,
++  $manage_service             = true,
+   $bridge_uplinks             = [],
+   $bridge_mappings            = [],
+   $integration_bridge         = 'br-int',
+@@ -216,10 +221,12 @@ class neutron::agents::ml2::ovs (
+     }
+   }
+ 
+-  if $enabled {
+-    $service_ensure = 'running'
+-  } else {
+-    $service_ensure = 'stopped'
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
+   }
+ 
+   service { 'neutron-ovs-agent-service':
+diff --git a/neutron/manifests/agents/ml2/sriov.pp b/neutron/manifests/agents/ml2/sriov.pp
+index a8b22c5..dfb1cc8 100644
+--- a/neutron/manifests/agents/ml2/sriov.pp
++++ b/neutron/manifests/agents/ml2/sriov.pp
+@@ -29,6 +29,10 @@
+ #   (required) Whether or not to enable the OVS Agent
+ #   Defaults to true
+ #
++# [*manage_service*]
++#   (optional) Whether to start/stop the service
++#   Defaults to true
++#
+ # [*physical_device_mappings*]
+ #   (optional) List of <physical_network>:<physical device>
+ #   All physical networks listed in network_vlan_ranges
+@@ -50,6 +54,7 @@
+ class neutron::agents::ml2::sriov (
+   $package_ensure             = 'present',
+   $enabled                    = true,
++  $manage_service             = true,
+   $physical_device_mappings   = [],
+   $polling_interval           = 2,
+   $exclude_devices            = [],
+@@ -73,10 +78,12 @@ class neutron::agents::ml2::sriov (
+     tag    => 'openstack',
+   }
+ 
+-  if $enabled {
+-    $service_ensure = 'running'
+-  } else {
+-    $service_ensure = 'stopped'
++  if $manage_service {
++    if $enabled {
++      $service_ensure = 'running'
++    } else {
++      $service_ensure = 'stopped'
++    }
+   }
+ 
+   service { 'neutron-sriov-nic-agent-service':
+diff --git a/neutron/spec/classes/neutron_agents_ml2_linuxbridge_spec.rb b/neutron/spec/classes/neutron_agents_ml2_linuxbridge_spec.rb
+index 40223b5..308fca2 100644
+--- a/neutron/spec/classes/neutron_agents_ml2_linuxbridge_spec.rb
++++ b/neutron/spec/classes/neutron_agents_ml2_linuxbridge_spec.rb
+@@ -9,6 +9,7 @@ describe 'neutron::agents::ml2::linuxbridge' do
+   let :default_params do
+     { :package_ensure   => 'present',
+       :enabled          => true,
++      :manage_service   => true,
+       :tunnel_types     => [],
+       :local_ip         => false,
+       :vxlan_group      => '224.0.0.1',
+@@ -66,6 +67,15 @@ describe 'neutron::agents::ml2::linuxbridge' do
+         )
+       end
+ 
++      context 'with manage_service as false' do
++        before :each do
++          params.merge!(:manage_service => false)
++        end
++        it 'should not start/stop service' do
++          is_expected.to contain_service('neutron-plugin-linuxbridge-agent').without_ensure
++        end
++      end
++
+       it 'does not configre VXLAN tunneling' do
+         is_expected.to contain_neutron_agent_linuxbridge('vxlan/enable_vxlan').with_value(false)
+         is_expected.to contain_neutron_agent_linuxbridge('vxlan/local_ip').with_ensure('absent')
+diff --git a/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb b/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb
+index edd0b55..cb0ccfe 100644
+--- a/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb
++++ b/neutron/spec/classes/neutron_agents_ml2_ovs_spec.rb
+@@ -80,6 +80,15 @@ describe 'neutron::agents::ml2::ovs' do
+       )
+     end
+ 
++    context 'with manage_service as false' do
++      before :each do
++        params.merge!(:manage_service => false)
++      end
++      it 'should not start/stop service' do
++        is_expected.to contain_service('neutron-ovs-agent-service').without_ensure
++      end
++    end
++
+     context 'when supplying a firewall driver' do
+       before :each do
+         params.merge!(:firewall_driver => false)
+diff --git a/neutron/spec/classes/neutron_agents_ml2_sriov_spec.rb b/neutron/spec/classes/neutron_agents_ml2_sriov_spec.rb
+index 7df1408..c28163a 100644
+--- a/neutron/spec/classes/neutron_agents_ml2_sriov_spec.rb
++++ b/neutron/spec/classes/neutron_agents_ml2_sriov_spec.rb
+@@ -9,6 +9,7 @@ describe 'neutron::agents::ml2::sriov' do
+   let :default_params do
+     { :package_ensure             => 'present',
+       :enabled                    => true,
++      :manage_service             => true,
+       :physical_device_mappings   => [],
+       :exclude_devices            => [],
+       :polling_interval           => 2,
+@@ -47,7 +48,7 @@ describe 'neutron::agents::ml2::sriov' do
+       is_expected.to contain_package('neutron-sriov-nic-agent').with_before(/Neutron_plugin_ml2\[.+\]/)
+     end
+ 
+-    it 'configures neutron ovs agent service' do
++    it 'configures neutron sriov agent service' do
+       is_expected.to contain_service('neutron-sriov-nic-agent-service').with(
+         :name    => platform_params[:sriov_nic_agent_service],
+         :enable  => true,
+@@ -56,6 +57,15 @@ describe 'neutron::agents::ml2::sriov' do
+       )
+     end
+ 
++    context 'with manage_service as false' do
++      before :each do
++        params.merge!(:manage_service => false)
++      end
++      it 'should not start/stop service' do
++        is_expected.to contain_service('neutron-sriov-nic-agent-service').without_ensure
++      end
++    end
++
+     context 'when supplying device mapping' do
+       before :each do
+         params.merge!(:physical_device_mappings => ['physnet1:eth1'],
