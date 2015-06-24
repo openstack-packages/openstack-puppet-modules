@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -16,6 +16,7 @@ Patch0005: 0005-Rabbitmq-set-repos_ensure-to-false.patch
 Patch0006: 0006-Remove-control-over-the-galera_master_node.patch
 Patch0007: 0007-Add-manage_service-parameter-to-all-agents-ml2-class.patch
 Patch0008: 0008-Fix-support-for-puppet4.patch
+Patch0009: 0009-Revert-access-out-of-scope-variables-via-the-scope.l.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -36,6 +37,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0006 -p1
 %patch0007 -p1
 %patch0008 -p1
+%patch0009 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -62,6 +64,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jun 24 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-2
+- Revert "access out-of-scope variables via the scope.lookupvar method"
+
 * Tue Jun 23 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-1
 - Update to upstream 2015.1.7
 
