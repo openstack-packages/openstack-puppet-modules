@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.7
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -19,6 +19,9 @@ Patch0008: 0008-Fix-support-for-puppet4.patch
 Patch0009: 0009-Revert-access-out-of-scope-variables-via-the-scope.l.patch
 Patch0010: 0010-Install-only-required-libvirt-packages.patch
 Patch0011: 0011-Revert-glance-provider-pick-os_region_name-from-DEFA.patch
+Patch0012: 0012-Add-verify_on_create-ability-for-all-resources.patch
+Patch0013: 0013-Use-mode-tcp-for-glance-registry-balancing.patch
+Patch0014: 0014-Introduce-param-to-enable-use-of-clustercheck.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -42,6 +45,9 @@ OpenStack via installers using Puppet configuration tool.
 %patch0009 -p1
 %patch0010 -p1
 %patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -68,6 +74,12 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Thu Jun 25 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-5
+- Deliver fixes for tripleo
+- Introduce param to enable use of clustercheck
+- Use mode tcp for glance-registry balancing
+- Add $verify_on_create ability for all resources.
+
 * Thu Jun 25 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-4
 - Revert "glance provider: pick os_region_name from DEFAULT"
 
