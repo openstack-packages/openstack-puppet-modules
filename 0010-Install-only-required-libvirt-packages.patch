@@ -1,0 +1,146 @@
+From 2420bb361c6a73455f2885b11e0d0623881fe87a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Tue, 23 Jun 2015 22:35:16 +0200
+Subject: [PATCH] Install only required libvirt packages
+
+In RH platform package libvirt is metapackage pulling unnecessary packages.
+This patch implements installation of required packages only according to
+virt_type parameter.
+
+Change-Id: I68f7ade87dc5371d9bbfc79eafb528293f613375
+---
+ nova/manifests/compute/libvirt.pp              | 20 +++++++++++++-
+ nova/manifests/params.pp                       | 36 ++++++++++++++------------
+ nova/spec/classes/nova_compute_libvirt_spec.rb | 22 +++++++++++++---
+ 3 files changed, 57 insertions(+), 21 deletions(-)
+
+diff --git a/nova/manifests/compute/libvirt.pp b/nova/manifests/compute/libvirt.pp
+index 14a24ec..7f7e5df 100644
+--- a/nova/manifests/compute/libvirt.pp
++++ b/nova/manifests/compute/libvirt.pp
+@@ -139,9 +139,27 @@ class nova::compute::libvirt (
+     }
+   }
+ 
++  if $::osfamily == 'RedHat' {
++    package { 'libvirt-nwfilter':
++      ensure => present,
++      name   => $::nova::params::libvirt_nwfilter_package_name,
++      before => Service['libvirt'],
++    }
++    case $libvirt_virt_type {
++      'qemu': {
++        $libvirt_package_name_real = "${::nova::params::libvirt_daemon_package_prefix}kvm"
++      }
++      default: {
++        $libvirt_package_name_real = "${::nova::params::libvirt_daemon_package_prefix}${libvirt_virt_type}"
++      }
++    }
++  } else {
++    $libvirt_package_name_real = $::nova::params::libvirt_package_name
++  }
++
+   package { 'libvirt':
+     ensure => present,
+-    name   => $::nova::params::libvirt_package_name,
++    name   => $libvirt_package_name_real,
+   }
+ 
+   service { 'libvirt' :
+diff --git a/nova/manifests/params.pp b/nova/manifests/params.pp
+index 5e491f4..ab950a7 100644
+--- a/nova/manifests/params.pp
++++ b/nova/manifests/params.pp
+@@ -7,23 +7,25 @@ class nova::params {
+   case $::osfamily {
+     'RedHat': {
+       # package names
+-      $api_package_name             = 'openstack-nova-api'
+-      $cells_package_name           = 'openstack-nova-cells'
+-      $cert_package_name            = 'openstack-nova-cert'
+-      $common_package_name          = 'openstack-nova-common'
+-      $compute_package_name         = 'openstack-nova-compute'
+-      $conductor_package_name       = 'openstack-nova-conductor'
+-      $consoleauth_package_name     = 'openstack-nova-console'
+-      $doc_package_name             = 'openstack-nova-doc'
+-      $libvirt_package_name         = 'libvirt'
+-      $network_package_name         = 'openstack-nova-network'
+-      $numpy_package_name           = 'numpy'
+-      $objectstore_package_name     = 'openstack-nova-objectstore'
+-      $scheduler_package_name       = 'openstack-nova-scheduler'
+-      $tgt_package_name             = 'scsi-target-utils'
+-      $vncproxy_package_name        = 'openstack-nova-novncproxy'
+-      $serialproxy_package_name     = 'openstack-nova-serialproxy'
+-      $spicehtml5proxy_package_name = 'openstack-nova-console'
++      $api_package_name              = 'openstack-nova-api'
++      $cells_package_name            = 'openstack-nova-cells'
++      $cert_package_name             = 'openstack-nova-cert'
++      $common_package_name           = 'openstack-nova-common'
++      $compute_package_name          = 'openstack-nova-compute'
++      $conductor_package_name        = 'openstack-nova-conductor'
++      $consoleauth_package_name      = 'openstack-nova-console'
++      $doc_package_name              = 'openstack-nova-doc'
++      $libvirt_package_name          = 'libvirt'
++      $libvirt_daemon_package_prefix = 'libvirt-daemon-'
++      $libvirt_nwfilter_package_name = 'libvirt-daemon-config-nwfilter'
++      $network_package_name          = 'openstack-nova-network'
++      $numpy_package_name            = 'numpy'
++      $objectstore_package_name      = 'openstack-nova-objectstore'
++      $scheduler_package_name        = 'openstack-nova-scheduler'
++      $tgt_package_name              = 'scsi-target-utils'
++      $vncproxy_package_name         = 'openstack-nova-novncproxy'
++      $serialproxy_package_name      = 'openstack-nova-serialproxy'
++      $spicehtml5proxy_package_name  = 'openstack-nova-console'
+       # service names
+       $api_service_name             = 'openstack-nova-api'
+       $cells_service_name           = 'openstack-nova-cells'
+diff --git a/nova/spec/classes/nova_compute_libvirt_spec.rb b/nova/spec/classes/nova_compute_libvirt_spec.rb
+index 7bf5d4c..87b1440 100644
+--- a/nova/spec/classes/nova_compute_libvirt_spec.rb
++++ b/nova/spec/classes/nova_compute_libvirt_spec.rb
+@@ -138,8 +138,14 @@ describe 'nova::compute::libvirt' do
+       it { is_expected.to contain_class('nova::params')}
+ 
+       it { is_expected.to contain_package('libvirt').with(
+-        :name   => 'libvirt',
+-        :ensure => 'present'
++        :name   => 'libvirt-daemon-kvm',
++        :ensure => 'present',
++      ) }
++
++      it { is_expected.to contain_package('libvirt-nwfilter').with(
++        :name   => 'libvirt-daemon-config-nwfilter',
++        :ensure => 'present',
++        :before  => 'Service[libvirt]',
+       ) }
+ 
+       it { is_expected.to contain_service('libvirt').with(
+@@ -203,6 +209,10 @@ describe 'nova::compute::libvirt' do
+       it { is_expected.to contain_nova_config('DEFAULT/remove_unused_original_minimum_age_seconds').with_value(3600)}
+       it { is_expected.to contain_nova_config('libvirt/remove_unused_kernels').with_value(true)}
+       it { is_expected.to contain_nova_config('libvirt/remove_unused_resized_minimum_age_seconds').with_value(3600)}
++      it { is_expected.to contain_package('libvirt').with(
++        :name   => 'libvirt-daemon-kvm',
++        :ensure => 'present'
++      ) }
+     end
+ 
+     describe 'with migration_support enabled' do
+@@ -236,10 +246,16 @@ describe 'nova::compute::libvirt' do
+       it { is_expected.to contain_class('nova::params')}
+ 
+       it { is_expected.to contain_package('libvirt').with(
+-        :name   => 'libvirt',
++        :name   => 'libvirt-daemon-kvm',
+         :ensure => 'present'
+       ) }
+ 
++      it { is_expected.to contain_package('libvirt-nwfilter').with(
++        :name   => 'libvirt-daemon-config-nwfilter',
++        :ensure => 'present',
++        :before  => 'Service[libvirt]',
++      ) }
++
+       it { is_expected.to contain_service('libvirt').with(
+         :name     => 'libvirtd',
+         :enable   => true,

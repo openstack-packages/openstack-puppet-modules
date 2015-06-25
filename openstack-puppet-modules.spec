@@ -17,6 +17,7 @@ Patch0006: 0006-Remove-control-over-the-galera_master_node.patch
 Patch0007: 0007-Add-manage_service-parameter-to-all-agents-ml2-class.patch
 Patch0008: 0008-Fix-support-for-puppet4.patch
 Patch0009: 0009-Revert-access-out-of-scope-variables-via-the-scope.l.patch
+Patch0010: 0010-Install-only-required-libvirt-packages.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -38,6 +39,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0007 -p1
 %patch0008 -p1
 %patch0009 -p1
+%patch0010 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
