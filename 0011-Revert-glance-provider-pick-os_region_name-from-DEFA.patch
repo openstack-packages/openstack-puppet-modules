@@ -1,0 +1,69 @@
+From f4aae1555e0ee12d2bf850651cfeda7e383609d3 Mon Sep 17 00:00:00 2001
+From: Colleen Murphy <colleen@gazlene.net>
+Date: Mon, 22 Jun 2015 17:17:14 -0700
+Subject: [PATCH] Revert "glance provider: pick os_region_name from DEFAULT"
+
+This reverts commit b76fbcbea34b510191964cc3ed6a4c8e6f2acbfe.
+
+With 268370457c118e62b93990cea31066c477ab0dbc now merged, we need to go
+back to looking for os_region_name in [glance_store] instead of
+[DEFAULT].
+
+Change-Id: I197d012387d630ca6fb3a38c48f0603add6c6de1
+---
+ glance/lib/puppet/provider/glance.rb     | 8 ++++----
+ glance/spec/unit/provider/glance_spec.rb | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/glance/lib/puppet/provider/glance.rb b/glance/lib/puppet/provider/glance.rb
+index 6f7bbee..2501d63 100644
+--- a/glance/lib/puppet/provider/glance.rb
++++ b/glance/lib/puppet/provider/glance.rb
+@@ -16,7 +16,7 @@ class Puppet::Provider::Glance < Puppet::Provider
+       glance_file['keystone_authtoken']['admin_tenant_name'] and
+       glance_file['keystone_authtoken']['admin_user'] and
+       glance_file['keystone_authtoken']['admin_password'] and
+-      glance_file['DEFAULT']['os_region_name']
++      glance_file['glance_store']['os_region_name']
+ 
+         g = {}
+         g['auth_host'] = glance_file['keystone_authtoken']['auth_host'].strip
+@@ -25,7 +25,7 @@ class Puppet::Provider::Glance < Puppet::Provider
+         g['admin_tenant_name'] = glance_file['keystone_authtoken']['admin_tenant_name'].strip
+         g['admin_user'] = glance_file['keystone_authtoken']['admin_user'].strip
+         g['admin_password'] = glance_file['keystone_authtoken']['admin_password'].strip
+-        g['os_region_name'] = glance_file['DEFAULT']['os_region_name'].strip
++        g['os_region_name'] = glance_file['glance_store']['os_region_name'].strip
+ 
+         # auth_admin_prefix not required to be set.
+         g['auth_admin_prefix'] = (glance_file['keystone_authtoken']['auth_admin_prefix'] || '').strip
+@@ -36,14 +36,14 @@ class Puppet::Provider::Glance < Puppet::Provider
+       glance_file['keystone_authtoken']['admin_tenant_name'] and
+       glance_file['keystone_authtoken']['admin_user'] and
+       glance_file['keystone_authtoken']['admin_password'] and
+-      glance_file['DEFAULT']['os_region_name']
++      glance_file['glance_store']['os_region_name']
+ 
+         g = {}
+         g['identity_uri'] = glance_file['keystone_authtoken']['identity_uri'].strip
+         g['admin_tenant_name'] = glance_file['keystone_authtoken']['admin_tenant_name'].strip
+         g['admin_user'] = glance_file['keystone_authtoken']['admin_user'].strip
+         g['admin_password'] = glance_file['keystone_authtoken']['admin_password'].strip
+-        g['os_region_name'] = glance_file['DEFAULT']['os_region_name'].strip
++        g['os_region_name'] = glance_file['glance_store']['os_region_name'].strip
+ 
+         return g
+     else
+diff --git a/glance/spec/unit/provider/glance_spec.rb b/glance/spec/unit/provider/glance_spec.rb
+index 14d418b..344ec4a 100644
+--- a/glance/spec/unit/provider/glance_spec.rb
++++ b/glance/spec/unit/provider/glance_spec.rb
+@@ -36,7 +36,7 @@ describe Puppet::Provider::Glance do
+                'admin_user'        => 'user',
+                'admin_password'    => 'pass'
+             },
+-                'DEFAULT' =>
++                'glance_store' =>
+             {
+                 'os_region_name' => 'SomeRegion',
+             }

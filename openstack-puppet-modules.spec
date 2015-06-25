@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.7
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -18,6 +18,7 @@ Patch0007: 0007-Add-manage_service-parameter-to-all-agents-ml2-class.patch
 Patch0008: 0008-Fix-support-for-puppet4.patch
 Patch0009: 0009-Revert-access-out-of-scope-variables-via-the-scope.l.patch
 Patch0010: 0010-Install-only-required-libvirt-packages.patch
+Patch0011: 0011-Revert-glance-provider-pick-os_region_name-from-DEFA.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -40,6 +41,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0008 -p1
 %patch0009 -p1
 %patch0010 -p1
+%patch0011 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -66,6 +68,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Thu Jun 25 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-4
+- Revert "glance provider: pick os_region_name from DEFAULT"
+
 * Thu Jun 25 2015 Iván Chavero <ichavero@redhat.com> 2015.1.7-3
 - Add 0010-Install-only-required-libvirt-packages.patch
 
