@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.7
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -66,6 +66,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Thu Jun 25 2015 Iván Chavero <ichavero@redhat.com> 2015.1.7-3
+- Add 0010-Install-only-required-libvirt-packages.patch
+
 * Wed Jun 24 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-2
 - Revert "access out-of-scope variables via the scope.lookupvar method"
 
