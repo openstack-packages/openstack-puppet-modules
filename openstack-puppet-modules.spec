@@ -58,7 +58,7 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
-* Fri Jul 02 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-1
+* Fri Jul 03 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-1
 - Update to upstream 2015.1.8
 - Remove Unused patches
 - Add 0006-Fix-Heat-302-redirects.patch
