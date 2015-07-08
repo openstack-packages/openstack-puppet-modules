@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.8
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -14,6 +14,7 @@ Patch0003: 0003-Fix-support-for-puppet-4.patch
 Patch0004: 0004-Rabbitmq-set-repos_ensure-to-false.patch
 Patch0005: 0005-Revert-access-out-of-scope-variables-via-the-scope.l.patch
 Patch0006: 0006-Fix-Heat-302-redirects.patch
+Patch0007: 0007-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -32,6 +33,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0004 -p1
 %patch0005 -p1
 %patch0006 -p1
+%patch0007 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -58,6 +60,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jul 08 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-2
+- Add 0007-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
+
 * Fri Jul 03 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-1
 - Update to upstream 2015.1.8
 - Remove Unused patches
