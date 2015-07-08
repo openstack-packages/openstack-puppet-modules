@@ -24,7 +24,7 @@ diff --git a/tripleo/manifests/loadbalancer.pp b/tripleo/manifests/loadbalancer.
 index e94f44a..f476438 100644
 --- a/tripleo/manifests/loadbalancer.pp
 +++ b/tripleo/manifests/loadbalancer.pp
-@@ -527,6 +527,10 @@
+@@ -538,6 +538,10 @@
        "${heat_api_vip}:8004" => [],
        "${public_virtual_ip}:13004" => ['ssl', 'crt', $heat_bind_certificate],
      }
@@ -35,7 +35,7 @@ index e94f44a..f476438 100644
      $heat_cw_bind_opts = {
        "${heat_api_vip}:8003" => [],
        "${public_virtual_ip}:13003" => ['ssl', 'crt', $heat_bind_certificate],
-@@ -539,6 +543,9 @@
+@@ -550,6 +554,9 @@
      $heat_bind_opts = {
        "${heat_api_vip}:8004" => [],
        "${public_virtual_ip}:8004" => [],
@@ -45,7 +45,7 @@ index e94f44a..f476438 100644
      }
      $heat_cw_bind_opts = {
        "${heat_api_vip}:8003" => [],
-@@ -800,10 +807,9 @@
+@@ -824,10 +831,9 @@
    if $heat_api {
      haproxy::listen { 'heat_api':
        bind             => $heat_bind_opts,
