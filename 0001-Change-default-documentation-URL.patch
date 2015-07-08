@@ -1,11 +1,12 @@
-From 34f31e81284bed495195e9c45db9175fecd1a7ff Mon Sep 17 00:00:00 2001
-From: Gael Chamoulaud <gchamoul@redhat.com>
-Date: Fri, 3 Jul 2015 11:37:34 +0200
+From 181460274db856db706597149b97609a6a4a87a6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
+Date: Fri, 3 Oct 2014 19:18:45 +0200
 Subject: [PATCH] Change default documentation URL
 
-Documentation should point to RDO Docs by default. This patch is changing it.
+Documentation should point to RDO docs by default. This patch is changing it.
 
 Fixes: rhbz#1092019
+
 Signed-off-by: Gael Chamoulaud <gchamoul@redhat.com>
 ---
  horizon/manifests/init.pp | 2 +-
@@ -24,6 +25,3 @@ index d64b507..3e6f5aa 100644
    $local_settings_template             = 'horizon/local_settings.py.erb',
    $configure_apache                    = true,
    $bind_address                        = undef,
--- 
-2.4.3
-

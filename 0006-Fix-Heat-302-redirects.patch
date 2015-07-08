@@ -1,4 +1,4 @@
-From db6c946c475969e4ba788300ede6bd03bfd6f856 Mon Sep 17 00:00:00 2001
+From c6b4b832d44a61136f79f0e10e91a4afbff0a1a6 Mon Sep 17 00:00:00 2001
 From: Ben Nemec <bnemec@redhat.com>
 Date: Mon, 29 Jun 2015 22:27:00 +0000
 Subject: [PATCH] Fix Heat 302 redirects
@@ -18,13 +18,17 @@ is added here as well.
 Change-Id: I7e5c5b1877e9aa46c4b88dfba45c1fddf61727fc
 (cherry picked from commit e8714e037268807d2fcdb735b8df7c958c8570ab)
 Related: rhbz#1230890
+
+Signed-off-by: Gael Chamoulaud <gchamoul@redhat.com>
 ---
+ tripleo/manifests/loadbalancer.pp | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/tripleo/manifests/loadbalancer.pp b/tripleo/manifests/loadbalancer.pp
-index e94f44a..f476438 100644
+index f7a4ff8..f9877a6 100644
 --- a/tripleo/manifests/loadbalancer.pp
 +++ b/tripleo/manifests/loadbalancer.pp
-@@ -538,6 +538,10 @@
+@@ -538,6 +538,10 @@ class tripleo::loadbalancer (
        "${heat_api_vip}:8004" => [],
        "${public_virtual_ip}:13004" => ['ssl', 'crt', $heat_bind_certificate],
      }
@@ -35,17 +39,17 @@ index e94f44a..f476438 100644
      $heat_cw_bind_opts = {
        "${heat_api_vip}:8003" => [],
        "${public_virtual_ip}:13003" => ['ssl', 'crt', $heat_bind_certificate],
-@@ -550,6 +554,9 @@
-     $heat_bind_opts = {
+@@ -551,6 +555,9 @@ class tripleo::loadbalancer (
        "${heat_api_vip}:8004" => [],
        "${public_virtual_ip}:8004" => [],
-+    }
+     }
 +    $heat_options = {
 +      'option' => [ 'httpchk GET /' ],
-     }
++    }
      $heat_cw_bind_opts = {
        "${heat_api_vip}:8003" => [],
-@@ -824,10 +831,9 @@
+       "${public_virtual_ip}:8003" => [],
+@@ -824,10 +831,9 @@ class tripleo::loadbalancer (
    if $heat_api {
      haproxy::listen { 'heat_api':
        bind             => $heat_bind_opts,

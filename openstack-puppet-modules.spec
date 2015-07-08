@@ -14,7 +14,8 @@ Patch0003: 0003-Fix-support-for-puppet-4.patch
 Patch0004: 0004-Rabbitmq-set-repos_ensure-to-false.patch
 Patch0005: 0005-Revert-access-out-of-scope-variables-via-the-scope.l.patch
 Patch0006: 0006-Fix-Heat-302-redirects.patch
-Patch0007: 0007-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
+Patch0007: 0007-Support-setting-instance_user-to-an-empty-string.patch
+Patch0008: 0008-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -34,6 +35,7 @@ OpenStack via installers using Puppet configuration tool.
 %patch0005 -p1
 %patch0006 -p1
 %patch0007 -p1
+%patch0008 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
