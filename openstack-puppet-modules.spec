@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.8
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -62,6 +62,11 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Wed Jul 08 2015 Iván Chavero <ichavero@redhat.com> - 2015.1.8-3
+- Add 0007-Support-setting-instance_user-to-an-empty-string.patch
+- Add 0008-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
+  this patch number changed because it wasn't added to the OPM repo
+
 * Wed Jul 08 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-2
 - Add 0007-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
 
