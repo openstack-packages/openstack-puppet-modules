@@ -1,4 +1,4 @@
-From 9e40c32a110f6c2637228f423c09f6de3712a9cc Mon Sep 17 00:00:00 2001
+From 76d579e5414d8a7fb5264a0aa833abedb64c1049 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Tue, 16 Jun 2015 14:09:51 +0200
 Subject: [PATCH] Fix support for puppet 4
