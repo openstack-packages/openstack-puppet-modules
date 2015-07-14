@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.8
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -8,14 +8,19 @@ URL:            https://github.com/redhat-openstack
 
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
 
-Patch0001: 0001-Change-default-documentation-URL.patch
-Patch0002: 0002-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
-Patch0003: 0003-Fix-support-for-puppet-4.patch
-Patch0004: 0004-Rabbitmq-set-repos_ensure-to-false.patch
-Patch0005: 0005-Revert-access-out-of-scope-variables-via-the-scope.l.patch
-Patch0006: 0006-Fix-Heat-302-redirects.patch
+Patch0001: 0001-Update-Puppet-Modules-openstack-github-org-only-to-t.patch
+Patch0002: 0002-Change-default-documentation-URL.patch
+Patch0003: 0003-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
+Patch0004: 0004-Fix-support-for-puppet-4.patch
+Patch0005: 0005-Rabbitmq-set-repos_ensure-to-false.patch
+Patch0006: 0006-Revert-access-out-of-scope-variables-via-the-scope.l.patch
 Patch0007: 0007-Support-setting-instance_user-to-an-empty-string.patch
 Patch0008: 0008-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
+Patch0009: 0009-Remove-mode-tcp-enforcement-where-unneeded-we-defaul.patch
+Patch0010: 0010-Add-missing-options-to-Ceilometer-Ironic-Horizon.patch
+Patch0011: 0011-Allow-customization-of-force_power_state_during_sync.patch
+Patch0012: 0012-Creation-of-neutron-db-sync.patch
+Patch0013: 0013-Run-neutron-db-sync-also-for-each-neutron-module.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -36,6 +41,11 @@ OpenStack via installers using Puppet configuration tool.
 %patch0006 -p1
 %patch0007 -p1
 %patch0008 -p1
+%patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
+%patch0012 -p1
+%patch0013 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -62,6 +72,13 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Jul 14 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.8-4
+- Run neutron db sync also for each neutron module
+- Creation of neutron::db::sync
+- Allow customization of force_power_state_during_sync
+- Add missing options to Ceilometer/Ironic/Horizon
+- Remove mode tcp enforcement where unneeded, we default to mode tcp
+
 * Wed Jul 08 2015 Iván Chavero <ichavero@redhat.com> - 2015.1.8-3
 - Add 0007-Support-setting-instance_user-to-an-empty-string.patch
 - Add 0008-Expose-RPC-response-timeout-as-a-puppet-parameter.patch

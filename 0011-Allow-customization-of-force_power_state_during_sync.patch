@@ -1,0 +1,84 @@
+From b6d4d1d45a25b8910001cf98ab4b23ea1f93d1f0 Mon Sep 17 00:00:00 2001
+From: Giulio Fidente <gfidente@redhat.com>
+Date: Tue, 30 Jun 2015 13:13:50 +0200
+Subject: [PATCH] Allow customization of force_power_state_during_sync
+
+Change-Id: I1a321266e1de5a15e81a7a5cb592064e0ffcbf09
+Closes-Bug: 1470037
+---
+ ironic/manifests/conductor.pp                | 14 +++++++++++---
+ ironic/spec/classes/ironic_conductor_spec.rb | 14 ++++++++++----
+ 2 files changed, 21 insertions(+), 7 deletions(-)
+
+diff --git a/ironic/manifests/conductor.pp b/ironic/manifests/conductor.pp
+index 76bacbe..c52c480 100644
+--- a/ironic/manifests/conductor.pp
++++ b/ironic/manifests/conductor.pp
+@@ -32,10 +32,17 @@
+ #   Should be an interger value
+ #   Defaults to '120'.
+ #
++# [*force_power_state_during_sync*]
++#   (optional) Should the hardware power state be set to the state recorded in
++#   the database (True) or should the database be updated based on the hardware
++#   state (False).
++#   Defaults to true.
++#
+ class ironic::conductor (
+-  $package_ensure    = 'present',
+-  $enabled           = true,
+-  $max_time_interval = '120'
++  $package_ensure                = 'present',
++  $enabled                       = true,
++  $max_time_interval             = '120',
++  $force_power_state_during_sync = true,
+ ) {
+ 
+   include ::ironic::params
+@@ -45,6 +52,7 @@ class ironic::conductor (
+   # Configure ironic.conf
+   ironic_config {
+     'conductor/max_time_interval': value => $max_time_interval;
++    'conductor/force_power_state_during_sync': value => $force_power_state_during_sync;
+   }
+ 
+   # Install package
+diff --git a/ironic/spec/classes/ironic_conductor_spec.rb b/ironic/spec/classes/ironic_conductor_spec.rb
+index 105a4c8..8d0d1df 100644
+--- a/ironic/spec/classes/ironic_conductor_spec.rb
++++ b/ironic/spec/classes/ironic_conductor_spec.rb
+@@ -23,9 +23,10 @@ require 'spec_helper'
+ describe 'ironic::conductor' do
+ 
+   let :default_params do
+-    { :package_ensure    => 'present',
+-      :enabled           => true,
+-      :max_time_interval => '120' }
++    { :package_ensure                => 'present',
++      :enabled                       => true,
++      :max_time_interval             => '120',
++      :force_power_state_during_sync => true }
+   end
+ 
+   let :params do
+@@ -57,14 +58,19 @@ describe 'ironic::conductor' do
+ 
+     it 'configures ironic.conf' do
+       is_expected.to contain_ironic_config('conductor/max_time_interval').with_value(p[:max_time_interval])
++      is_expected.to contain_ironic_config('conductor/force_power_state_during_sync').with_value(p[:force_power_state_during_sync])
+     end
+ 
+     context 'when overriding parameters' do
+       before :each do
+-        params.merge!(:max_time_interval => '50')
++        params.merge!(
++          :max_time_interval             => '50',
++          :force_power_state_during_sync => false
++        )
+       end
+       it 'should replace default parameter with new value' do
+         is_expected.to contain_ironic_config('conductor/max_time_interval').with_value(p[:max_time_interval])
++        is_expected.to contain_ironic_config('conductor/force_power_state_during_sync').with_value(p[:force_power_state_during_sync])
+       end
+     end
+ 

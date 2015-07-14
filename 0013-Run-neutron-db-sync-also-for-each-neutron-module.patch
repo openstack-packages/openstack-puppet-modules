@@ -1,0 +1,279 @@
+From c6c20cd84dd6745da5833186152630669c4e8fe3 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Sun, 12 Jul 2015 05:49:00 -0400
+Subject: [PATCH] Run neutron db sync also for each neutron module
+
+FWaaS, VPNaaS and LBaaS need to be installed on neutron api node if
+it's standalone. During neutron db sync it is also needed to run for
+these services again.
+
+Change-Id: I9b2c00309f3a72f76fffd22a6f3b802e5f78dad2
+Closes-Bug: rhbz#1233149, rhbz#1230199
+---
+ manifests/agents/lbaas/package.pp                  | 23 +++++++++++++
+ manifests/agents/vpnaas/package.pp                 | 26 ++++++++++++++
+ neutron/manifests/agents/lbaas.pp                  | 12 +++----
+ neutron/manifests/agents/vpnaas.pp                 | 13 +------
+ neutron/manifests/db/sync.pp                       | 40 +++++++++++++++++++++-
+ neutron/manifests/init.pp                          | 16 +++++++++
+ neutron/manifests/params.pp                        |  2 +-
+ neutron/spec/classes/neutron_agents_vpnaas_spec.rb |  4 +--
+ neutron/spec/classes/neutron_init_spec.rb          |  3 ++
+ 9 files changed, 115 insertions(+), 24 deletions(-)
+ create mode 100644 manifests/agents/lbaas/package.pp
+ create mode 100644 manifests/agents/vpnaas/package.pp
+
+diff --git a/manifests/agents/lbaas/package.pp b/manifests/agents/lbaas/package.pp
+new file mode 100644
+index 0000000..9b8ea92
+--- /dev/null
++++ b/manifests/agents/lbaas/package.pp
+@@ -0,0 +1,23 @@
++# == Class: neutron::agents:lbaas::package
++#
++# Installs Neutron Load Balancing agent package.
++#
++# === Parameters
++#
++# [*package_ensure*]
++#   (optional) Ensure state for package. Defaults to 'present'.
++#
++class neutron::agents::lbaas::package (
++  $package_ensure = present,
++) {
++  include ::neutron::params
++
++  Package['neutron']             -> Package['neutron-lbaas-agent']
++  Package['neutron-lbaas-agent'] -> Neutron_config<||>
++  Package['neutron-lbaas-agent'] -> Neutron_lbaas_agent_config<||>
++  package { 'neutron-lbaas-agent':
++    ensure => $package_ensure,
++    name   => $::neutron::params::lbaas_agent_package,
++    tag    => 'openstack',
++  }
++}
+diff --git a/manifests/agents/vpnaas/package.pp b/manifests/agents/vpnaas/package.pp
+new file mode 100644
+index 0000000..2fc103a
+--- /dev/null
++++ b/manifests/agents/vpnaas/package.pp
+@@ -0,0 +1,26 @@
++# == Class: neutron::agents:vpnaas::package
++#
++# Installs Neutron VPN agent.
++#
++# === Parameters
++#
++# [*package_ensure*]
++#   (optional) Ensure state for package. Defaults to 'present'.
++#
++class neutron::agents::vpnaas::package (
++  $package_ensure = present,
++) {
++
++  if $::neutron::params::vpnaas_agent_package {
++    Package['neutron']            -> Package['neutron-vpnaas-agent']
++    Package['neutron-vpnaas-agent'] -> Neutron_vpnaas_agent_config<||>
++    package { 'neutron-vpnaas-agent':
++      ensure => $package_ensure,
++      name   => $::neutron::params::vpnaas_agent_package,
++      tag    => 'openstack',
++    }
++  } else {
++    Package['neutron'] -> Neutron_vpnaas_agent_config<||>
++  }
++
++}
+diff --git a/neutron/manifests/agents/lbaas.pp b/neutron/manifests/agents/lbaas.pp
+index f73c394..baf1be7 100644
+--- a/neutron/manifests/agents/lbaas.pp
++++ b/neutron/manifests/agents/lbaas.pp
+@@ -77,14 +77,6 @@ class neutron::agents::lbaas (
+     'haproxy/user_group':         value => $user_group;
+   }
+ 
+-  Package['neutron']            -> Package['neutron-lbaas-agent']
+-  Package['neutron-lbaas-agent'] -> Neutron_config<||>
+-  Package['neutron-lbaas-agent'] -> Neutron_lbaas_agent_config<||>
+-  package { 'neutron-lbaas-agent':
+-    ensure => $package_ensure,
+-    name   => $::neutron::params::lbaas_agent_package,
+-    tag    => 'openstack',
+-  }
+   if $manage_service {
+     if $enabled {
+       $service_ensure = 'running'
+@@ -93,6 +85,10 @@ class neutron::agents::lbaas (
+     }
+   }
+ 
++  class { '::neutron::agents::lbaas::package':
++    package_ensure => $package_ensure
++  }
++
+   service { 'neutron-lbaas-service':
+     ensure  => $service_ensure,
+     name    => $::neutron::params::lbaas_agent_service,
+diff --git a/neutron/manifests/agents/vpnaas.pp b/neutron/manifests/agents/vpnaas.pp
+index 93dc44d..6d515b6 100644
+--- a/neutron/manifests/agents/vpnaas.pp
++++ b/neutron/manifests/agents/vpnaas.pp
+@@ -54,6 +54,7 @@ class neutron::agents::vpnaas (
+ ) {
+ 
+   include ::neutron::params
++  include ::neutron::agents::vpnaas::package
+ 
+   Neutron_config<||>              ~> Service['neutron-vpnaas-service']
+   Neutron_vpnaas_agent_config<||> ~> Service['neutron-vpnaas-service']
+@@ -90,18 +91,6 @@ class neutron::agents::vpnaas (
+     }
+   }
+ 
+-  if $::neutron::params::vpnaas_agent_package {
+-    Package['neutron']            -> Package['neutron-vpnaas-agent']
+-    Package['neutron-vpnaas-agent'] -> Neutron_vpnaas_agent_config<||>
+-    package { 'neutron-vpnaas-agent':
+-      ensure => $package_ensure,
+-      name   => $::neutron::params::vpnaas_agent_package,
+-      tag    => 'openstack',
+-    }
+-  } else {
+-    Package['neutron'] -> Neutron_vpnaas_agent_config<||>
+-  }
+-
+   if $manage_service {
+     if $enabled {
+       $service_ensure = 'running'
+diff --git a/neutron/manifests/db/sync.pp b/neutron/manifests/db/sync.pp
+index 82b1591..463d830 100644
+--- a/neutron/manifests/db/sync.pp
++++ b/neutron/manifests/db/sync.pp
+@@ -1,7 +1,9 @@
+ #
+ # Class to execute neutron dbsync
+ #
+-class neutron::db::sync {
++class neutron::db::sync (
++  $service_plugins = $::neutron::service_plugins
++) {
+ 
+   include ::neutron::params
+ 
+@@ -17,4 +19,40 @@ class neutron::db::sync {
+     refreshonly => true,
+     logoutput   => on_failure,
+   }
++
++  if ($service_plugins and ('lbaas' in $service_plugins or
++      'neutron.services.loadbalancer.plugin.LoadBalancerPlugin' in $service_plugins)) {
++    Exec['neutron-db-sync'] ~> Exec['neutron-db-sync-lbaas']
++    Exec['neutron-db-sync-lbaas'] ~> Service <| title == 'neutron-server' |>
++    exec { 'neutron-db-sync-lbaas':
++      command     => 'neutron-db-manage  --service lbaas --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugin.ini upgrade head',
++      path        => '/usr/bin',
++      refreshonly => true,
++      logoutput   => on_failure,
++    }
++  }
++
++  if ($service_plugins and ('firewall' in $service_plugins or
++      'neutron.services.firewall.fwaas_plugin.FirewallPlugin' in $service_plugins)) {
++    Exec['neutron-db-sync'] ~> Exec['neutron-db-sync-fwaas']
++    Exec['neutron-db-sync-fwaas'] ~> Service <| title == 'neutron-server' |>
++    exec { 'neutron-db-sync-fwaas':
++      command     => 'neutron-db-manage  --service fwaas --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugin.ini upgrade head',
++      path        => '/usr/bin',
++      refreshonly => true,
++      logoutput   => on_failure,
++    }
++  }
++
++  if ($service_plugins and ('vpnaas' in $service_plugins or
++      'neutron_vpnaas.services.vpn.plugin:VPNDriverPlugin' in $service_plugins)) {
++    Exec['neutron-db-sync'] ~> Exec['neutron-db-sync-vpnaas']
++    Exec['neutron-db-sync-vpnaas'] ~> Service <| title == 'neutron-server' |>
++    exec { 'neutron-db-sync-vpnaas':
++      command     => 'neutron-db-manage  --service vpnaas --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugin.ini upgrade head',
++      path        => '/usr/bin',
++      refreshonly => true,
++      logoutput   => on_failure,
++    }
++  }
+ }
+diff --git a/neutron/manifests/init.pp b/neutron/manifests/init.pp
+index c1d732e..7d0768b 100644
+--- a/neutron/manifests/init.pp
++++ b/neutron/manifests/init.pp
+@@ -388,6 +388,22 @@ class neutron (
+   if $service_plugins {
+     if is_array($service_plugins) {
+       neutron_config { 'DEFAULT/service_plugins': value => join($service_plugins, ',') }
++
++      if ('lbaas' in $service_plugins or
++          'neutron.services.loadbalancer.plugin.LoadBalancerPlugin' in $service_plugins) {
++        include ::neutron::agents::lbaas::package
++      }
++
++      if ('firewall' in $service_plugins or
++          'neutron.services.firewall.fwaas_plugin.FirewallPlugin' in $service_plugins) {
++        include ::neutron::services::fwaas
++      }
++
++      if ('vpnaas' in $service_plugins or
++          'neutron_vpnaas.services.vpn.plugin:VPNDriverPlugin' in $service_plugins) {
++        include ::neutron::agents::vpnaas::package
++      }
++
+     } else {
+       fail('service_plugins should be an array.')
+     }
+diff --git a/neutron/manifests/params.pp b/neutron/manifests/params.pp
+index 8b81765..ddaa1a6 100644
+--- a/neutron/manifests/params.pp
++++ b/neutron/manifests/params.pp
+@@ -56,7 +56,7 @@ class neutron::params {
+     $metering_agent_package = 'openstack-neutron-metering-agent'
+     $metering_agent_service = 'neutron-metering-agent'
+ 
+-    $vpnaas_agent_package = 'openstack-neutron-vpn-agent'
++    $vpnaas_agent_package = 'openstack-neutron-vpnaas'
+     $vpnaas_agent_service = 'neutron-vpn-agent'
+     if $::operatingsystemrelease =~ /^7.*/ or $::operatingsystem == 'Fedora' {
+       $openswan_package     = 'libreswan'
+diff --git a/neutron/spec/classes/neutron_agents_vpnaas_spec.rb b/neutron/spec/classes/neutron_agents_vpnaas_spec.rb
+index 35b165c..91be65f 100644
+--- a/neutron/spec/classes/neutron_agents_vpnaas_spec.rb
++++ b/neutron/spec/classes/neutron_agents_vpnaas_spec.rb
+@@ -142,7 +142,7 @@ describe 'neutron::agents::vpnaas' do
+ 
+     let :platform_params do
+       { :openswan_package     => 'openswan',
+-        :vpnaas_agent_package => 'openstack-neutron-vpn-agent',
++        :vpnaas_agent_package => 'openstack-neutron-vpnaas',
+         :vpnaas_agent_service => 'neutron-vpn-agent'}
+     end
+ 
+@@ -159,7 +159,7 @@ describe 'neutron::agents::vpnaas' do
+ 
+     let :platform_params do
+       { :openswan_package     => 'libreswan',
+-        :vpnaas_agent_package => 'openstack-neutron-vpn-agent',
++        :vpnaas_agent_package => 'openstack-neutron-vpnaas',
+         :vpnaas_agent_service => 'neutron-vpn-agent'}
+     end
+ 
+diff --git a/neutron/spec/classes/neutron_init_spec.rb b/neutron/spec/classes/neutron_init_spec.rb
+index 66b5a16..e58ce49 100644
+--- a/neutron/spec/classes/neutron_init_spec.rb
++++ b/neutron/spec/classes/neutron_init_spec.rb
+@@ -402,6 +402,9 @@ describe 'neutron' do
+     end
+ 
+     it do
++      is_expected.to contain_class('neutron::agents::lbaas::package')
++      is_expected.to contain_class('neutron::agents::vpnaas::package')
++      is_expected.to contain_class('neutron::services::fwaas')
+       is_expected.to contain_neutron_config('DEFAULT/service_plugins').with_value('router,firewall,lbaas,vpnaas,metering')
+     end
+ 

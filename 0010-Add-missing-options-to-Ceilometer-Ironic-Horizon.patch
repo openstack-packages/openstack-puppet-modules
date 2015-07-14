@@ -1,0 +1,46 @@
+From 666bc26d378db8f60a1827b6abdf3b9cabc63252 Mon Sep 17 00:00:00 2001
+From: Giulio Fidente <gfidente@redhat.com>
+Date: Wed, 8 Jul 2015 13:33:43 +0200
+Subject: [PATCH] Add missing options to Ceilometer/Ironic/Horizon
+
+Backend options for Ceilometer and Ironic are aligned with what we
+use for the other OpenStack services.
+
+Listener options for Horizon is updated so that we do cookie
+tracking as suggested by refarch doc.
+
+Change-Id: I4640d974a3ab8188919eaae79dde71463234b5ff
+---
+ tripleo/manifests/loadbalancer.pp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/tripleo/manifests/loadbalancer.pp b/tripleo/manifests/loadbalancer.pp
+index 3826fcf..589d852 100644
+--- a/tripleo/manifests/loadbalancer.pp
++++ b/tripleo/manifests/loadbalancer.pp
+@@ -804,7 +804,7 @@ class tripleo::loadbalancer (
+       ports             => '8777',
+       ipaddresses       => hiera('ceilometer_api_node_ips', $controller_hosts_real),
+       server_names      => $controller_hosts_names_real,
+-      options           => [],
++      options           => ['check', 'inter 2000', 'rise 2', 'fall 5'],
+     }
+   }
+ 
+@@ -880,6 +880,7 @@ class tripleo::loadbalancer (
+       bind             => $horizon_bind_opts,
+       options          => {
+         'option' => [ 'httpchk GET /' ],
++        'cookie' => 'SERVERID insert indirect nocache',
+       },
+       collect_exported => false,
+     }
+@@ -917,7 +918,7 @@ class tripleo::loadbalancer (
+       ports             => '6385',
+       ipaddresses       => hiera('ironic_api_node_ips', $controller_hosts_real),
+       server_names      => $controller_hosts_names_real,
+-      options           => [],
++      options           => ['check', 'inter 2000', 'rise 2', 'fall 5'],
+     }
+   }
+ 
