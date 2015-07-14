@@ -1,4 +1,4 @@
-From 1eb2ccd55be6480f252aadda1abe555f1343e7f5 Mon Sep 17 00:00:00 2001
+From fac68a85469234fcc0327224a6b7da20f4907f1e Mon Sep 17 00:00:00 2001
 From: "Ryan S. Brown" <sb@ryansb.com>
 Date: Thu, 2 Jul 2015 09:12:51 -0400
 Subject: [PATCH] Expose RPC response timeout as a puppet parameter.

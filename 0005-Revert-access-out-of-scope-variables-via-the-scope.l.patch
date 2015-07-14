@@ -1,4 +1,4 @@
-From 4f5a6ab0cfcc339e63dd7aad3086ab3cd7c52695 Mon Sep 17 00:00:00 2001
+From 414e13c96be7dfa2ba05b5df7bee4c0cf5496420 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Wed, 24 Jun 2015 12:31:37 +0200
 Subject: [PATCH] Revert "access out-of-scope variables via the scope.lookupvar
