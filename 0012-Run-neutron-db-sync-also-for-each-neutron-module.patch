@@ -1,4 +1,4 @@
-From 1afe8550c56badd97101eb514e87261f5429c609 Mon Sep 17 00:00:00 2001
+From b7b84628638124aa8733987f1ff266eb3111b404 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Sun, 12 Jul 2015 05:49:00 -0400
 Subject: [PATCH] Run neutron db sync also for each neutron module
@@ -10,80 +10,19 @@ these services again.
 Change-Id: I9b2c00309f3a72f76fffd22a6f3b802e5f78dad2
 Closes-Bug: rhbz#1233149, rhbz#1230199
 ---
- manifests/agents/lbaas/package.pp                  | 23 +++++++++++++
- manifests/agents/vpnaas/package.pp                 | 26 ++++++++++++++
  neutron/manifests/agents/lbaas.pp                  | 12 +++----
+ neutron/manifests/agents/lbaas/package.pp          | 23 +++++++++++++
  neutron/manifests/agents/vpnaas.pp                 | 13 +------
+ neutron/manifests/agents/vpnaas/package.pp         | 26 ++++++++++++++
  neutron/manifests/db/sync.pp                       | 40 +++++++++++++++++++++-
  neutron/manifests/init.pp                          | 16 +++++++++
  neutron/manifests/params.pp                        |  2 +-
  neutron/spec/classes/neutron_agents_vpnaas_spec.rb |  4 +--
  neutron/spec/classes/neutron_init_spec.rb          |  3 ++
  9 files changed, 115 insertions(+), 24 deletions(-)
- create mode 100644 manifests/agents/lbaas/package.pp
- create mode 100644 manifests/agents/vpnaas/package.pp
+ create mode 100644 neutron/manifests/agents/lbaas/package.pp
+ create mode 100644 neutron/manifests/agents/vpnaas/package.pp
 
-diff --git a/manifests/agents/lbaas/package.pp b/manifests/agents/lbaas/package.pp
-new file mode 100644
-index 0000000..9b8ea92
---- /dev/null
-+++ b/manifests/agents/lbaas/package.pp
-@@ -0,0 +1,23 @@
-+# == Class: neutron::agents:lbaas::package
-+#
-+# Installs Neutron Load Balancing agent package.
-+#
-+# === Parameters
-+#
-+# [*package_ensure*]
-+#   (optional) Ensure state for package. Defaults to 'present'.
-+#
-+class neutron::agents::lbaas::package (
-+  $package_ensure = present,
-+) {
-+  include ::neutron::params
-+
-+  Package['neutron']             -> Package['neutron-lbaas-agent']
-+  Package['neutron-lbaas-agent'] -> Neutron_config<||>
-+  Package['neutron-lbaas-agent'] -> Neutron_lbaas_agent_config<||>
-+  package { 'neutron-lbaas-agent':
-+    ensure => $package_ensure,
-+    name   => $::neutron::params::lbaas_agent_package,
-+    tag    => 'openstack',
-+  }
-+}
-diff --git a/manifests/agents/vpnaas/package.pp b/manifests/agents/vpnaas/package.pp
-new file mode 100644
-index 0000000..2fc103a
---- /dev/null
-+++ b/manifests/agents/vpnaas/package.pp
-@@ -0,0 +1,26 @@
-+# == Class: neutron::agents:vpnaas::package
-+#
-+# Installs Neutron VPN agent.
-+#
-+# === Parameters
-+#
-+# [*package_ensure*]
-+#   (optional) Ensure state for package. Defaults to 'present'.
-+#
-+class neutron::agents::vpnaas::package (
-+  $package_ensure = present,
-+) {
-+
-+  if $::neutron::params::vpnaas_agent_package {
-+    Package['neutron']            -> Package['neutron-vpnaas-agent']
-+    Package['neutron-vpnaas-agent'] -> Neutron_vpnaas_agent_config<||>
-+    package { 'neutron-vpnaas-agent':
-+      ensure => $package_ensure,
-+      name   => $::neutron::params::vpnaas_agent_package,
-+      tag    => 'openstack',
-+    }
-+  } else {
-+    Package['neutron'] -> Neutron_vpnaas_agent_config<||>
-+  }
-+
-+}
 diff --git a/neutron/manifests/agents/lbaas.pp b/neutron/manifests/agents/lbaas.pp
 index f73c394..baf1be7 100644
 --- a/neutron/manifests/agents/lbaas.pp
@@ -114,6 +53,35 @@ index f73c394..baf1be7 100644
    service { 'neutron-lbaas-service':
      ensure  => $service_ensure,
      name    => $::neutron::params::lbaas_agent_service,
+diff --git a/neutron/manifests/agents/lbaas/package.pp b/neutron/manifests/agents/lbaas/package.pp
+new file mode 100644
+index 0000000..9b8ea92
+--- /dev/null
++++ b/neutron/manifests/agents/lbaas/package.pp
+@@ -0,0 +1,23 @@
++# == Class: neutron::agents:lbaas::package
++#
++# Installs Neutron Load Balancing agent package.
++#
++# === Parameters
++#
++# [*package_ensure*]
++#   (optional) Ensure state for package. Defaults to 'present'.
++#
++class neutron::agents::lbaas::package (
++  $package_ensure = present,
++) {
++  include ::neutron::params
++
++  Package['neutron']             -> Package['neutron-lbaas-agent']
++  Package['neutron-lbaas-agent'] -> Neutron_config<||>
++  Package['neutron-lbaas-agent'] -> Neutron_lbaas_agent_config<||>
++  package { 'neutron-lbaas-agent':
++    ensure => $package_ensure,
++    name   => $::neutron::params::lbaas_agent_package,
++    tag    => 'openstack',
++  }
++}
 diff --git a/neutron/manifests/agents/vpnaas.pp b/neutron/manifests/agents/vpnaas.pp
 index 93dc44d..6d515b6 100644
 --- a/neutron/manifests/agents/vpnaas.pp
@@ -145,6 +113,38 @@ index 93dc44d..6d515b6 100644
    if $manage_service {
      if $enabled {
        $service_ensure = 'running'
+diff --git a/neutron/manifests/agents/vpnaas/package.pp b/neutron/manifests/agents/vpnaas/package.pp
+new file mode 100644
+index 0000000..2fc103a
+--- /dev/null
++++ b/neutron/manifests/agents/vpnaas/package.pp
+@@ -0,0 +1,26 @@
++# == Class: neutron::agents:vpnaas::package
++#
++# Installs Neutron VPN agent.
++#
++# === Parameters
++#
++# [*package_ensure*]
++#   (optional) Ensure state for package. Defaults to 'present'.
++#
++class neutron::agents::vpnaas::package (
++  $package_ensure = present,
++) {
++
++  if $::neutron::params::vpnaas_agent_package {
++    Package['neutron']            -> Package['neutron-vpnaas-agent']
++    Package['neutron-vpnaas-agent'] -> Neutron_vpnaas_agent_config<||>
++    package { 'neutron-vpnaas-agent':
++      ensure => $package_ensure,
++      name   => $::neutron::params::vpnaas_agent_package,
++      tag    => 'openstack',
++    }
++  } else {
++    Package['neutron'] -> Neutron_vpnaas_agent_config<||>
++  }
++
++}
 diff --git a/neutron/manifests/db/sync.pp b/neutron/manifests/db/sync.pp
 index 82b1591..463d830 100644
 --- a/neutron/manifests/db/sync.pp

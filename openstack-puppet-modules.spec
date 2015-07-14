@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Version:        2015.1.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -70,6 +70,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Jul 14 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.9-2
+- Run neutron db sync also for each neutron module
+
 * Tue Jul 14 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.9-1
 - Update to upstream 2015.1.9
 
