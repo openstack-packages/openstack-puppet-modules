@@ -37,6 +37,8 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %files
+%{_datadir}/openstack-puppet
+%{_datadir}/openstack-puppet/modules
 %{_datadir}/openstack-puppet/modules/*
 %{_datadir}/openstack-puppet/Puppetfile
 
