@@ -1,3 +1,67 @@
+* Tue Jul 14 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.9-2
+- Run neutron db sync also for each neutron module
+
+* Tue Jul 14 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.9-1
+- Update to upstream 2015.1.9
+
+* Wed Jul 08 2015 Iván Chavero <ichavero@redhat.com> - 2015.1.8-3
+- Add 0007-Support-setting-instance_user-to-an-empty-string.patch
+- Add 0008-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
+  this patch number changed because it wasn't added to the OPM repo
+
+* Wed Jul 08 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-2
+- Add 0007-Expose-RPC-response-timeout-as-a-puppet-parameter.patch
+
+* Fri Jul 03 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.8-1
+- Update to upstream 2015.1.8
+- Remove Unused patches
+- Add 0006-Fix-Heat-302-redirects.patch
+
+* Thu Jun 25 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-5
+- Deliver fixes for tripleo
+- Introduce param to enable use of clustercheck
+- Use mode tcp for glance-registry balancing
+- Add $verify_on_create ability for all resources.
+
+* Thu Jun 25 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-4
+- Revert "glance provider: pick os_region_name from DEFAULT"
+
+* Thu Jun 25 2015 Iván Chavero <ichavero@redhat.com> 2015.1.7-3
+- Add 0010-Install-only-required-libvirt-packages.patch
+
+* Wed Jun 24 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-2
+- Revert "access out-of-scope variables via the scope.lookupvar method"
+
+* Tue Jun 23 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.7-1
+- Update to upstream 2015.1.7
+
+* Wed Jun 17 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.6-2
+- [Rabbitmq] set repos_ensure to false
+- Fix support for puppet 4
+- Explicitly say that ovs_redhat parent is ovs
+
+* Mon Jun 15 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.6-1
+- Update to upstream 2015.1.6
+
+* Thu Jun 11 2015 Ivan Chavero <ichavero@redhat.com> 2015.1.4-1
+- Update to upstream 2015.1.4
+- Bump glance to master
+
+* Tue Jun 02 2015 Ivan Chavero <ichavero@redhat.com> 2015.1.3-1
+- Update to upstream 2015.1.3
+
+* Fri May 15 2015 Lukas Bezdicka <lbezdick@redhat.com> 2015.1.2-1
+- Update to upstream 2015.1.2
+
+* Wed May 13 2015 Gaël Chamoulaud <gchamoul@redhat.com> - 2015.1.1-1
+-  Updated to release 2015.1.1
+
+* Mon May 11 2015 Haïkel Guémar <hguemar@fedoraproject.org> - 2015.1.0-2
+- Add patch to fix TripleO support
+
+* Thu Apr 30 2015 Alan Pevec <alan.pevec@redhat.com> 2015.1.0-1
+- OpenStack Kilo release
+
 * Tue Apr 28 2015 Ivan Chavero <ichavero@redhat.com> 2014.2.15-2
 - Add 0014-Added-ulimit-support-for-RabbitMQ-which-was-restrict.patch
 - Add 0015-Fixes-for-file_limit.patch
