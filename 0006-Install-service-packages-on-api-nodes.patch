@@ -1,0 +1,256 @@
+From b61fceb2c52fd4d920bd9b6b5e409ebb156a0e4d Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Sun, 12 Jul 2015 05:49:00 -0400
+Subject: [PATCH] Install service packages on api nodes
+
+As of Liberty FWaaS, VPNaaS and LBaaS packages need to be installed on
+neutron API node otherwise the neutron service won't start.
+
+Closes-Bug: #1474961
+Change-Id: I9b2c00309f3a72f76fffd22a6f3b802e5f78dad2
+---
+ neutron/manifests/agents/lbaas.pp             | 12 +++----
+ neutron/manifests/agents/lbaas/package.pp     | 21 +++++++++++
+ neutron/manifests/agents/vpnaas.pp            | 14 +++-----
+ neutron/manifests/agents/vpnaas/package.pp    | 23 ++++++++++++
+ neutron/manifests/init.pp                     | 52 +++++++++++++++++++++++++++
+ neutron/spec/acceptance/basic_neutron_spec.rb | 13 ++++---
+ neutron/spec/classes/neutron_init_spec.rb     |  3 ++
+ 7 files changed, 119 insertions(+), 19 deletions(-)
+ create mode 100644 neutron/manifests/agents/lbaas/package.pp
+ create mode 100644 neutron/manifests/agents/vpnaas/package.pp
+
+diff --git a/neutron/manifests/agents/lbaas.pp b/neutron/manifests/agents/lbaas.pp
+index 32d40c5..61b83a2 100644
+--- a/neutron/manifests/agents/lbaas.pp
++++ b/neutron/manifests/agents/lbaas.pp
+@@ -87,12 +87,6 @@ class neutron::agents::lbaas (
+     }
+   }
+ 
+-  Package['neutron']            -> Package['neutron-lbaas-agent']
+-  package { 'neutron-lbaas-agent':
+-    ensure => $package_ensure,
+-    name   => $::neutron::params::lbaas_agent_package,
+-    tag    => ['openstack', 'neutron-package'],
+-  }
+   if $manage_service {
+     if $enabled {
+       $service_ensure = 'running'
+@@ -103,6 +97,12 @@ class neutron::agents::lbaas (
+     Package['neutron-lbaas-agent'] ~> Service['neutron-lbaas-service']
+   }
+ 
++  if ! defined(Class['::neutron::agents::lbaas::package']) {
++    class { '::neutron::agents::lbaas::package':
++      package_ensure => $package_ensure,
++    }
++  }
++
+   service { 'neutron-lbaas-service':
+     ensure  => $service_ensure,
+     name    => $::neutron::params::lbaas_agent_service,
+diff --git a/neutron/manifests/agents/lbaas/package.pp b/neutron/manifests/agents/lbaas/package.pp
+new file mode 100644
+index 0000000..895264c
+--- /dev/null
++++ b/neutron/manifests/agents/lbaas/package.pp
+@@ -0,0 +1,21 @@
++# == Class: neutron::agents:lbaas::package
++#
++# Installs Neutron Load Balancing agent package.
++#
++# === Parameters
++#
++# [*package_ensure*]
++#   (optional) Ensure state for package. Defaults to 'present'.
++#
++class neutron::agents::lbaas::package (
++  $package_ensure = present,
++) {
++  include ::neutron::params
++
++  Package['neutron']             -> Package['neutron-lbaas-agent']
++  package { 'neutron-lbaas-agent':
++    ensure => $package_ensure,
++    name   => $::neutron::params::lbaas_agent_package,
++    tag    => ['openstack', 'neutron-package'],
++  }
++}
+diff --git a/neutron/manifests/agents/vpnaas.pp b/neutron/manifests/agents/vpnaas.pp
+index 69636b5..cedccfa 100644
+--- a/neutron/manifests/agents/vpnaas.pp
++++ b/neutron/manifests/agents/vpnaas.pp
+@@ -54,6 +54,11 @@ class neutron::agents::vpnaas (
+ ) {
+ 
+   include ::neutron::params
++  if ! defined(Class['::neutron::agents::vpnaas::package']) {
++    class { '::neutron::agents::vpnaas::package':
++      package_ensure => $package_ensure,
++    }
++  }
+ 
+   Neutron_config<||>              ~> Service['neutron-vpnaas-service']
+   Neutron_vpnaas_agent_config<||> ~> Service['neutron-vpnaas-service']
+@@ -90,15 +95,6 @@ class neutron::agents::vpnaas (
+     }
+   }
+ 
+-  if $::neutron::params::vpnaas_agent_package {
+-    Package['neutron']            -> Package['neutron-vpnaas-agent']
+-    package { 'neutron-vpnaas-agent':
+-      ensure => $package_ensure,
+-      name   => $::neutron::params::vpnaas_agent_package,
+-      tag    => ['openstack', 'neutron-package'],
+-    }
+-  }
+-
+   if $manage_service {
+     if $enabled {
+       $service_ensure = 'running'
+diff --git a/neutron/manifests/agents/vpnaas/package.pp b/neutron/manifests/agents/vpnaas/package.pp
+new file mode 100644
+index 0000000..162fc60
+--- /dev/null
++++ b/neutron/manifests/agents/vpnaas/package.pp
+@@ -0,0 +1,23 @@
++# == Class: neutron::agents:vpnaas::package
++#
++# Installs Neutron VPN agent.
++#
++# === Parameters
++#
++# [*package_ensure*]
++#   (optional) Ensure state for package. Defaults to 'present'.
++#
++class neutron::agents::vpnaas::package (
++  $package_ensure = present,
++) {
++
++  if $::neutron::params::vpnaas_agent_package {
++    Package['neutron']            -> Package['neutron-vpnaas-agent']
++    package { 'neutron-vpnaas-agent':
++      ensure => $package_ensure,
++      name   => $::neutron::params::vpnaas_agent_package,
++      tag    => ['openstack', 'neutron-package'],
++    }
++  }
++
++}
+diff --git a/neutron/manifests/init.pp b/neutron/manifests/init.pp
+index b486016..4d576f9 100644
+--- a/neutron/manifests/init.pp
++++ b/neutron/manifests/init.pp
+@@ -422,7 +422,59 @@ class neutron (
+ 
+   if $service_plugins {
+     if is_array($service_plugins) {
++      $deprecated = [
++        'neutron.services.loadbalancer.plugin.LoadBalancerPlugin',
++        'neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPlugin',
++        'neutron.services.firewall.fwaas_plugin.FirewallPlugin',
++        'neutron_fwaas.services.firewall.fwaas_plugin.FirewallPlugin',
++        'neutron_vpnaas.services.vpn.plugin.VPNDriverPlugin',
++        'neutron.services.vpn.plugin.VPNDriverPlugin'
++      ]
++
++      $deprecated_present = intersection($deprecated, $service_plugins)
++
++      if !empty($deprecated_present) {
++        warning("You should stop using full import paths: ${deprecated_present} please use router, firewall, lbaas, vpnaas, metering")
++      }
++
++      $lbaas = [
++        'lbaas',
++        'neutron.services.loadbalancer.plugin.LoadBalancerPlugin',
++        'neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPlugin'
++      ]
++      $fwaas = [
++        'firewall',
++        'neutron.services.firewall.fwaas_plugin.FirewallPlugin',
++        'neutron_fwaas.services.firewall.fwaas_plugin.FirewallPlugin'
++      ]
++      $vpnaas = [
++        'vpnaas',
++        'neutron_vpnaas.services.vpn.plugin.VPNDriverPlugin',
++        'neutron.services.vpn.plugin.VPNDriverPlugin'
++      ]
++
+       neutron_config { 'DEFAULT/service_plugins': value => join($service_plugins, ',') }
++
++      if !empty(intersection($lbaas, $service_plugins)) {
++        if ! defined(Class['::neutron::agents::lbaas::package']) {
++          class { '::neutron::agents::lbaas::package':
++            package_ensure => $package_ensure,
++          }
++        }
++      }
++
++      if !empty(intersection($fwaas, $service_plugins)) {
++        include ::neutron::services::fwaas
++      }
++
++      if !empty(intersection($vpnaas, $service_plugins)) {
++        if ! defined(Class['::neutron::agents::vpnaas::package']) {
++          class { '::neutron::agents::vpnaas::package':
++            package_ensure => $package_ensure,
++          }
++        }
++      }
++
+     } else {
+       fail('service_plugins should be an array.')
+     }
+diff --git a/neutron/spec/acceptance/basic_neutron_spec.rb b/neutron/spec/acceptance/basic_neutron_spec.rb
+index 88b55c6..5e0ca8a 100644
+--- a/neutron/spec/acceptance/basic_neutron_spec.rb
++++ b/neutron/spec/acceptance/basic_neutron_spec.rb
+@@ -94,7 +94,9 @@ describe 'basic neutron' do
+         public_url => "https://${::fqdn}:5000/",
+         admin_url  => "https://${::fqdn}:35357/",
+       }
+-
++      class { '::neutron::services::fwaas':
++        enabled => true,
++      }
+       # Neutron resources
+       class { '::neutron':
+         rabbit_user           => 'neutron',
+@@ -105,9 +107,11 @@ describe 'basic neutron' do
+         debug                 => true,
+         verbose               => true,
+         service_plugins => [
+-          'neutron.services.l3_router.l3_router_plugin.L3RouterPlugin',
+-          'neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPlugin',
+-          'neutron.services.metering.metering_plugin.MeteringPlugin',
++          'router',
++          'lbaas',
++          'metering',
++          'firewall',
++          'vpnaas',
+         ],
+       }
+       class { '::neutron::db::mysql':
+@@ -126,6 +130,7 @@ describe 'basic neutron' do
+       class { '::neutron::quota': }
+       class { '::neutron::agents::dhcp': debug => true }
+       class { '::neutron::agents::l3': debug => true }
++      class { '::neutron::agents::vpnaas': }
+       class { '::neutron::agents::lbaas':
+         debug => true,
+       }
+diff --git a/neutron/spec/classes/neutron_init_spec.rb b/neutron/spec/classes/neutron_init_spec.rb
+index 33cb3cd..c495552 100644
+--- a/neutron/spec/classes/neutron_init_spec.rb
++++ b/neutron/spec/classes/neutron_init_spec.rb
+@@ -404,6 +404,9 @@ describe 'neutron' do
+     end
+ 
+     it do
++      is_expected.to contain_class('neutron::agents::lbaas::package')
++      is_expected.to contain_class('neutron::agents::vpnaas::package')
++      is_expected.to contain_class('neutron::services::fwaas')
+       is_expected.to contain_neutron_config('DEFAULT/service_plugins').with_value('router,firewall,lbaas,vpnaas,metering')
+     end
+ 

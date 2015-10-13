@@ -1,0 +1,45 @@
+From ed8a369101231e456b97667b53df73749d03b6e4 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Thu, 10 Sep 2015 13:11:55 +0200
+Subject: [PATCH] Remove installation of pm-utils
+
+pm-utils was installed on compute nodes because of bug
+in packaging. This should be long fixed and pm-utils
+it's self is long dead in upstream.
+
+Change-Id: Ib5f2ee9b4ab58a32fd5f8c4ad514223795bd5225
+---
+ nova/manifests/compute.pp              | 4 ----
+ nova/spec/classes/nova_compute_spec.rb | 4 ----
+ 2 files changed, 8 deletions(-)
+
+diff --git a/nova/manifests/compute.pp b/nova/manifests/compute.pp
+index a1901e9..2e9432c 100644
+--- a/nova/manifests/compute.pp
++++ b/nova/manifests/compute.pp
+@@ -212,10 +212,6 @@ class nova::compute (
+     }
+   }
+ 
+-  package { 'pm-utils':
+-    ensure => present,
+-  }
+-
+   nova_config {
+     'DEFAULT/force_raw_images': value => $force_raw_images;
+   }
+diff --git a/nova/spec/classes/nova_compute_spec.rb b/nova/spec/classes/nova_compute_spec.rb
+index 89e0d3b..0d01846 100644
+--- a/nova/spec/classes/nova_compute_spec.rb
++++ b/nova/spec/classes/nova_compute_spec.rb
+@@ -32,10 +32,6 @@ describe 'nova::compute' do
+         :before => 'Nova::Generic_service[compute]'
+       ) }
+ 
+-      it { is_expected.to contain_package('pm-utils').with(
+-        :ensure => 'present'
+-      ) }
+-
+       it { is_expected.to contain_nova_config('DEFAULT/force_raw_images').with(:value => true) }
+ 
+       it 'configures availability zones' do

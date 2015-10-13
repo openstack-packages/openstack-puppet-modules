@@ -1,0 +1,53 @@
+From fa1eadbd5845565b09387d280e1928b25c72a811 Mon Sep 17 00:00:00 2001
+From: Lukas Bezdicka <lbezdick@redhat.com>
+Date: Mon, 8 Jun 2015 15:57:53 +0200
+Subject: [PATCH] Explicitly say that ovs_redhat parent is ovs
+
+Fix coding error where puppet autopreloaded provider before instead
+of the provider being specifically defined. This fixes puppet 4 error:
+Could not find parent provider ovs_redhat of ovs_redhat_el6
+
+Change-Id: I96931b67dbc18087abe7d673b202ef976bee4f83
+---
+ vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb     | 7 ++++++-
+ vswitch/lib/puppet/provider/vs_port/ovs_redhat_el6.rb | 5 ++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb b/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
+index 41f6445..c4a3205 100644
+--- a/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
++++ b/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
+@@ -1,4 +1,5 @@
+ require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppetx', 'redhat', 'ifcfg.rb'))
++require File.expand_path(File.join(File.dirname(__FILE__), '.','ovs.rb'))
+ 
+ BASE = '/etc/sysconfig/network-scripts/ifcfg-'
+ 
+@@ -10,7 +11,11 @@ DEFAULT = {
+   'NM_CONTROLLED' => 'no',
+   'NOZEROCONF'    => 'yes' }
+ 
+-Puppet::Type.type(:vs_port).provide(:ovs_redhat, :parent => :ovs) do
++Puppet::Type.type(:vs_port).provide(
++  :ovs_redhat,
++  :parent => Puppet::Type.type(:vs_port).provider(:ovs)
++) do
++
+   desc 'Openvswitch port manipulation for RedHat OSes family'
+ 
+   confine    :osfamily => :redhat
+diff --git a/vswitch/lib/puppet/provider/vs_port/ovs_redhat_el6.rb b/vswitch/lib/puppet/provider/vs_port/ovs_redhat_el6.rb
+index bb6edcc..514e1af 100644
+--- a/vswitch/lib/puppet/provider/vs_port/ovs_redhat_el6.rb
++++ b/vswitch/lib/puppet/provider/vs_port/ovs_redhat_el6.rb
+@@ -1,6 +1,9 @@
+ require File.expand_path(File.join(File.dirname(__FILE__), '.','ovs_redhat.rb'))
+ 
+-Puppet::Type.type(:vs_port).provide(:ovs_redhat_el6, :parent => :ovs_redhat) do
++Puppet::Type.type(:vs_port).provide(
++  :ovs_redhat_el6,
++  :parent => Puppet::Type.type(:vs_port).provider(:ovs_redhat)
++) do
+   desc 'Openvswitch port manipulation for RedHat OSes family'
+ 
+   confine    :osfamily => :redhat, :operatingsystemmajrelease => 6
