@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Epoch:          1
-Version:        7.0.0
+Version:        7.0.1
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -20,6 +20,8 @@ Patch0006: 0006-Install-service-packages-on-api-nodes.patch
 Patch0007: 0007-Remove-installation-of-pm-utils.patch
 Patch0008: 0008-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
 Patch0009: 0009-Add-support-for-swift-object-expirer-service.patch
+Patch0010: 0010-Simplify-rpc_backend-parameter.patch
+Patch0011: 0011-Drop-nova_admin_tenant_id_setter.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -41,6 +43,8 @@ OpenStack via installers using Puppet configuration tool.
 %patch0007 -p1
 %patch0008 -p1
 %patch0009 -p1
+%patch0010 -p1
+%patch0011 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -66,6 +70,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Oct 20 2015 Lukas Bezdicka <lbezdick@redhat.com> 1:7.0.1-1
+- Update to upstream 7.0.1
+
 * Tue Oct 13 2015 Lukas Bezdicka <lbezdick@redhat.com> 7.0.0-1
 - Update to upstream 7.0.0
 

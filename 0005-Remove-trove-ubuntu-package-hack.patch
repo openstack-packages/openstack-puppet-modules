@@ -1,4 +1,4 @@
-From 64611290adcf0aa98964b1225d16884fcc316ba5 Mon Sep 17 00:00:00 2001
+From 36f2a203eede5c8fd1bded6c7842b9d197add882 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Tue, 8 Sep 2015 14:10:29 +0200
 Subject: [PATCH] Remove trove ubuntu package hack
@@ -16,7 +16,7 @@ Change-Id: Id447a47a056a41d8c98b01d6769f4121a36d7aae
  5 files changed, 7 insertions(+), 52 deletions(-)
 
 diff --git a/trove/manifests/api.pp b/trove/manifests/api.pp
-index d54351b..955ce92 100644
+index 2d5d4df..4c397d3 100644
 --- a/trove/manifests/api.pp
 +++ b/trove/manifests/api.pp
 @@ -176,16 +176,9 @@ class trove::api(
@@ -38,7 +38,7 @@ index d54351b..955ce92 100644
    if $::trove::database_connection {
      if($::trove::database_connection =~ /mysql:\/\/\S+:\S+@\S+\/\S+/) {
 diff --git a/trove/manifests/conductor.pp b/trove/manifests/conductor.pp
-index b2c788d..383138a 100644
+index 7ef7efb..f5f327e 100644
 --- a/trove/manifests/conductor.pp
 +++ b/trove/manifests/conductor.pp
 @@ -66,16 +66,9 @@ class trove::conductor(
@@ -71,7 +71,7 @@ index 97d69db..9d3f947 100644
    }
  }
 diff --git a/trove/manifests/guestagent.pp b/trove/manifests/guestagent.pp
-index 3feabc1..3f977a0 100644
+index ab770d0..089363f 100644
 --- a/trove/manifests/guestagent.pp
 +++ b/trove/manifests/guestagent.pp
 @@ -71,16 +71,9 @@ class trove::guestagent(
@@ -93,7 +93,7 @@ index 3feabc1..3f977a0 100644
    # basic service config
    trove_guestagent_config {
 diff --git a/trove/manifests/init.pp b/trove/manifests/init.pp
-index d31cf1f..2455c12 100644
+index 734d77c..c5827ea 100644
 --- a/trove/manifests/init.pp
 +++ b/trove/manifests/init.pp
 @@ -282,32 +282,9 @@ class trove(

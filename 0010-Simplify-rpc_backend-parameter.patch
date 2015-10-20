@@ -1,0 +1,113 @@
+From 9c63acee319489c380238125549b52f15dae9b61 Mon Sep 17 00:00:00 2001
+From: Javier Pena <jpena@redhat.com>
+Date: Fri, 9 Oct 2015 18:54:12 +0200
+Subject: [PATCH] Simplify rpc_backend parameter
+
+It is no longer necessary to specify the whole python namespace
+for the backends, and
+http://docs.openstack.org/developer/oslo.messaging/opts.html lists
+the short versions.
+
+This patch maintains backwards compatibility with the previous
+default value in case it is explicitly used.
+
+Change-Id: I33cf918e394bfed9e436a4a8c9efc1c1dcc2f22d
+---
+ cinder/manifests/init.pp           |  8 ++++----
+ cinder/spec/classes/cinder_spec.rb | 12 ++++++------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/cinder/manifests/init.pp b/cinder/manifests/init.pp
+index a2391bf..5fa3a2b 100644
+--- a/cinder/manifests/init.pp
++++ b/cinder/manifests/init.pp
+@@ -18,7 +18,7 @@
+ #
+ # [*rpc_backend*]
+ #   (Optional) Use these options to configure the RabbitMQ message system.
+-#   Defaults to 'cinder.openstack.common.rpc.impl_kombu'
++#   Defaults to 'rabbit'
+ #
+ # [*control_exchange*]
+ #   (Optional)
+@@ -234,7 +234,7 @@ class cinder (
+   $database_max_retries               = undef,
+   $database_retry_interval            = undef,
+   $database_max_overflow              = undef,
+-  $rpc_backend                        = 'cinder.openstack.common.rpc.impl_kombu',
++  $rpc_backend                        = 'rabbit',
+   $control_exchange                   = 'openstack',
+   $rabbit_host                        = '127.0.0.1',
+   $rabbit_port                        = 5672,
+@@ -307,7 +307,7 @@ class cinder (
+     require => Anchor['cinder-start'],
+   }
+ 
+-  if $rpc_backend == 'cinder.openstack.common.rpc.impl_kombu' {
++  if $rpc_backend == 'cinder.openstack.common.rpc.impl_kombu' or $rpc_backend == 'rabbit' {
+ 
+     if ! $rabbit_password {
+       fail('Please specify a rabbit_password parameter.')
+@@ -342,7 +342,7 @@ class cinder (
+ 
+   }
+ 
+-  if $rpc_backend == 'cinder.openstack.common.rpc.impl_qpid' {
++  if $rpc_backend == 'cinder.openstack.common.rpc.impl_qpid' or $rpc_backend == 'qpid' {
+ 
+     if ! $qpid_password {
+       fail('Please specify a qpid_password parameter.')
+diff --git a/cinder/spec/classes/cinder_spec.rb b/cinder/spec/classes/cinder_spec.rb
+index 8695d14..4a84d88 100644
+--- a/cinder/spec/classes/cinder_spec.rb
++++ b/cinder/spec/classes/cinder_spec.rb
+@@ -22,7 +22,7 @@ describe 'cinder' do
+     it { is_expected.to contain_class('mysql::bindings::python') }
+ 
+     it 'should contain default config' do
+-      is_expected.to contain_cinder_config('DEFAULT/rpc_backend').with(:value => 'cinder.openstack.common.rpc.impl_kombu')
++      is_expected.to contain_cinder_config('DEFAULT/rpc_backend').with(:value => 'rabbit')
+       is_expected.to contain_cinder_config('DEFAULT/control_exchange').with(:value => 'openstack')
+       is_expected.to contain_cinder_config('oslo_messaging_rabbit/rabbit_password').with(:value => 'guest', :secret => true)
+       is_expected.to contain_cinder_config('oslo_messaging_rabbit/rabbit_host').with(:value => '127.0.0.1')
+@@ -83,11 +83,11 @@ describe 'cinder' do
+       {
+         :database_connection => 'mysql://user:password@host/database',
+         :qpid_password       => 'guest',
+-        :rpc_backend         => 'cinder.openstack.common.rpc.impl_qpid'
++        :rpc_backend         => 'qpid'
+       }
+     end
+ 
+-    it { is_expected.to contain_cinder_config('DEFAULT/rpc_backend').with_value('cinder.openstack.common.rpc.impl_qpid') }
++    it { is_expected.to contain_cinder_config('DEFAULT/rpc_backend').with_value('qpid') }
+     it { is_expected.to contain_cinder_config('DEFAULT/qpid_hostname').with_value('localhost') }
+     it { is_expected.to contain_cinder_config('DEFAULT/qpid_port').with_value('5672') }
+     it { is_expected.to contain_cinder_config('DEFAULT/qpid_username').with_value('guest') }
+@@ -108,7 +108,7 @@ describe 'cinder' do
+       {
+         :database_connection  => 'mysql://user:password@host/database',
+         :qpid_password        => 'guest',
+-        :rpc_backend          => 'cinder.openstack.common.rpc.impl_qpid'
++        :rpc_backend          => 'qpid'
+       }
+     end
+ 
+@@ -121,7 +121,7 @@ describe 'cinder' do
+         :database_connection  => 'mysql://user:password@host/database',
+         :qpid_password        => 'guest',
+         :qpid_sasl_mechanisms => 'PLAIN',
+-        :rpc_backend          => 'cinder.openstack.common.rpc.impl_qpid'
++        :rpc_backend          => 'qpid'
+       }
+     end
+ 
+@@ -134,7 +134,7 @@ describe 'cinder' do
+         :database_connection  => 'mysql://user:password@host/database',
+         :qpid_password        => 'guest',
+         :qpid_sasl_mechanisms => [ 'DIGEST-MD5', 'GSSAPI', 'PLAIN' ],
+-        :rpc_backend          => 'cinder.openstack.common.rpc.impl_qpid'
++        :rpc_backend          => 'qpid'
+       }
+     end
+ 

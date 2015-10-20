@@ -1,4 +1,4 @@
-From b61fceb2c52fd4d920bd9b6b5e409ebb156a0e4d Mon Sep 17 00:00:00 2001
+From 0496e1dcb176aec940e7bac44462c2c2ee5b269c Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Sun, 12 Jul 2015 05:49:00 -0400
 Subject: [PATCH] Install service packages on api nodes
