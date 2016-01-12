@@ -7,7 +7,7 @@ License:        ASL 2.0 and GPLv2 and GPLv3
 
 URL:            https://github.com/redhat-openstack
 
-Source0:        https://github.com/redhat-openstack/openstack-puppet-modules/archive/master-patches/openstack-puppet-modules-master-patches.tar.gz
+Source0:        openstack-puppet-modules.tar.gz
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -17,7 +17,7 @@ A collection of Puppet modules used to install and configure OpenStack.
 
 
 %prep
-%setup -q -n %{name}-master-patches
+%setup -q
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
