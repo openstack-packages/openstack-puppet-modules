@@ -1,7 +1,7 @@
 Name:           openstack-puppet-modules
 Epoch:          1
-Version:        7.0.0
-Release:        0.1%{?dist}
+Version:        XXX
+Release:        XXX
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
