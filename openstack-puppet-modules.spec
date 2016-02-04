@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Epoch:          1
-Version:        7.0.1
+Version:        7.0.6
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -16,12 +16,12 @@ Patch0002: 0002-Fix-support-for-puppet-4.patch
 Patch0003: 0003-Rabbitmq-set-repos_ensure-to-false.patch
 Patch0004: 0004-Setup-SELinux-booleans-if-running-in-httpd.patch
 Patch0005: 0005-Remove-trove-ubuntu-package-hack.patch
-Patch0006: 0006-Install-service-packages-on-api-nodes.patch
-Patch0007: 0007-Remove-installation-of-pm-utils.patch
-Patch0008: 0008-Explicitly-say-that-ovs_redhat-parent-is-ovs.patch
-Patch0009: 0009-Add-support-for-swift-object-expirer-service.patch
-Patch0010: 0010-Simplify-rpc_backend-parameter.patch
-Patch0011: 0011-Drop-nova_admin_tenant_id_setter.patch
+Patch0006: 0006-Remove-installation-of-pm-utils.patch
+Patch0007: 0007-Switch-id-setters-to-openstack-client.patch
+Patch0008: 0008-Dummy-change-to-trigger-OPM-build.patch
+Patch0009: 0009-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-N.patch
+Patch0010: 0010-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-K.patch
+Patch0011: 0011-Fix-vs_port-usage-in-Red-Hat-distros.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -70,6 +70,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Thu Feb 04 2016 Lukas Bezdicka <lbezdick@redhat.com> 1:7.0.6-1
+- Update to upstream 7.0.6
+
 * Tue Oct 20 2015 Lukas Bezdicka <lbezdick@redhat.com> 1:7.0.1-1
 - Update to upstream 7.0.1
 

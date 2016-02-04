@@ -1,0 +1,38 @@
+From 17bdd0a453a617001f44ef8373f25d7df24fe438 Mon Sep 17 00:00:00 2001
+From: Javier Pena <jpena@redhat.com>
+Date: Wed, 27 Jan 2016 18:48:09 +0100
+Subject: [PATCH] Fix vs_port usage in Red Hat distros
+
+Commit f39a4ca961ac1353b48c60d2c27aebba8ae1b2da moved constant
+creation inside a do block to avoid duplication warnings, but at
+the same time renamed them to self::BASE and self::DEFAULT, causing
+issues when those variables where used elsewhere (e.g. in
+lib/puppetx/redhat/ifcfg.rb).
+
+Renaming those variables back and using ||= for assignment removes
+the warning, while at the same time fixes the issues created by the
+previous commit.
+
+Change-Id: I3a02710811d91e141d56ab476dd32c3c7cf0ca80
+(cherry picked from commit eb1677526ceaa97b98b7b85e23b3a6b95b5eaf2f)
+---
+ vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb b/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
+index 0134bfa..44da999 100644
+--- a/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
++++ b/vswitch/lib/puppet/provider/vs_port/ovs_redhat.rb
+@@ -8,10 +8,10 @@ Puppet::Type.type(:vs_port).provide(
+ 
+   desc 'Openvswitch port manipulation for RedHat OSes family'
+ 
+-  self::BASE = '/etc/sysconfig/network-scripts/ifcfg-'
++  BASE ||= '/etc/sysconfig/network-scripts/ifcfg-'
+ 
+   # When not seedling from interface file
+-  self::DEFAULT = {
++  DEFAULT ||= {
+     'ONBOOT'        => 'yes',
+     'BOOTPROTO'     => 'dhcp',
+     'PEERDNS'       => 'no',

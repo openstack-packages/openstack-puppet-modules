@@ -1,4 +1,4 @@
-From 255ae136abc0885874afa5de6bbe1d6e9d81c5c5 Mon Sep 17 00:00:00 2001
+From b0c4dd771d85b7e9bd20dc9d17126b973765944d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Martin=20M=C3=A1gr?= <mmagr@redhat.com>
 Date: Fri, 3 Oct 2014 19:18:45 +0200
 Subject: [PATCH] Change default documentation URL
@@ -13,10 +13,10 @@ Signed-off-by: Gael Chamoulaud <gchamoul@redhat.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/horizon/manifests/init.pp b/horizon/manifests/init.pp
-index 1e7df3d..89d2807 100644
+index fd404ea..ce974a1 100644
 --- a/horizon/manifests/init.pp
 +++ b/horizon/manifests/init.pp
-@@ -272,7 +272,7 @@ class horizon(
+@@ -278,7 +278,7 @@ class horizon(
    $api_result_limit                    = 1000,
    $log_handler                         = 'file',
    $log_level                           = 'INFO',

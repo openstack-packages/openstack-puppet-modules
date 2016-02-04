@@ -1,0 +1,82 @@
+From 36cf2aa6290423605fb13800dfa84f65552cfb30 Mon Sep 17 00:00:00 2001
+From: Javier Pena <jpena@redhat.com>
+Date: Wed, 2 Dec 2015 14:23:25 +0100
+Subject: [PATCH] Follow-up on PyMySQL support for Red Hat platforms (Nova).
+
+Rely on packaging dependencies to avoid issues caused by different
+package names between Fedora and RHEL (python-PyMySQL vs
+python2-PyMySQL).
+
+https://review.openstack.org/#/c/245229/4/spec/classes/neutron_db_spec.rb
+includes all the discussion that led to this.
+
+Change-Id: I6ba84a2636411a0be76603d47ca09ee4c93fbfe6
+(cherry picked from commit bd64e9274b33e89814a223240f3c954a71c8bca3)
+---
+ nova/manifests/params.pp          |  2 +-
+ nova/spec/classes/nova_db_spec.rb | 29 +++++++++++++++++++++--------
+ 2 files changed, 22 insertions(+), 9 deletions(-)
+
+diff --git a/nova/manifests/params.pp b/nova/manifests/params.pp
+index 29e9b0f..df14e7e 100644
+--- a/nova/manifests/params.pp
++++ b/nova/manifests/params.pp
+@@ -27,7 +27,7 @@ class nova::params {
+       $serialproxy_package_name      = 'openstack-nova-serialproxy'
+       $spicehtml5proxy_package_name  = 'openstack-nova-console'
+       $sqlite_package_name           = undef
+-      $pymysql_package_name          = 'python2-PyMySQL'
++      $pymysql_package_name          = undef
+       # service names
+       $api_service_name             = 'openstack-nova-api'
+       $cells_service_name           = 'openstack-nova-cells'
+diff --git a/nova/spec/classes/nova_db_spec.rb b/nova/spec/classes/nova_db_spec.rb
+index 2a76aa0..1ef6389 100644
+--- a/nova/spec/classes/nova_db_spec.rb
++++ b/nova/spec/classes/nova_db_spec.rb
+@@ -79,12 +79,21 @@ describe 'nova::db' do
+       }
+     end
+ 
+-    let :platform_params do
+-      { :pymysql_package_name => 'python-pymysql' }
+-    end
+-
+     it_configures 'nova::db'
+ 
++    context 'using pymysql driver' do
++      let :params do
++        { :database_connection   => 'mysql+pymysql://user:pass@db/db', }
++      end
++      it 'install the proper backend package' do
++        is_expected.to contain_package('nova-backend-package').with(
++          :ensure => 'present',
++          :name   => 'python-pymysql',
++          :tag    => 'openstack'
++        )
++      end
++    end
++
+     context 'with sqlite backend' do
+       let :params do
+         { :database_connection     => 'sqlite:///var/lib/nova/nova.sqlite', }
+@@ -108,11 +117,15 @@ describe 'nova::db' do
+       }
+     end
+ 
+-    let :platform_params do
+-      { :pymysql_package_name => 'python2-PyMySQL' }
+-    end
+-
+     it_configures 'nova::db'
++
++    context 'using pymysql driver' do
++      let :params do
++        { :database_connection   => 'mysql+pymysql://user:pass@db/db', }
++      end
++
++      it { is_expected.not_to contain_package('nova-backend-package') }
++    end
+   end
+ 
+ end

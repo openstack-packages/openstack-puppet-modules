@@ -1,4 +1,4 @@
-From 034196f6d61312d0cb218691d80c0e1ffadd4842 Mon Sep 17 00:00:00 2001
+From 62265116ddbb8026aac7a9da5e9586c8215905a9 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Mon, 13 Jul 2015 17:39:39 +0200
 Subject: [PATCH] Setup SELinux booleans if running in httpd

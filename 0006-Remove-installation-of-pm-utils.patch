@@ -1,4 +1,4 @@
-From fbbadf1373e5a3e3d363f82b8e5cc860276d5a5d Mon Sep 17 00:00:00 2001
+From 44284c97e08fa2de75c2f7f61fca186108ff3462 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Thu, 10 Sep 2015 13:11:55 +0200
 Subject: [PATCH] Remove installation of pm-utils
@@ -14,10 +14,10 @@ Change-Id: Ib5f2ee9b4ab58a32fd5f8c4ad514223795bd5225
  2 files changed, 8 deletions(-)
 
 diff --git a/nova/manifests/compute.pp b/nova/manifests/compute.pp
-index a1901e9..2e9432c 100644
+index 8417d4a..81400b7 100644
 --- a/nova/manifests/compute.pp
 +++ b/nova/manifests/compute.pp
-@@ -212,10 +212,6 @@ class nova::compute (
+@@ -219,10 +219,6 @@ class nova::compute (
      }
    }
  
@@ -29,10 +29,10 @@ index a1901e9..2e9432c 100644
      'DEFAULT/force_raw_images': value => $force_raw_images;
    }
 diff --git a/nova/spec/classes/nova_compute_spec.rb b/nova/spec/classes/nova_compute_spec.rb
-index 89e0d3b..0d01846 100644
+index ecea146..f0cd54b 100644
 --- a/nova/spec/classes/nova_compute_spec.rb
 +++ b/nova/spec/classes/nova_compute_spec.rb
-@@ -32,10 +32,6 @@ describe 'nova::compute' do
+@@ -34,10 +34,6 @@ describe 'nova::compute' do
          :before => 'Nova::Generic_service[compute]'
        ) }
  
