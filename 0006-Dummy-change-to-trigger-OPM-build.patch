@@ -1,4 +1,4 @@
-From c8c1d2bf34d140a732ed112b87f8fceaf4d1af55 Mon Sep 17 00:00:00 2001
+From 9dd0fed389ef306fa3dfffb50aa0619a50d28210 Mon Sep 17 00:00:00 2001
 From: Alan Pevec <alan.pevec@redhat.com>
 Date: Tue, 12 Jan 2016 23:18:38 +0100
 Subject: [PATCH] Dummy change to trigger OPM build

@@ -1,4 +1,4 @@
-From 0e543ac80782fa140fd4ca7fc5c8dacebac34b8b Mon Sep 17 00:00:00 2001
+From 58adc04dab01b250e293bfd896e2ba6a85938177 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Tue, 8 Sep 2015 14:10:29 +0200
 Subject: [PATCH] Remove trove ubuntu package hack

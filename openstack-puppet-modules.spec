@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Epoch:          1
-Version:        7.0.6
+Version:        7.0.7
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -12,16 +12,12 @@ URL:            https://github.com/redhat-openstack
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
 
 Patch0001: 0001-Change-default-documentation-URL.patch
-Patch0002: 0002-Fix-support-for-puppet-4.patch
-Patch0003: 0003-Rabbitmq-set-repos_ensure-to-false.patch
-Patch0004: 0004-Setup-SELinux-booleans-if-running-in-httpd.patch
-Patch0005: 0005-Remove-trove-ubuntu-package-hack.patch
-Patch0006: 0006-Remove-installation-of-pm-utils.patch
-Patch0007: 0007-Switch-id-setters-to-openstack-client.patch
-Patch0008: 0008-Dummy-change-to-trigger-OPM-build.patch
-Patch0009: 0009-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-N.patch
-Patch0010: 0010-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-K.patch
-Patch0011: 0011-Fix-vs_port-usage-in-Red-Hat-distros.patch
+Patch0002: 0002-Rabbitmq-set-repos_ensure-to-false.patch
+Patch0003: 0003-Setup-SELinux-booleans-if-running-in-httpd.patch
+Patch0004: 0004-Remove-trove-ubuntu-package-hack.patch
+Patch0005: 0005-Remove-installation-of-pm-utils.patch
+Patch0006: 0006-Dummy-change-to-trigger-OPM-build.patch
+Patch0007: 0007-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-N.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -41,10 +37,6 @@ OpenStack via installers using Puppet configuration tool.
 %patch0005 -p1
 %patch0006 -p1
 %patch0007 -p1
-%patch0008 -p1
-%patch0009 -p1
-%patch0010 -p1
-%patch0011 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -70,6 +62,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon Feb 22 2016 Alan Pevec <alan.pevec@redhat.com> 1:7.0.7-1
+- Update to 7.0.7
+
 * Thu Feb 04 2016 Lukas Bezdicka <lbezdick@redhat.com> 1:7.0.6-1
 - Update to upstream 7.0.6
 
