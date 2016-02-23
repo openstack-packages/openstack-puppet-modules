@@ -1,4 +1,4 @@
-From 095fda822669faed5549ff4490082d6e70af962c Mon Sep 17 00:00:00 2001
+From 846c0d9b1bd3529527367f1a5deb0746d689d6f0 Mon Sep 17 00:00:00 2001
 From: Javier Pena <jpena@redhat.com>
 Date: Wed, 2 Dec 2015 14:23:25 +0100
 Subject: [PATCH] Follow-up on PyMySQL support for Red Hat platforms (Nova).

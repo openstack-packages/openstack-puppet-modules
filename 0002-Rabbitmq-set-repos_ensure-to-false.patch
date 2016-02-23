@@ -1,4 +1,4 @@
-From 9e5a23f9578923a980edd917510ee9526bee65ae Mon Sep 17 00:00:00 2001
+From 7702cf3c09efbfc6c71d88499b8105bdb5ae8c67 Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Wed, 17 Jun 2015 14:38:23 +0200
 Subject: [PATCH] [Rabbitmq] set repos_ensure to false

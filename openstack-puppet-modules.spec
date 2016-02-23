@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Epoch:          1
-Version:        7.0.7
+Version:        7.0.9
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -13,11 +13,9 @@ Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.t
 
 Patch0001: 0001-Change-default-documentation-URL.patch
 Patch0002: 0002-Rabbitmq-set-repos_ensure-to-false.patch
-Patch0003: 0003-Setup-SELinux-booleans-if-running-in-httpd.patch
-Patch0004: 0004-Remove-trove-ubuntu-package-hack.patch
-Patch0005: 0005-Remove-installation-of-pm-utils.patch
-Patch0006: 0006-Dummy-change-to-trigger-OPM-build.patch
-Patch0007: 0007-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-N.patch
+Patch0003: 0003-Remove-trove-ubuntu-package-hack.patch
+Patch0004: 0004-Remove-installation-of-pm-utils.patch
+Patch0005: 0005-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-N.patch
 
 BuildArch:      noarch
 Requires:       rubygem-json
@@ -35,8 +33,6 @@ OpenStack via installers using Puppet configuration tool.
 %patch0003 -p1
 %patch0004 -p1
 %patch0005 -p1
-%patch0006 -p1
-%patch0007 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
@@ -62,6 +58,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Tue Feb 23 2016 Jason Guiditta <jguiditt@redhat.com> 1:7.0.9-1
+- Update to upstream 7.0.9
+
 * Mon Feb 22 2016 Alan Pevec <alan.pevec@redhat.com> 1:7.0.7-1
 - Update to 7.0.7
 

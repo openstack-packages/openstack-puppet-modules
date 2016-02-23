@@ -1,4 +1,4 @@
-From a65d670ab32bba394c6b8bcb7f4ac5422525ced2 Mon Sep 17 00:00:00 2001
+From e900d6960208ca5496d4d43b7eff7c92c3a2a7ff Mon Sep 17 00:00:00 2001
 From: Lukas Bezdicka <lbezdick@redhat.com>
 Date: Thu, 10 Sep 2015 13:11:55 +0200
 Subject: [PATCH] Remove installation of pm-utils
