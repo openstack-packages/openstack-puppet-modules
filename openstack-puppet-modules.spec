@@ -11,12 +11,6 @@ URL:            https://github.com/redhat-openstack
 # timestamp 2015-10-09 03:14 UTC
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
 
-Patch0001: 0001-Change-default-documentation-URL.patch
-Patch0002: 0002-Rabbitmq-set-repos_ensure-to-false.patch
-Patch0003: 0003-Remove-trove-ubuntu-package-hack.patch
-Patch0004: 0004-Remove-installation-of-pm-utils.patch
-Patch0005: 0005-Follow-up-on-PyMySQL-support-for-Red-Hat-platforms-N.patch
-
 BuildArch:      noarch
 Requires:       rubygem-json
 
@@ -27,12 +21,6 @@ OpenStack via installers using Puppet configuration tool.
 
 %prep
 %setup -q -n %{name}-%{version}
-
-%patch0001 -p1
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-%patch0005 -p1
 
 find . -type f -name ".*" -exec rm {} +
 find . -size 0 -exec rm {} +
