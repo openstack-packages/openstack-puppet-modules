@@ -1,6 +1,6 @@
 Name:           openstack-puppet-modules
 Epoch:          1
-Version:        7.0.9
+Version:        7.0.11
 Release:        1%{?dist}
 Summary:        Collection of Puppet modules for OpenStack deployment
 License:        ASL 2.0 and GPLv2 and GPLv3
@@ -58,6 +58,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
+* Mon Feb 29 2016 Jason Guiditta <jguiditt@redhat.com> 1:7.0.11-1
+- Update to upstream 7.0.11
+
 * Tue Feb 23 2016 Jason Guiditta <jguiditt@redhat.com> 1:7.0.9-1
 - Update to upstream 7.0.9
 
