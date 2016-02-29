@@ -7,8 +7,6 @@ License:        ASL 2.0 and GPLv2 and GPLv3
 
 URL:            https://github.com/redhat-openstack
 
-# 2015.2.0 https://github.com/redhat-openstack/openstack-puppet-modules/commit/bf329c9115ea08c3f1cfc254fba058777fedd3c4
-# timestamp 2015-10-09 03:14 UTC
 Source0:        https://github.com/redhat-openstack/%{name}/archive/%{version}.tar.gz
 
 BuildArch:      noarch
