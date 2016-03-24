@@ -1,11 +1,9 @@
-%global milestone .0rc1
-
 %{!?upstream_version: %global upstream_version %{version}%{?milestone}}
 
 Name:           openstack-puppet-modules
 Epoch:          1
 Version:        8.0.0
-Release:        0.1%{?milestone}%{?dist}
+Release:        1%{?milestone}%{?dist}
 Summary:        Puppet modules used to deploy OpenStack
 License:        ASL 2.0 and GPLv2 and GPLv3
 
@@ -46,6 +44,9 @@ rm -f %{buildroot}/%{_datadir}/openstack-puppet/modules/nova/files/nova-novncpro
 
 
 %changelog
-* Thu Mar 24 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 1:8.0.0-0.1.0rc1%{?dist}
+* Tue Apr  5 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 1:8.0.0-1
+- Update to 8.0.0
+
+* Thu Mar 24 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 1:8.0.0-0.1.0rc1
 - Upstream 8.0.0.0rc1
 
